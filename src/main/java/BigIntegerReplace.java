@@ -5,15 +5,18 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-public class BigIntegerReplace {
+public final class BigIntegerReplace {
 
-    public static void main(String[] args) throws IOException {
-        int vaSya_PetYa_DIma = 1;
-        CompilationUnit cu = JavaParser.parse(IOUtils.resourceToString("/Foo.before.java", Charset.defaultCharset()));
+
+    public static void main(final String[] args) throws IOException {
+        String filename = "/Foo.before.java";
+        Charset charset = Charset.defaultCharset();
+        String resourceString = IOUtils.resourceToString(filename, charset);
+        CompilationUnit cu = JavaParser.parse(resourceString);
         System.out.println(transform(cu));
     }
 
-    public static String transform(CompilationUnit compilationUnit){
+    public static String transform(final CompilationUnit compilationUnit) {
         return compilationUnit.toString();
     }
 }
