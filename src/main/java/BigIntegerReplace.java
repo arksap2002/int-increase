@@ -8,8 +8,9 @@ import java.nio.charset.Charset;
 public class BigIntegerReplace {
 
     public static void main(String[] args) throws IOException {
-        CompilationUnit compilationUnit = JavaParser.parse(IOUtils.resourceToString("/Foo.before.java", Charset.defaultCharset()));
-        System.out.println(transform(compilationUnit));
+        int vaSya_PetYa_DIma = 1;
+        CompilationUnit cu = JavaParser.parse(IOUtils.resourceToString("/Foo.before.java", Charset.defaultCharset()));
+        System.out.println(transform(cu));
     }
 
     public static String transform(CompilationUnit compilationUnit){
