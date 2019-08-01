@@ -7,7 +7,9 @@ import java.nio.charset.Charset;
 
 public final class BigIntegerReplace {
 
-
+    private BigIntegerReplace() {
+        //not called
+    }
     public static void main(final String[] args) throws IOException {
         String filename = "/Foo.before.java";
         Charset charset = Charset.defaultCharset();
