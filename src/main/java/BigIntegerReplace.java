@@ -10,15 +10,16 @@ public final class BigIntegerReplace {
     private BigIntegerReplace() {
         //not called
     }
+
     public static void main(final String[] args) throws IOException {
         String filename = "/Foo.before.java";
+        System.out.println(transform("/Foo.before.java"));
+    }
+
+    public static String transform(final String filename) throws IOException {
         Charset charset = Charset.defaultCharset();
         String resourceString = IOUtils.resourceToString(filename, charset);
         CompilationUnit cu = JavaParser.parse(resourceString);
-        System.out.println(transform(cu));
-    }
-
-    public static String transform(final CompilationUnit compilationUnit) {
-        return compilationUnit.toString();
+        return cu.toString();
     }
 }

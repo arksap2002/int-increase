@@ -10,11 +10,15 @@ import static org.junit.Assert.*;
 
 public class BigIntegerReplaceTest {
 
+
+    public void runTestOnFile(final String filename, final Object object) throws IOException {
+        assertEquals(IOUtils.resourceToString(filename, Charset.defaultCharset()), object);
+    }
+
     @Test
     public void transform() throws IOException {
         String filename = "/Foo.before.java";
-        CompilationUnit cu = JavaParser.parse(IOUtils.resourceToString(filename, Charset.defaultCharset()));
-        String string = BigIntegerReplace.transform(JavaParser.parse(String.valueOf(cu)));
-        assertEquals(IOUtils.resourceToString("/Foo.after.java", Charset.defaultCharset()), string);
+        String string = BigIntegerReplace.transform(filename);
+        runTestOnFile("/Foo.after.java", string);
     }
 }
