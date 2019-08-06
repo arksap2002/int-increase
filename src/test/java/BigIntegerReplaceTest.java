@@ -10,10 +10,9 @@ public class BigIntegerReplaceTest {
 
 
     @Test
-    public void transform() throws IOException {
-        String filename = "/Foo.before.java";
+    public void testTransform() throws IOException {
         Charset charset = Charset.defaultCharset();
-        String string = IOUtils.resourceToString(filename, charset);
-        assertEquals(IOUtils.resourceToString("/Foo.after.java", Charset.defaultCharset()), string);
+        String stringOutput = IOUtils.resourceToString("/Foo.before.java", charset);
+        assertEquals(IOUtils.resourceToString("/Foo.after.java", charset), stringOutput);
     }
 }
