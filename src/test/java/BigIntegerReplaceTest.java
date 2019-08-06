@@ -18,7 +18,8 @@ public class BigIntegerReplaceTest {
     @Test
     public void transform() throws IOException {
         String filename = "/Foo.before.java";
-        String string = BigIntegerReplace.transform(filename);
+        Charset charset = Charset.defaultCharset();
+        String string = IOUtils.resourceToString(filename, charset);
         runTestOnFile("/Foo.after.java", string);
     }
 }
