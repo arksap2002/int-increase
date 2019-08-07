@@ -1,7 +1,6 @@
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 
-import java.io.File;
 import java.io.IOException;
 
 public final class BigIntegerReplace {
