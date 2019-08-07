@@ -1,5 +1,3 @@
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.CompilationUnit;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -10,15 +8,10 @@ import static org.junit.Assert.*;
 
 public class BigIntegerReplaceTest {
 
-
-    public void runTestOnFile(final String filename, final Object object) throws IOException {
-        assertEquals(IOUtils.resourceToString(filename, Charset.defaultCharset()), object);
-    }
-
     @Test
-    public void transform() throws IOException {
-        String filename = "/Foo.before.java";
-        String string = BigIntegerReplace.transform(filename);
-        runTestOnFile("/Foo.after.java", string);
+    public void testTransform() throws IOException {
+        BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
+        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString("/Foo.before.java", Charset.defaultCharset()));
+        assertEquals(IOUtils.resourceToString("/Foo.after.java", Charset.defaultCharset()), gotOutput);
     }
 }
