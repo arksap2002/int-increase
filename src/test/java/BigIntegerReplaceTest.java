@@ -8,11 +8,10 @@ import static org.junit.Assert.*;
 
 public class BigIntegerReplaceTest {
 
-
     @Test
     public void testTransform() throws IOException {
-        Charset charset = Charset.defaultCharset();
-        String stringOutput = IOUtils.resourceToString("/Foo.before.java", charset);
-        assertEquals(IOUtils.resourceToString("/Foo.after.java", charset), stringOutput);
+        BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
+        String expectedOutput = bigIntegerReplace.transform(IOUtils.resourceToString("/Foo.before.java", Charset.defaultCharset()));
+        assertEquals(IOUtils.resourceToString("/Foo.after.java", Charset.defaultCharset()), expectedOutput);
     }
 }
