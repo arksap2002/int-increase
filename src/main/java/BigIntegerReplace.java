@@ -1,7 +1,6 @@
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -37,25 +36,26 @@ public final class BigIntegerReplace {
             if (n.getType().isPrimitiveType()) {
                 if (n.getType().asPrimitiveType().equals(
                         PrimitiveType.intType())) {
-                    ClassOrInterfaceType classOrInterfaceType =
+                    ClassOrInterfaceType classOrInterfaceType1 =
+                            new ClassOrInterfaceType();
+                    ClassOrInterfaceType classOrInterfaceType2 =
+                            new ClassOrInterfaceType();
+                    ClassOrInterfaceType classOrInterfaceType3 =
                             new ClassOrInterfaceType();
                     SimpleName simpleName = new SimpleName();
+                    simpleName.setIdentifier("java");
+                    classOrInterfaceType3.setName(simpleName);
+                    simpleName = new SimpleName();
+                    simpleName.setIdentifier("math");
+                    classOrInterfaceType2.setName(simpleName);
+                    classOrInterfaceType2.setScope(classOrInterfaceType3);
+                    simpleName = new SimpleName();
                     simpleName.setIdentifier("BigInteger");
-                    classOrInterfaceType.setName(simpleName);
-                    n.setType(classOrInterfaceType);
+                    classOrInterfaceType1.setName(simpleName);
+                    classOrInterfaceType1.setScope(classOrInterfaceType2);
+                    classOrInterfaceType1.setName(simpleName);
+                    n.setType(classOrInterfaceType1);
                 }
-            }
-        }
-
-        @Override
-        public void visit(
-                final MethodCallExpr n,
-                final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
-            if (n.getName().getIdentifier().equals("nextInt")) {
-                SimpleName simpleName = new SimpleName();
-                simpleName.setIdentifier("nextBigInteger");
-                n.setName(simpleName);
             }
         }
     }
