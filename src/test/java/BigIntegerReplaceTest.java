@@ -16,9 +16,9 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
-    public void testFirstTransform() throws IOException {
+    public void testReplaceVariableDeclarationType() throws IOException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
-        String gotOutput = bigIntegerReplace.firstTransform(IOUtils.resourceToString("/IntToBigInteger.before.java", Charset.defaultCharset()));
-        assertEquals(IOUtils.resourceToString("/IntToBigInteger.after.java", Charset.defaultCharset()), gotOutput);
+        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString("/OnlyTypeChanging.before.java", Charset.defaultCharset()));
+        assertEquals(IOUtils.resourceToString("/OnlyTypeChanging.after.java", Charset.defaultCharset()), gotOutput);
     }
 }

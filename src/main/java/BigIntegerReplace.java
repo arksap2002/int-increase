@@ -8,35 +8,27 @@ import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
-import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-
-import java.io.IOException;
 
 import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
 public final class BigIntegerReplace {
 
-    public String transform(final String string) throws IOException {
-        CompilationUnit cu = JavaParser.parse(string);
-        return cu.toString();
-    }
-
-    public String firstTransform(final String string) throws IOException {
+    public String transform(final String string) {
         CompilationUnit compilationUnit = JavaParser.parse(string);
-        TypeSolver typeSolver =
-                new CombinedTypeSolver(new ReflectionTypeSolver());
+        ReflectionTypeSolver reflectionTypeSolver =
+                new ReflectionTypeSolver();
         compilationUnit.setData(
                 SYMBOL_RESOLVER_KEY,
-                new JavaSymbolSolver(typeSolver));
+                new JavaSymbolSolver(reflectionTypeSolver));
         compilationUnit.accept(
-                new Finding(),
-                JavaParserFacade.get(typeSolver));
+                new TransformVisitor(),
+                JavaParserFacade.get(reflectionTypeSolver));
         return compilationUnit.toString();
     }
 
-    static class Finding extends VoidVisitorAdapter<JavaParserFacade> {
+    static class TransformVisitor
+            extends VoidVisitorAdapter<JavaParserFacade> {
         @Override
         public void visit(
                 final VariableDeclarator n,
