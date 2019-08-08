@@ -14,4 +14,11 @@ public class BigIntegerReplaceTest {
         String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString("/Foo.before.java", Charset.defaultCharset()));
         assertEquals(IOUtils.resourceToString("/Foo.after.java", Charset.defaultCharset()), gotOutput);
     }
+
+    @Test
+    public void testFirstTransform() throws IOException {
+        BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
+        String gotOutput = bigIntegerReplace.firstTransform(IOUtils.resourceToString("/IntToBigInteger.before.java", Charset.defaultCharset()));
+        assertEquals(IOUtils.resourceToString("/IntToBigInteger.after.java", Charset.defaultCharset()), gotOutput);
+    }
 }
