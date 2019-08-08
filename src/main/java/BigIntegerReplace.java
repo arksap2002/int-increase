@@ -24,19 +24,19 @@ public final class BigIntegerReplace {
     }
 
     public String firstTransform(final String string) throws IOException {
-        CompilationUnit compilationUnit = JavaParser.parse(string);
-        TypeSolver typeSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
-        compilationUnit.setData(SYMBOL_RESOLVER_KEY, new JavaSymbolSolver(typeSolver));
-        compilationUnit.accept(new Finding(), JavaParserFacade.get(typeSolver));
-        return compilationUnit.toString();
+        CompilationUnit cu = JavaParser.parse(string);
+        TypeSolver tS = new CombinedTypeSolver(new ReflectionTypeSolver());
+        cu.setData(SYMBOL_RESOLVER_KEY, new JavaSymbolSolver(tS));
+        cu.accept(new Finding(), JavaParserFacade.get(tS));
+        return cu.toString();
     }
 
     static class Finding extends VoidVisitorAdapter<JavaParserFacade> {
         @Override
-        public void visit(VariableDeclarator n, JavaParserFacade javaParserFacade) {
+        public void visit(final VariableDeclarator n, final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.getType().isPrimitiveType()){
-                if (n.getType().asPrimitiveType().equals(PrimitiveType.intType())){
+            if (n.getType().isPrimitiveType()) {
+                if (n.getType().asPrimitiveType().equals(PrimitiveType.intType())) {
                     ClassOrInterfaceType classOrInterfaceType = new ClassOrInterfaceType();
                     SimpleName simpleName = new SimpleName();
                     simpleName.setIdentifier("BigInteger");
@@ -45,10 +45,11 @@ public final class BigIntegerReplace {
                 }
             }
         }
+
         @Override
-        public void visit(MethodCallExpr n, JavaParserFacade javaParserFacade) {
+        public void visit(final MethodCallExpr n, final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.getName().getIdentifier().equals("nextInt")){
+            if (n.getName().getIdentifier().equals("nextInt")) {
                 SimpleName simpleName = new SimpleName();
                 simpleName.setIdentifier("nextBigInteger");
                 n.setName(simpleName);
