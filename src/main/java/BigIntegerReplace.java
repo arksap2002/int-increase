@@ -33,22 +33,22 @@ public final class BigIntegerReplace {
 
     static class Finding extends VoidVisitorAdapter<JavaParserFacade> {
         @Override
-        public void visit(final VariableDeclarator n, final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
+        public void visit(final VariableDeclarator n, final JavaParserFacade jpf) {
+            super.visit(n, jpf);
             if (n.getType().isPrimitiveType()) {
                 if (n.getType().asPrimitiveType().equals(PrimitiveType.intType())) {
-                    ClassOrInterfaceType classOrInterfaceType = new ClassOrInterfaceType();
+                    ClassOrInterfaceType coit = new ClassOrInterfaceType();
                     SimpleName simpleName = new SimpleName();
                     simpleName.setIdentifier("BigInteger");
-                    classOrInterfaceType.setName(simpleName);
-                    n.setType(classOrInterfaceType);
+                    coit.setName(simpleName);
+                    n.setType(coit);
                 }
             }
         }
 
         @Override
-        public void visit(final MethodCallExpr n, final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
+        public void visit(final MethodCallExpr n, final JavaParserFacade jpf) {
+            super.visit(n, jpf);
             if (n.getName().getIdentifier().equals("nextInt")) {
                 SimpleName simpleName = new SimpleName();
                 simpleName.setIdentifier("nextBigInteger");
