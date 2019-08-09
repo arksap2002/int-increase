@@ -8,19 +8,19 @@ import static org.junit.Assert.*;
 
 public class BigIntegerReplaceTest {
 
-    private void runTestFromFile(String string) throws IOException {
+    private void runTestFromFile(String filePrefix) throws IOException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
-        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString("/" + string + ".before.java", Charset.defaultCharset()));
-        assertEquals(IOUtils.resourceToString("/" + string + ".after.java", Charset.defaultCharset()), gotOutput);
+        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString(filePrefix + ".before.java", Charset.defaultCharset()));
+        assertEquals(IOUtils.resourceToString(filePrefix + ".after.java", Charset.defaultCharset()), gotOutput);
     }
 
     @Test
-    public void testTransform() throws IOException {
-        runTestFromFile("Foo");
+    public void testNothingChanges() throws IOException {
+        runTestFromFile("/NothingChanges");
     }
 
     @Test
     public void testReplaceVariableDeclarationType() throws IOException {
-        runTestFromFile("OnlyTypeChanging");
+        runTestFromFile("/ReplaceVariableDeclarationType");
     }
 }

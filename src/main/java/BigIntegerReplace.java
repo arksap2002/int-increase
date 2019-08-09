@@ -36,24 +36,18 @@ public final class BigIntegerReplace {
             if (n.getType().isPrimitiveType()) {
                 if (n.getType().asPrimitiveType().equals(
                         PrimitiveType.intType())) {
-                    ClassOrInterfaceType classOrInterfaceType1 =
-                            new ClassOrInterfaceType();
-                    ClassOrInterfaceType classOrInterfaceType2 =
-                            new ClassOrInterfaceType();
                     ClassOrInterfaceType classOrInterfaceType3 =
                             new ClassOrInterfaceType();
-                    SimpleName simpleName = new SimpleName();
-                    simpleName.setIdentifier("java");
+                    SimpleName simpleName = new SimpleName("java");
                     classOrInterfaceType3.setName(simpleName);
-                    simpleName = new SimpleName();
-                    simpleName.setIdentifier("math");
-                    classOrInterfaceType2.setName(simpleName);
-                    classOrInterfaceType2.setScope(classOrInterfaceType3);
-                    simpleName = new SimpleName();
-                    simpleName.setIdentifier("BigInteger");
-                    classOrInterfaceType1.setName(simpleName);
-                    classOrInterfaceType1.setScope(classOrInterfaceType2);
-                    classOrInterfaceType1.setName(simpleName);
+                    simpleName = new SimpleName("math");
+                    ClassOrInterfaceType classOrInterfaceType2 =
+                            new ClassOrInterfaceType(classOrInterfaceType3,
+                                    simpleName.asString());
+                    simpleName = new SimpleName("BigInteger");
+                    ClassOrInterfaceType classOrInterfaceType1 =
+                            new ClassOrInterfaceType(classOrInterfaceType2,
+                                    simpleName.asString());
                     n.setType(classOrInterfaceType1);
                 }
             }
