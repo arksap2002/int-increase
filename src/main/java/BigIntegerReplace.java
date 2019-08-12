@@ -38,16 +38,13 @@ public final class BigIntegerReplace {
                         PrimitiveType.intType())) {
                     ClassOrInterfaceType classOrInterfaceType3 =
                             new ClassOrInterfaceType();
-                    SimpleName simpleName = new SimpleName("java");
-                    classOrInterfaceType3.setName(simpleName);
-                    simpleName = new SimpleName("math");
+                    classOrInterfaceType3.setName(new SimpleName("java"));
                     ClassOrInterfaceType classOrInterfaceType2 =
                             new ClassOrInterfaceType(classOrInterfaceType3,
-                                    simpleName.asString());
-                    simpleName = new SimpleName("BigInteger");
+                                    "math");
                     ClassOrInterfaceType classOrInterfaceType1 =
                             new ClassOrInterfaceType(classOrInterfaceType2,
-                                    simpleName.asString());
+                                    "BigInteger");
                     n.setType(classOrInterfaceType1);
                 }
             }

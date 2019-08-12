@@ -1,4 +1,4 @@
-public class Int1 {
+public class ReplaceVariableDeclarationType {
 
     int a, k, l, m, n = 10;
 
