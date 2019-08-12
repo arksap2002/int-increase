@@ -1,7 +1,6 @@
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -37,8 +36,7 @@ public final class BigIntegerReplace {
                 if (n.getType().asPrimitiveType().equals(
                         PrimitiveType.intType())) {
                     ClassOrInterfaceType classOrInterfaceType3 =
-                            new ClassOrInterfaceType();
-                    classOrInterfaceType3.setName(new SimpleName("java"));
+                            new ClassOrInterfaceType("java");
                     ClassOrInterfaceType classOrInterfaceType2 =
                             new ClassOrInterfaceType(classOrInterfaceType3,
                                     "math");
