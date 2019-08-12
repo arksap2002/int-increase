@@ -1,6 +1,6 @@
 public class ReplaceVariableDeclarationType {
 
-    int a, k, l, m, n = 10;
+    int a = 1, k = 2, l = 5, m = 100, n = 10;
 
     long b = 1;
 
