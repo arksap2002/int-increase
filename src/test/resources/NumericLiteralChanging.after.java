@@ -1,5 +1,3 @@
-import java.math.BigInteger;
-
 public class NothingChanges {
 
     int e = BigInteger.valueOf(20);
