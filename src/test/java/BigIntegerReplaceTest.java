@@ -18,4 +18,9 @@ public class BigIntegerReplaceTest {
     public void testNothingChanges() throws IOException {
         runTestFromFile("/NothingChanges");
     }
+
+    @Test
+    public void testScannerChanges() throws IOException {
+        runTestFromFile("/ScannerChanges");
+    }
 }
