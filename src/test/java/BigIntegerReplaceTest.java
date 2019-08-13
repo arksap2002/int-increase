@@ -8,10 +8,14 @@ import static org.junit.Assert.*;
 
 public class BigIntegerReplaceTest {
 
-    @Test
-    public void testTransform() throws IOException {
+    private void runTestFromFile(String filePrefix) throws IOException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
-        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString("/NothingChanges.before.java", Charset.defaultCharset()));
-        assertEquals(IOUtils.resourceToString("/NothingChanges.after.java", Charset.defaultCharset()), gotOutput);
+        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString(filePrefix + ".before.java", Charset.defaultCharset()));
+        assertEquals(IOUtils.resourceToString(filePrefix + ".after.java", Charset.defaultCharset()), gotOutput);
+    }
+
+    @Test
+    public void testNothingChanges() throws IOException {
+        runTestFromFile("/NothingChanges");
     }
 }
