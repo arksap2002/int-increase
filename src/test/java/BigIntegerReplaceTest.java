@@ -11,7 +11,7 @@ public class BigIntegerReplaceTest {
     @Test
     public void testTransform() throws IOException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
-        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString("/Foo.before.java", Charset.defaultCharset()));
-        assertEquals(IOUtils.resourceToString("/Foo.after.java", Charset.defaultCharset()), gotOutput);
+        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString("/NothingChanges.before.java", Charset.defaultCharset()));
+        assertEquals(IOUtils.resourceToString("/NothingChanges.after.java", Charset.defaultCharset()), gotOutput);
     }
 }
