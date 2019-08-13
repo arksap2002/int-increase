@@ -1,6 +1,13 @@
+import java.util.Scanner;
+
 public class ScannerChanges {
 
     public static void main(String[] args) {
-        System.out.println("Hello, world!");
+        Scanner scanner = new Scanner(System.in);
+        java.math.BigInteger a = scanner.nextBigInteger();
+        int a = scanner.nextInt();
+        String a = scanner.nextLine();
+        double a = scanner.nextDouble();
+        long a = scanner.nextLong();
     }
 }

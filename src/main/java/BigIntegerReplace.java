@@ -31,7 +31,7 @@ public final class BigIntegerReplace {
                 final MethodCallExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.getName().getIdentifier().equals("nextInt")) {
+            if ((n.getName().getIdentifier().equals("nextInt"))) {
                 SimpleName simpleName = new SimpleName();
                 simpleName.setIdentifier("nextBigInteger");
                 n.setName(simpleName);
