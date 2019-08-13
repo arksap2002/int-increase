@@ -15,7 +15,7 @@ import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
 public final class BigIntegerReplace {
 
-    public static ArrayList<String> scannerList = new ArrayList<>();
+    private static ArrayList<String> scannerList = new ArrayList<>();
 
     public String transform(final String string) {
         CompilationUnit compilationUnit = JavaParser.parse(string);
@@ -38,7 +38,8 @@ public final class BigIntegerReplace {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             for (String scannerName : scannerList) {
-                if ((n.getName().getIdentifier().equals("nextInt")) &&
+                if ((n.getName().getIdentifier().equals("nextInt"))
+                        &&
                         (n.getScope().get().asNameExpr().getName().toString().
                                 equals(scannerName))) {
                     SimpleName simpleName = new SimpleName();
@@ -49,10 +50,12 @@ public final class BigIntegerReplace {
         }
 
         @Override
-        public void visit(VariableDeclarator n,
-                          JavaParserFacade javaParserFacade) {
+        public void visit(
+                final VariableDeclarator n,
+                final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.getType().isClassOrInterfaceType() &&
+            if (n.getType().isClassOrInterfaceType()
+                    &&
                     n.getType().asClassOrInterfaceType().getName().toString().
                             equals("Scanner")) {
                 scannerList.add(n.getName().toString());
