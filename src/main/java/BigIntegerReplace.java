@@ -64,9 +64,12 @@ public final class BigIntegerReplace {
                                     new NameExpr("BigInteger"), "TEN"));
                         }
                         if (!flag) {
-                            MethodCallExpr methodCallExpr = new MethodCallExpr("valueOf");
-                            methodCallExpr.setArguments(new NodeList<>(new IntegerLiteralExpr(number)));
-                            methodCallExpr.setScope(new NameExpr("BigInteger"));
+                            MethodCallExpr methodCallExpr = new MethodCallExpr(
+                                    "valueOf");
+                            methodCallExpr.setArguments(new NodeList<>(
+                                    new IntegerLiteralExpr(number)));
+                            methodCallExpr.setScope(
+                                    new NameExpr("BigInteger"));
                             n.setInitializer(methodCallExpr);
                         }
                     }
@@ -74,8 +77,10 @@ public final class BigIntegerReplace {
                         int number = (-1) * n.getInitializer().get().
                                 asUnaryExpr().getExpression().
                                 asIntegerLiteralExpr().asInt();
-                        MethodCallExpr methodCallExpr = new MethodCallExpr("valueOf");
-                        methodCallExpr.setArguments(new NodeList<>(new IntegerLiteralExpr(number)));
+                        MethodCallExpr methodCallExpr = new MethodCallExpr(
+                                "valueOf");
+                        methodCallExpr.setArguments(new NodeList<>(
+                                new IntegerLiteralExpr(number)));
                         methodCallExpr.setScope(new NameExpr("BigInteger"));
                         n.setInitializer(methodCallExpr);
                     }
