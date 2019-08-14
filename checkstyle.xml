@@ -74,11 +74,7 @@
 
     <module name="TreeWalker">
 
-        <module name="SuppressionCommentFilter">
-            <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
-            <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)"/>
-            <property name="checkFormat" value="$1"/>
-        </module>
+        <module name="SuppressionCommentFilter"/>
 
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sourceforge.net/config_javadoc.html -->
