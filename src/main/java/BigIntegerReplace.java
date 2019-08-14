@@ -59,8 +59,8 @@ public final class BigIntegerReplace {
                             n.setInitializer(new FieldAccessExpr(
                                     new NameExpr("BigInteger"), "TWO"));
                         }
-                        if (number == 10) {
-                            flag = true;
+                        if (number == 10) { //CHECKSTYLE_OFF: ALMOST_ALL
+                            flag = true; //CHECKSTYLE_ON: ALMOST_ALL
                             n.setInitializer(new FieldAccessExpr(
                                     new NameExpr("BigInteger"), "TEN"));
                         }
