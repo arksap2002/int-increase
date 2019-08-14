@@ -3,13 +3,14 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
-
 
 import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
@@ -59,6 +60,18 @@ public final class BigIntegerReplace {
                     n.getType().asClassOrInterfaceType().getName().toString().
                             equals("Scanner")) {
                 scannerList.add(n.getName().toString());
+                final VariableDeclarator n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (n.getType().isPrimitiveType()) {
+                if (n.getType().asPrimitiveType().equals(
+                        PrimitiveType.intType())) {
+                    ClassOrInterfaceType classOrInterfaceType =
+                            new ClassOrInterfaceType(new ClassOrInterfaceType(
+                                    new ClassOrInterfaceType("java"),
+                                    "math"), "BigInteger");
+                    n.setType(classOrInterfaceType);
+                }
             }
         }
     }
