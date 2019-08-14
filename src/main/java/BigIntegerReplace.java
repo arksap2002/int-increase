@@ -6,6 +6,8 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -84,6 +86,11 @@ public final class BigIntegerReplace {
                         methodCallExpr.setScope(new NameExpr("BigInteger"));
                         n.setInitializer(methodCallExpr);
                     }
+                    ClassOrInterfaceType classOrInterfaceType =
+                            new ClassOrInterfaceType(new ClassOrInterfaceType(
+                                    new ClassOrInterfaceType("java"),
+                                    "math"), "BigInteger");
+                    n.setType(classOrInterfaceType);
                 }
             }
         }

@@ -23,4 +23,9 @@ public class BigIntegerReplaceTest {
     public void testNumericLiteralChanging() throws IOException {
         runTestFromFile("/NumericLiteralChanging");
     }
+  
+    @Test
+    public void testReplaceVariableDeclarationType() throws IOException {
+        runTestFromFile("/ReplaceVariableDeclarationType");
+    }
 }
