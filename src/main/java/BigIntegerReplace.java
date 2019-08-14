@@ -60,9 +60,7 @@ public final class BigIntegerReplace {
                     n.getType().asClassOrInterfaceType().getName().toString().
                             equals("Scanner")) {
                 scannerList.add(n.getName().toString());
-                final VariableDeclarator n,
-                final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
+            }
             if (n.getType().isPrimitiveType()) {
                 if (n.getType().asPrimitiveType().equals(
                         PrimitiveType.intType())) {
