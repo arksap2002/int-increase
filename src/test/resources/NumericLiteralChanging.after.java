@@ -1,8 +1,8 @@
 public class NothingChanges {
 
-    int e = BigInteger.valueOf(20);
+    java.math.BigInteger e = BigInteger.valueOf(20);
 
-    int f = BigInteger.TWO;
+    java.math.BigInteger f = BigInteger.TWO;
 
     long g = 200;
 
@@ -15,8 +15,8 @@ public class NothingChanges {
     java.math.BigInteger bigInteger3 = BigInteger.valueOf(300);
 
     public static void main(String[] args) {
-        int a = BigInteger.valueOf(-1);
-        int d = BigInteger.ONE;
+        java.math.BigInteger a = BigInteger.valueOf(-1);
+        java.math.BigInteger d = BigInteger.ONE;
         long b = 100;
         String string = "One";
         double c = 1.1;
