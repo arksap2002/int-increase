@@ -60,12 +60,14 @@ public final class BigIntegerReplace {
                             n.setInitializer(new FieldAccessExpr(
                                     new NameExpr("BigInteger"), "TWO"));
                         }
-                        if (number ==
-                                /*CHECKSTYLE_OFF: */10/*CHECKSTYLE_ON: */) {
+                        //CHECKSTYLE:OFF
+                        if (number == 10) {
+                            //CHECKSTYLE:ON
                             flag = true;
                             n.setInitializer(new FieldAccessExpr(
                                     new NameExpr("BigInteger"), "TEN"));
                         }
+                        //CHECKSTYLE:ON
                         if (!flag) {
                             MethodCallExpr methodCallExpr = new MethodCallExpr(
                                     "valueOf");
