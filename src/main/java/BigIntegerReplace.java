@@ -40,7 +40,8 @@ public final class BigIntegerReplace {
             if (n.getType().isPrimitiveType()) {
                 if (n.getType().asPrimitiveType().equals(
                         PrimitiveType.intType())) {
-                    if ((n.getInitializer().isPresent()) && (n.getInitializer().get().isIntegerLiteralExpr())) {
+                    if ((n.getInitializer().isPresent()) && (n.
+                            getInitializer().get().isIntegerLiteralExpr())) {
                         int number = n.getInitializer().get().
                                 asIntegerLiteralExpr().asInt();
                         boolean flag = false;
@@ -74,7 +75,8 @@ public final class BigIntegerReplace {
                             n.setInitializer(methodCallExpr);
                         }
                     }
-                    if ((n.getInitializer().isPresent()) && (n.getInitializer().get().isUnaryExpr())) {
+                    if ((n.getInitializer().isPresent()) && (n.
+                            getInitializer().get().isUnaryExpr())) {
                         int number = (-1) * n.getInitializer().get().
                                 asUnaryExpr().getExpression().
                                 asIntegerLiteralExpr().asInt();
