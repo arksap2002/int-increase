@@ -13,7 +13,7 @@ public class ScannerChanges {
 
     class Scanner {
 
-        private static void method (){
+        private static void method() {
             Scanner scanner = new Scanner(System.in);
             int f = scanner.nextInt();
         }
