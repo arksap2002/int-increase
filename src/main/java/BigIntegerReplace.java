@@ -42,22 +42,34 @@ public final class BigIntegerReplace {
             changingNextIntToNextBigInteger(n);
         }
 
-        private void changingNextIntToNextBigInteger(MethodCallExpr n) {
+        private void changingNextIntToNextBigInteger(final MethodCallExpr n) {
             if ((n.getName().getIdentifier().equals("nextInt"))) {
                 if (n.getScope().isPresent()) {
                     NameExpr nameExpr = n.getScope().get().asNameExpr();
-                    ResolvedValueDeclaration resolvedValueDeclaration = nameExpr.resolve();
-                    if (resolvedValueDeclaration instanceof JavaParserSymbolDeclaration) {
-                        VariableDeclarator variableDeclarator = (VariableDeclarator) ((JavaParserSymbolDeclaration) (resolvedValueDeclaration)).getWrappedNode();
-                        if (variableDeclarator.getType().toString().equals("Scanner")) {
+                    ResolvedValueDeclaration resolvedValueDeclaration =
+                            nameExpr.resolve();
+                    if (resolvedValueDeclaration instanceof
+                            JavaParserSymbolDeclaration) {
+                        VariableDeclarator variableDeclarator =
+                                (VariableDeclarator)
+                                        ((JavaParserSymbolDeclaration)
+                                                (resolvedValueDeclaration)).
+                                                getWrappedNode();
+                        if (variableDeclarator.getType().toString().
+                                equals("Scanner")) {
                             SimpleName simpleName = new SimpleName();
                             simpleName.setIdentifier("nextBigInteger");
                             n.setName(simpleName);
                         }
                     }
-                    if (resolvedValueDeclaration instanceof JavaParserFieldDeclaration) {
-                        FieldDeclaration fieldDeclaration = ((JavaParserFieldDeclaration) (resolvedValueDeclaration)).getWrappedNode();
-                        if (fieldDeclaration.getVariable(0).getType().toString().equals("Scanner")) {
+                    if (resolvedValueDeclaration instanceof
+                            JavaParserFieldDeclaration) {
+                        FieldDeclaration fieldDeclaration =
+                                ((JavaParserFieldDeclaration)
+                                        (resolvedValueDeclaration)).
+                                        getWrappedNode();
+                        if (fieldDeclaration.getVariable(0).getType().
+                                toString().equals("Scanner")) {
                             SimpleName simpleName = new SimpleName();
                             simpleName.setIdentifier("nextBigInteger");
                             n.setName(simpleName);
