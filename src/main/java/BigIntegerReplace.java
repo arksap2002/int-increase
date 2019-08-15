@@ -48,8 +48,8 @@ public final class BigIntegerReplace {
                     NameExpr nameExpr = n.getScope().get().asNameExpr();
                     ResolvedValueDeclaration resolvedValueDeclaration =
                             nameExpr.resolve();
-                    if (resolvedValueDeclaration instanceof
-                            JavaParserSymbolDeclaration) {
+                    if (resolvedValueDeclaration
+                            instanceof JavaParserSymbolDeclaration) {
                         VariableDeclarator variableDeclarator =
                                 (VariableDeclarator)
                                         ((JavaParserSymbolDeclaration)
@@ -62,8 +62,8 @@ public final class BigIntegerReplace {
                             n.setName(simpleName);
                         }
                     }
-                    if (resolvedValueDeclaration instanceof
-                            JavaParserFieldDeclaration) {
+                    if (resolvedValueDeclaration
+                            instanceof JavaParserFieldDeclaration) {
                         FieldDeclaration fieldDeclaration =
                                 ((JavaParserFieldDeclaration)
                                         (resolvedValueDeclaration)).
