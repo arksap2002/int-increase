@@ -2,7 +2,7 @@ public class NothingChanges {
 
     int e = 20;
 
-    int f = 2;
+    int f = 2 + 9 + 12;
 
     long g = 200;
 
@@ -13,6 +13,10 @@ public class NothingChanges {
     java.math.BigInteger bigInteger2 = BigInteger.TWO;
 
     java.math.BigInteger bigInteger3 = BigInteger.valueOf(300);
+
+    int j = 2 + f + bigInteger2;
+
+    java.math.BigInteger getBigInteger4 = -81 + bigInteger3 + e;
 
     public static void main(String[] args) {
         int a = -1;
