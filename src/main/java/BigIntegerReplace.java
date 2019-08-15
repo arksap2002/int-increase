@@ -55,7 +55,8 @@ public final class BigIntegerReplace {
                                         ((JavaParserSymbolDeclaration)
                                                 (resolvedValueDeclaration)).
                                                 getWrappedNode();
-                        System.out.println(variableDeclarator.getType().resolve());
+                        System.out.println(variableDeclarator.getType().
+                                resolve());
                         if (variableDeclarator.getType().toString().
                                 equals("Scanner")) {
                             SimpleName simpleName = new SimpleName();
