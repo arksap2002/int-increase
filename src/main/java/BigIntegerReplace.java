@@ -19,8 +19,6 @@ import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
 public final class BigIntegerReplace {
 
-    private static boolean flagBinaryExprSearch = false;
-
     public String transform(final String string) {
         CompilationUnit compilationUnit = JavaParser.parse(string);
         ReflectionTypeSolver reflectionTypeSolver =
@@ -48,22 +46,10 @@ public final class BigIntegerReplace {
                             asClassOrInterfaceType().getName().toString().
                             equals("BigInteger"))) {
                 if (n.getInitializer().isPresent()) {
-                    changingInitializerOfVariableDeclarator(n,
-                            javaParserFacade);
+                    changingInitializerOfVariableDeclarator(n);
                 }
             }
             changingType(n);
-        }
-
-        @Override
-        public void visit(
-                final BinaryExpr n,
-                final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
-            if (flagBinaryExprSearch) {
-                flagBinaryExprSearch = false;
-                binaryExprWorking(n);
-            }
         }
 
         private void binaryExprWorking(final BinaryExpr n) {
@@ -77,6 +63,9 @@ public final class BigIntegerReplace {
                         getExpression().asIntegerLiteralExpr().asInt();
                 n.setLeft(unaryExprToBigIntegerValueOf(number));
             }
+            if (n.getLeft().isNameExpr()) {
+
+            }
             // right
             if (n.getRight().isIntegerLiteralExpr()) {
                 int number = n.getRight().asIntegerLiteralExpr().asInt();
@@ -86,6 +75,9 @@ public final class BigIntegerReplace {
                 int number = (-1) * n.getRight().asUnaryExpr().
                         getExpression().asIntegerLiteralExpr().asInt();
                 n.setRight(unaryExprToBigIntegerValueOf(number));
+            }
+            if (n.getRight().isNameExpr()) {
+
             }
         }
 
@@ -101,8 +93,7 @@ public final class BigIntegerReplace {
         }
 
         private void changingInitializerOfVariableDeclarator(
-                final VariableDeclarator n,
-                final JavaParserFacade javaParserFacade) {
+                final VariableDeclarator n) {
             if (n.getInitializer().get().isIntegerLiteralExpr()) {
                 initializerIntegerLiteralExpr(n);
             }
@@ -115,14 +106,13 @@ public final class BigIntegerReplace {
                 binaryExprWorking(binaryExpr);
                 while (binaryExpr.getLeft().isBinaryExpr()
                         || binaryExpr.getRight().isBinaryExpr()) {
-                    flagBinaryExprSearch = true;
                     if (binaryExpr.getLeft().isBinaryExpr()) {
                         binaryExpr = binaryExpr.getLeft().asBinaryExpr();
-                        visit(binaryExpr, javaParserFacade);
+                        binaryExprWorking(binaryExpr);
                     }
                     if (binaryExpr.getRight().isBinaryExpr()) {
                         binaryExpr = binaryExpr.getRight().asBinaryExpr();
-                        visit(binaryExpr, javaParserFacade);
+                        binaryExprWorking(binaryExpr);
                     }
                 }
             }
