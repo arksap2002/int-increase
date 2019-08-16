@@ -2,12 +2,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.BinaryExpr;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -63,9 +58,6 @@ public final class BigIntegerReplace {
                         getExpression().asIntegerLiteralExpr().asInt();
                 n.setLeft(unaryExprToBigIntegerValueOf(number));
             }
-            if (n.getLeft().isNameExpr()) {
-
-            }
             // right
             if (n.getRight().isIntegerLiteralExpr()) {
                 int number = n.getRight().asIntegerLiteralExpr().asInt();
@@ -75,9 +67,6 @@ public final class BigIntegerReplace {
                 int number = (-1) * n.getRight().asUnaryExpr().
                         getExpression().asIntegerLiteralExpr().asInt();
                 n.setRight(unaryExprToBigIntegerValueOf(number));
-            }
-            if (n.getRight().isNameExpr()) {
-
             }
         }
 
