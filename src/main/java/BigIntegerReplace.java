@@ -2,7 +2,12 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -73,7 +78,7 @@ public final class BigIntegerReplace {
             }
         }
 
-        private void initializerBinaryExpr(VariableDeclarator n) {
+        private void initializerBinaryExpr(final VariableDeclarator n) {
             BinaryExpr binaryExpr = n.getInitializer().get().
                     asBinaryExpr();
             ArrayList<BinaryExpr> binaryExprs = new ArrayList<>();
