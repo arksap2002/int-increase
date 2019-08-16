@@ -2,7 +2,7 @@ public class NothingChanges {
 
     java.math.BigInteger e = BigInteger.valueOf(20);
 
-    java.math.BigInteger f = BigInteger.TWO + BigInteger.valueOf(9) + BigInteger.valueOf(12);
+    java.math.BigInteger f = BigInteger.TWO + BigInteger.valueOf(9) + BigInteger.valueOf(12) * BigInteger.valueOf(8) - BigInteger.valueOf(200) / BigInteger.valueOf(100);
 
     long g = 200;
 

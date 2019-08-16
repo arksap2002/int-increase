@@ -10,6 +10,8 @@ import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
+import java.util.ArrayList;
+
 import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
 public final class BigIntegerReplace {
@@ -47,29 +49,6 @@ public final class BigIntegerReplace {
             changingType(n);
         }
 
-        private void binaryExprWorking(final BinaryExpr n) {
-            // left
-            if (n.getLeft().isIntegerLiteralExpr()) {
-                int number = n.getLeft().asIntegerLiteralExpr().asInt();
-                n.setLeft(integerLiteralExprToBigIntegerValueOf(number));
-            }
-            if (n.getLeft().isUnaryExpr()) {
-                int number = (-1) * n.getLeft().asUnaryExpr().
-                        getExpression().asIntegerLiteralExpr().asInt();
-                n.setLeft(unaryExprToBigIntegerValueOf(number));
-            }
-            // right
-            if (n.getRight().isIntegerLiteralExpr()) {
-                int number = n.getRight().asIntegerLiteralExpr().asInt();
-                n.setRight(integerLiteralExprToBigIntegerValueOf(number));
-            }
-            if (n.getRight().isUnaryExpr()) {
-                int number = (-1) * n.getRight().asUnaryExpr().
-                        getExpression().asIntegerLiteralExpr().asInt();
-                n.setRight(unaryExprToBigIntegerValueOf(number));
-            }
-        }
-
         private void changingType(final VariableDeclarator n) {
             if (n.getType().isPrimitiveType() && n.getType().
                     asPrimitiveType().equals(PrimitiveType.intType())) {
@@ -90,20 +69,56 @@ public final class BigIntegerReplace {
                 initializerUnaryExpr(n);
             }
             if (n.getInitializer().get().isBinaryExpr()) {
-                BinaryExpr binaryExpr = n.getInitializer().get().
-                        asBinaryExpr();
-                binaryExprWorking(binaryExpr);
-                while (binaryExpr.getLeft().isBinaryExpr()
-                        || binaryExpr.getRight().isBinaryExpr()) {
-                    if (binaryExpr.getLeft().isBinaryExpr()) {
-                        binaryExpr = binaryExpr.getLeft().asBinaryExpr();
-                        binaryExprWorking(binaryExpr);
+                initializerBinaryExpr(n);
+            }
+        }
+
+        private void initializerBinaryExpr(VariableDeclarator n) {
+            BinaryExpr binaryExpr = n.getInitializer().get().
+                    asBinaryExpr();
+            ArrayList<BinaryExpr> binaryExprs = new ArrayList<>();
+            int index = 0;
+            binaryExprs.add(binaryExpr);
+            while (index < binaryExprs.size()) {
+                if (binaryExprs.get(index).getLeft().isBinaryExpr()) {
+                    binaryExprs.add(binaryExprs.get(index).getLeft().
+                            asBinaryExpr());
+                } else {
+                    if (binaryExprs.get(index).getLeft().
+                            isIntegerLiteralExpr()) {
+                        int number = binaryExprs.get(index).getLeft().
+                                asIntegerLiteralExpr().asInt();
+                        binaryExprs.get(index).setLeft(
+                                integerLiteralExprToBigIntegerValueOf(number));
                     }
-                    if (binaryExpr.getRight().isBinaryExpr()) {
-                        binaryExpr = binaryExpr.getRight().asBinaryExpr();
-                        binaryExprWorking(binaryExpr);
+                    if (binaryExprs.get(index).getLeft().isUnaryExpr()) {
+                        int number = (-1) * binaryExprs.get(index).getLeft().
+                                asUnaryExpr().
+                                getExpression().asIntegerLiteralExpr().asInt();
+                        binaryExprs.get(index).setLeft(
+                                unaryExprToBigIntegerValueOf(number));
                     }
                 }
+                if (binaryExprs.get(index).getRight().isBinaryExpr()) {
+                    binaryExprs.add(binaryExprs.get(index).getRight().
+                            asBinaryExpr());
+                } else {
+                    if (binaryExprs.get(index).getRight().
+                            isIntegerLiteralExpr()) {
+                        int number = binaryExprs.get(index).getRight().
+                                asIntegerLiteralExpr().asInt();
+                        binaryExprs.get(index).setRight(
+                                integerLiteralExprToBigIntegerValueOf(number));
+                    }
+                    if (binaryExprs.get(index).getRight().isUnaryExpr()) {
+                        int number = (-1) * binaryExprs.get(index).getRight().
+                                asUnaryExpr().
+                                getExpression().asIntegerLiteralExpr().asInt();
+                        binaryExprs.get(index).setRight(
+                                unaryExprToBigIntegerValueOf(number));
+                    }
+                }
+                index++;
             }
         }
 
