@@ -43,8 +43,8 @@ public final class BigIntegerReplace {
                 if (n.getScope().isPresent()) {
                     ResolvedMethodDeclaration resolvedMethodDeclaration =
                             n.resolve();
-                    if ((resolvedMethodDeclaration.getPackageName() + "." +
-                            resolvedMethodDeclaration.getClassName()).
+                    if ((resolvedMethodDeclaration.getPackageName() + "."
+                            + resolvedMethodDeclaration.getClassName()).
                             equals("java.util.Scanner")) {
                         SimpleName simpleName = new SimpleName();
                         simpleName.setIdentifier("nextBigInteger");
