@@ -56,14 +56,12 @@ public final class BigIntegerReplace {
             if (n.isIntegerLiteralExpr()) {
                 n.replace(createIntegerLiteralExpr(n.
                         asIntegerLiteralExpr().asInt()));
-            }
-            else if (n.isBinaryExpr()) {
+            } else if (n.isBinaryExpr()) {
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getLeft());
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getRight());
-            }
-            else if (n.isUnaryExpr()) {
+            } else if (n.isUnaryExpr()) {
                 changeInitializerOfVariableDeclarator(n.asUnaryExpr().
                         getExpression());
                 MethodCallExpr methodCallExpr = new MethodCallExpr(
