@@ -20,12 +20,17 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
-    public void testNumericLiteralChanging() throws IOException {
-        runTestFromFile("/NumericLiteralChanging");
+    public void testNumericLiteralChange() throws IOException {
+        runTestFromFile("/NumericLiteralChange");
     }
-  
+
     @Test
     public void testReplaceVariableDeclarationType() throws IOException {
+        runTestFromFile("/ReplaceVariableDeclarationType");
+    }
+
+    @Test
+    public void testUnaryChange() throws IOException {
         runTestFromFile("/ReplaceVariableDeclarationType");
     }
 }

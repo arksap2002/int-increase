@@ -1,4 +1,4 @@
-public class NothingChanges {
+public class NumericLiteralChange {
 
     int e = 20;
 
@@ -16,10 +16,9 @@ public class NothingChanges {
 
     int j = 2 + f + k;
 
-    int getBigInteger4 = -81 + bigInteger3 + e;
+    int getBigInteger4 = 81 + bigInteger3 + e;
 
     public static void main(String[] args) {
-        int a = -1;
         int d = 1;
         long b = 100;
         String string = "One";
