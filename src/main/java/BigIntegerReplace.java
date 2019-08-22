@@ -37,10 +37,10 @@ public final class BigIntegerReplace {
         public void visit(
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
             if (isInt(n)) {
+                super.visit(n, javaParserFacade);
                 if (n.getInitializer().isPresent()) {
-                    changingInitializerOfVariableDeclarator(n.getInitializer().
+                    changeInitializerOfVariableDeclarator(n.getInitializer().
                             get());
                 }
                 ClassOrInterfaceType classOrInterfaceType =
@@ -51,29 +51,28 @@ public final class BigIntegerReplace {
             }
         }
 
-        private void changingInitializerOfVariableDeclarator(
+        private void changeInitializerOfVariableDeclarator(
                 final Expression n) {
             if (n.isIntegerLiteralExpr()) {
-                n.replace(initializerIntegerLiteralExpr(n.
+                n.replace(createIntegerLiteralExpr(n.
                         asIntegerLiteralExpr().asInt()));
             }
-            if (n.isBinaryExpr()) {
-                changingInitializerOfVariableDeclarator(n.asBinaryExpr().
+            else if (n.isBinaryExpr()) {
+                changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getLeft());
-                changingInitializerOfVariableDeclarator(n.asBinaryExpr().
+                changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getRight());
             }
-            if (n.isUnaryExpr()) {
-                changingInitializerOfVariableDeclarator(n.asUnaryExpr().
+            else if (n.isUnaryExpr()) {
+                changeInitializerOfVariableDeclarator(n.asUnaryExpr().
                         getExpression());
-                MethodCallExpr methodCallExpr = new MethodCallExpr();
-                methodCallExpr.setScope(n.asUnaryExpr().getExpression());
-                methodCallExpr.setName("negative");
+                MethodCallExpr methodCallExpr = new MethodCallExpr(
+                        n.asUnaryExpr().getExpression(), "negative");
                 n.replace(methodCallExpr);
             }
         }
 
-        private Expression initializerIntegerLiteralExpr(
+        private Expression createIntegerLiteralExpr(
                 final int number) {
             if (number == 0) {
                 return new FieldAccessExpr(
