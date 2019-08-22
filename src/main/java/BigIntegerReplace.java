@@ -3,8 +3,9 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -64,9 +65,16 @@ public final class BigIntegerReplace {
             } else if (n.isUnaryExpr()) {
                 changeInitializerOfVariableDeclarator(n.asUnaryExpr().
                         getExpression());
-                MethodCallExpr methodCallExpr = new MethodCallExpr(
-                        n.asUnaryExpr().getExpression(), "negative");
-                n.replace(methodCallExpr);
+                if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                        Operator.MINUS)) {
+                    MethodCallExpr methodCallExpr = new MethodCallExpr(
+                            n.asUnaryExpr().getExpression(), "negative");
+                    n.replace(methodCallExpr);
+                } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                        Operator.PLUS)) {
+                    changeInitializerOfVariableDeclarator(n.asUnaryExpr().
+                            getExpression());
+                }
             }
         }
 
