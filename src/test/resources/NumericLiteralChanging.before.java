@@ -10,13 +10,13 @@ public class NothingChanges {
 
     double h = 2.2;
 
-    java.math.BigInteger bigInteger2 = BigInteger.TWO;
+    int k = 2;
 
     java.math.BigInteger bigInteger3 = BigInteger.valueOf(300);
 
-    java.math.BigInteger j = 2 + f + bigInteger2;
+    int j = 2 + f + k;
 
-    java.math.BigInteger getBigInteger4 = -81 + bigInteger3 + e;
+    int getBigInteger4 = -81 + bigInteger3 + e;
 
     public static void main(String[] args) {
         int a = -1;

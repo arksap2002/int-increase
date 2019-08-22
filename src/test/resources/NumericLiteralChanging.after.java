@@ -10,16 +10,16 @@ public class NothingChanges {
 
     double h = 2.2;
 
-    java.math.BigInteger bigInteger2 = BigInteger.TWO;
+    java.math.BigInteger k = BigInteger.TWO;
 
     java.math.BigInteger bigInteger3 = BigInteger.valueOf(300);
 
-    java.math.BigInteger j = BigInteger.TWO + f + bigInteger2;
+    java.math.BigInteger j = BigInteger.TWO + f + k;
 
-    java.math.BigInteger getBigInteger4 = BigInteger.valueOf(-1) * BigInteger.valueOf(81) + bigInteger3 + e;
+    java.math.BigInteger getBigInteger4 = BigInteger.valueOf(81).negative() + bigInteger3 + e;
 
     public static void main(String[] args) {
-        java.math.BigInteger a = BigInteger.valueOf(-1) * BigInteger.ONE;
+        java.math.BigInteger a = BigInteger.ONE.negative();
         java.math.BigInteger d = BigInteger.ONE;
         long b = 100;
         String string = "One";
