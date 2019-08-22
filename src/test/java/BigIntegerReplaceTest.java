@@ -31,6 +31,6 @@ public class BigIntegerReplaceTest {
 
     @Test
     public void testUnaryChange() throws IOException {
-        runTestFromFile("/ReplaceVariableDeclarationType");
+        runTestFromFile("/UnaryChange");
     }
 }
