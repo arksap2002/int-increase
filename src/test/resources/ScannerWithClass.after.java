@@ -1,4 +1,4 @@
-public class ScannerChanges1 {
+public class ScannerWithClass {
 
     public static void main(String[] args) {
         java.util.Scanner scanner = new java.util.Scanner(System.in);
@@ -9,6 +9,7 @@ public class ScannerChanges1 {
         String c = scanner.nextLine();
         double d = scanner.nextDouble();
         long e = scanner.nextLong();
+        java.math.BigInteger f = scanner1.nextInt();
     }
 
     static class Scanner {
@@ -20,6 +21,10 @@ public class ScannerChanges1 {
 
         private void printOne() {
             System.out.println(1);
+        }
+
+        private int nextInt() {
+            return 42;
         }
     }
 }
