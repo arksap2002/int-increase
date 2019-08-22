@@ -75,7 +75,7 @@ public final class BigIntegerReplace {
                  binExpr.setRight(n.asUnaryExpr().getExpression());
                  binExpr.setOperator(BinaryExpr.Operator.MULTIPLY);
                  n.replace(binExpr);
-                 changingInitializerOfVariableDeclarator(n);
+                 changingInitializerOfVariableDeclarator(binExpr);
              }
         }
 

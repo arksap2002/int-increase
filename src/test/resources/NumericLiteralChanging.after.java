@@ -16,10 +16,10 @@ public class NothingChanges {
 
     java.math.BigInteger j = BigInteger.TWO + f + bigInteger2;
 
-    java.math.BigInteger getBigInteger4 = BigInteger.valueOf(-81) + bigInteger3 + e;
+    java.math.BigInteger getBigInteger4 = BigInteger.valueOf(-1) * BigInteger.valueOf(81) + bigInteger3 + e;
 
     public static void main(String[] args) {
-        java.math.BigInteger a = BigInteger.valueOf(-1);
+        java.math.BigInteger a = BigInteger.valueOf(-1) * BigInteger.ONE;
         java.math.BigInteger d = BigInteger.ONE;
         long b = 100;
         String string = "One";
