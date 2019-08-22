@@ -39,16 +39,10 @@ public final class BigIntegerReplace {
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (isInt(n) || isBigInteger(n)) {
+            if (isInt(n)) {
                 if (n.getInitializer().isPresent()) {
                     changingInitializerOfVariableDeclarator(n.getInitializer().get());
                 }
-            }
-            changingType(n);
-        }
-
-        private void changingType(final VariableDeclarator n) {
-            if (isInt(n)) {
                 ClassOrInterfaceType classOrInterfaceType =
                         new ClassOrInterfaceType(new ClassOrInterfaceType(
                                 new ClassOrInterfaceType("java"),
@@ -69,14 +63,14 @@ public final class BigIntegerReplace {
                 changingInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getRight());
             }
-             if (n.isUnaryExpr()) {
-                 BinaryExpr binExpr = new BinaryExpr();
-                 binExpr.setLeft(new IntegerLiteralExpr(-1));
-                 binExpr.setRight(n.asUnaryExpr().getExpression());
-                 binExpr.setOperator(BinaryExpr.Operator.MULTIPLY);
-                 n.replace(binExpr);
-                 changingInitializerOfVariableDeclarator(binExpr);
-             }
+            if (n.isUnaryExpr()) {
+                BinaryExpr binExpr = new BinaryExpr();
+                binExpr.setLeft(new IntegerLiteralExpr(-1));
+                binExpr.setRight(n.asUnaryExpr().getExpression());
+                binExpr.setOperator(BinaryExpr.Operator.MULTIPLY);
+                n.replace(binExpr);
+                changingInitializerOfVariableDeclarator(binExpr);
+            }
         }
 
         private Expression initializerIntegerLiteralExpr(
@@ -104,12 +98,6 @@ public final class BigIntegerReplace {
             methodCallExpr.setScope(
                     new NameExpr("BigInteger"));
             return methodCallExpr;
-        }
-
-        private boolean isBigInteger(final VariableDeclarator n) {
-            return n.getType().isClassOrInterfaceType() && n.getType().
-                    asClassOrInterfaceType().getName().toString().
-                    equals("BigInteger");
         }
 
         private boolean isInt(final VariableDeclarator n) {
