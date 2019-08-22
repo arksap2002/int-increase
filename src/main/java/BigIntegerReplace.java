@@ -36,14 +36,12 @@ public final class BigIntegerReplace {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if ((n.getName().getIdentifier().equals("nextInt"))) {
-                if (n.getScope().isPresent()) {
-                    ResolvedMethodDeclaration resolvedMethodDeclaration =
-                            n.resolve();
-                    if (resolvedMethodDeclaration.getPackageName().
-                            equals("java.util") && resolvedMethodDeclaration.
-                            getClassName().equals("Scanner")) {
-                        n.setName(new SimpleName("nextBigInteger"));
-                    }
+                ResolvedMethodDeclaration resolvedMethodDeclaration =
+                        n.resolve();
+                if (resolvedMethodDeclaration.getPackageName().
+                        equals("java.util") && resolvedMethodDeclaration.
+                        getClassName().equals("Scanner")) {
+                    n.setName(new SimpleName("nextBigInteger"));
                 }
             }
         }
