@@ -41,7 +41,7 @@ public final class BigIntegerReplace {
             super.visit(n, javaParserFacade);
             if (isInt(n) || isBigInteger(n)) {
                 if (n.getInitializer().isPresent()) {
-                    changingInitializerOfVariableDeclarator(n);
+                    changingInitializerOfVariableDeclarator(n.getInitializer().get());
                 }
             }
             changingType(n);
@@ -58,60 +58,25 @@ public final class BigIntegerReplace {
         }
 
         private void changingInitializerOfVariableDeclarator(
-                final VariableDeclarator n) {
-            if (n.getInitializer().get().isIntegerLiteralExpr()) {
-                n.setInitializer(initializerIntegerLiteralExpr(n.
-                        getInitializer().get().
+                final Expression n) {
+            if (n.isIntegerLiteralExpr()) {
+                n.replace(initializerIntegerLiteralExpr(n.
                         asIntegerLiteralExpr().asInt()));
             }
-            if (n.getInitializer().get().isUnaryExpr()) {
-                n.setInitializer(initializerUnaryExpr(
-                        (-1) * n.getInitializer().get().
-                                asUnaryExpr().getExpression().
-                                asIntegerLiteralExpr().asInt()));
+            if (n.isBinaryExpr()) {
+                changingInitializerOfVariableDeclarator(n.asBinaryExpr().
+                        getLeft());
+                changingInitializerOfVariableDeclarator(n.asBinaryExpr().
+                        getRight());
             }
-            if (n.getInitializer().get().isBinaryExpr()) {
-                initializerBinaryExpr(n.getInitializer().get().
-                        asBinaryExpr());
-            }
-        }
-
-        private void initializerBinaryExpr(final BinaryExpr n) {
-            if (n.getLeft().isBinaryExpr()) {
-                initializerBinaryExpr(n.getLeft().asBinaryExpr());
-            } else {
-                if (n.getLeft().isIntegerLiteralExpr()) {
-                    int number = n.getLeft().asIntegerLiteralExpr().asInt();
-                    n.setLeft(initializerIntegerLiteralExpr(number));
-                }
-                if (n.getLeft().isUnaryExpr()) {
-                    int number = (-1) * n.getLeft().asUnaryExpr().
-                            getExpression().asIntegerLiteralExpr().asInt();
-                    n.setLeft(initializerUnaryExpr(number));
-                }
-            }
-            if (n.getRight().isBinaryExpr()) {
-                initializerBinaryExpr(n.getRight().asBinaryExpr());
-            } else {
-                if (n.getRight().isIntegerLiteralExpr()) {
-                    int number = n.getRight().asIntegerLiteralExpr().asInt();
-                    n.setRight(initializerIntegerLiteralExpr(number));
-                }
-                if (n.getRight().isUnaryExpr()) {
-                    int number = (-1) * n.getRight().asUnaryExpr().
-                            getExpression().asIntegerLiteralExpr().asInt();
-                    n.setRight(initializerUnaryExpr(number));
-                }
-            }
-        }
-
-        private Expression initializerUnaryExpr(final int number) {
-            MethodCallExpr methodCallExpr = new MethodCallExpr(
-                    "valueOf");
-            methodCallExpr.setArguments(new NodeList<>(
-                    new IntegerLiteralExpr(number)));
-            methodCallExpr.setScope(new NameExpr("BigInteger"));
-            return methodCallExpr;
+             if (n.isUnaryExpr()) {
+                 BinaryExpr binExpr = new BinaryExpr();
+                 binExpr.setLeft(new IntegerLiteralExpr(-1));
+                 binExpr.setRight(n.asUnaryExpr().getExpression());
+                 binExpr.setOperator(BinaryExpr.Operator.MULTIPLY);
+                 n.replace(binExpr);
+                 changingInitializerOfVariableDeclarator(n);
+             }
         }
 
         private Expression initializerIntegerLiteralExpr(
