@@ -40,7 +40,8 @@ public final class BigIntegerReplace {
             super.visit(n, javaParserFacade);
             if (isInt(n)) {
                 if (n.getInitializer().isPresent()) {
-                    changingInitializerOfVariableDeclarator(n.getInitializer().get());
+                    changingInitializerOfVariableDeclarator(n.getInitializer().
+                            get());
                 }
                 ClassOrInterfaceType classOrInterfaceType =
                         new ClassOrInterfaceType(new ClassOrInterfaceType(
