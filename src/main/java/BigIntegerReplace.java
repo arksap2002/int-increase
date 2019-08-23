@@ -89,7 +89,7 @@ public final class BigIntegerReplace {
             }
         }
 
-        private String operationOfBinaryExpr(BinaryExpr binaryExpr) {
+        private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
             if (binaryExpr.getOperator().equals(BinaryExpr.Operator.PLUS)) {
                 return "add";
             }
