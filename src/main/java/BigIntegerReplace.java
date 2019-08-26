@@ -37,17 +37,15 @@ public final class BigIntegerReplace {
         public void visit(
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
-            if (isInt(n)) {
+            if (n.getType().equals(PrimitiveType.intType())) {
                 super.visit(n, javaParserFacade);
                 if (n.getInitializer().isPresent()) {
                     changeInitializerOfVariableDeclarator(n.getInitializer().
                             get());
                 }
-                ClassOrInterfaceType classOrInterfaceType =
-                        new ClassOrInterfaceType(new ClassOrInterfaceType(
+                n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                                 new ClassOrInterfaceType("java"),
-                                "math"), "BigInteger");
-                n.setType(classOrInterfaceType);
+                                "math"), "BigInteger"));
             }
         }
 
@@ -70,30 +68,22 @@ public final class BigIntegerReplace {
                 return new FieldAccessExpr(
                         new NameExpr("BigInteger"), "ZERO");
             }
-            if (number == 1) {
+            else if (number == 1) {
                 return new FieldAccessExpr(
                         new NameExpr("BigInteger"), "ONE");
             }
-            if (number == 2) {
+            else if (number == 2) {
                 return new FieldAccessExpr(
                         new NameExpr("BigInteger"), "TWO");
             }
-            if (number == /*CHECKSTYLE:OFF*/10/*CHECKSTYLE:ON*/) {
+            else if (number == /*CHECKSTYLE:OFF*/10/*CHECKSTYLE:ON*/) {
                 return new FieldAccessExpr(
                         new NameExpr("BigInteger"), "TEN");
+            } else {
+                return new MethodCallExpr(
+                        new NameExpr("BigInteger"), "valueOf",
+                        new NodeList<>(new IntegerLiteralExpr(number)));
             }
-            MethodCallExpr methodCallExpr = new MethodCallExpr(
-                    "valueOf");
-            methodCallExpr.setArguments(new NodeList<>(
-                    new IntegerLiteralExpr(number)));
-            methodCallExpr.setScope(
-                    new NameExpr("BigInteger"));
-            return methodCallExpr;
-        }
-
-        private boolean isInt(final VariableDeclarator n) {
-            return n.getType().isPrimitiveType() && n.getType().
-                    asPrimitiveType().equals(PrimitiveType.intType());
         }
     }
 }
