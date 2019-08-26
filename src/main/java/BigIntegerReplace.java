@@ -44,8 +44,8 @@ public final class BigIntegerReplace {
                             get());
                 }
                 n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
-                                new ClassOrInterfaceType("java"),
-                                "math"), "BigInteger"));
+                        new ClassOrInterfaceType("java"),
+                        "math"), "BigInteger"));
             }
         }
 
@@ -67,16 +67,13 @@ public final class BigIntegerReplace {
             if (number == 0) {
                 return new FieldAccessExpr(
                         new NameExpr("BigInteger"), "ZERO");
-            }
-            else if (number == 1) {
+            } else if (number == 1) {
                 return new FieldAccessExpr(
                         new NameExpr("BigInteger"), "ONE");
-            }
-            else if (number == 2) {
+            } else if (number == 2) {
                 return new FieldAccessExpr(
                         new NameExpr("BigInteger"), "TWO");
-            }
-            else if (number == /*CHECKSTYLE:OFF*/10/*CHECKSTYLE:ON*/) {
+            } else if (number == /*CHECKSTYLE:OFF*/10/*CHECKSTYLE:ON*/) {
                 return new FieldAccessExpr(
                         new NameExpr("BigInteger"), "TEN");
             } else {
