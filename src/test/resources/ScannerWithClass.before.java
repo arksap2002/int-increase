@@ -17,6 +17,7 @@ public class ScannerWithClass {
         private void method() {
             java.util.Scanner scanner = new java.util.Scanner(System.in);
             int f = scanner.nextInt();
+            int g = this.nextInt();
         }
 
         private void printOne() {
