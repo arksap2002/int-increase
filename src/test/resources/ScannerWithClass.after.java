@@ -17,7 +17,7 @@ public class ScannerWithClass {
         private void method() {
             java.util.Scanner scanner = new java.util.Scanner(System.in);
             java.math.BigInteger f = scanner.nextBigInteger();
-            java.math.BigInteger g = this.nextInt();
+            java.math.BigInteger g = nextInt();
         }
 
         private void printOne() {
