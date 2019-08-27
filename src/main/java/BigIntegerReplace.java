@@ -31,7 +31,7 @@ public final class BigIntegerReplace {
         return compilationUnit.toString();
     }
 
-    static class TransformVisitor
+    class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
         @Override
         public void visit(
@@ -40,8 +40,12 @@ public final class BigIntegerReplace {
             if (n.getType().equals(PrimitiveType.intType())) {
                 super.visit(n, javaParserFacade);
                 if (n.getInitializer().isPresent()) {
-                    changeInitializerOfVariableDeclarator(n.getInitializer().
-                            get());
+                    try {
+                        changeInitializerOfVariableDeclarator(n.
+                                getInitializer().get());
+                    } catch (UnhandledObjectException e) {
+                        e.printStackTrace();
+                    }
                 }
                 n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                         new ClassOrInterfaceType("java"),
@@ -50,7 +54,8 @@ public final class BigIntegerReplace {
         }
 
         private void changeInitializerOfVariableDeclarator(
-                final Expression n) {
+                final Expression n) throws UnhandledObjectException {
+
             if (n.isIntegerLiteralExpr()) {
                 n.replace(createIntegerLiteralExpr(n.
                         asIntegerLiteralExpr().asInt()));
@@ -59,6 +64,9 @@ public final class BigIntegerReplace {
                         getLeft());
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getRight());
+            } else {
+                throw new UnhandledObjectException("Object " + n.toString()
+                        + " is unhandled");
             }
         }
 
@@ -81,6 +89,13 @@ public final class BigIntegerReplace {
                         new NameExpr("BigInteger"), "valueOf",
                         new NodeList<>(new IntegerLiteralExpr(number)));
             }
+        }
+    }
+
+    public class UnhandledObjectException extends Exception {
+
+        public UnhandledObjectException(String message) {
+            super(message);
         }
     }
 }
