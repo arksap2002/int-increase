@@ -94,7 +94,7 @@ public final class BigIntegerReplace {
 
     public class UnhandledObjectException extends Exception {
 
-        public UnhandledObjectException(String message) {
+        public UnhandledObjectException(final String message) {
             super(message);
         }
     }

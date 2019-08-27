@@ -14,9 +14,9 @@ public class NothingChanges {
 
     java.math.BigInteger bigInteger3 = BigInteger.valueOf(300);
 
-    java.math.BigInteger j = BigInteger.TWO + f + k;
+    java.math.BigInteger j = BigInteger.TWO;
 
-    java.math.BigInteger getBigInteger4 = BigInteger.valueOf(81) + bigInteger3 + e;
+    java.math.BigInteger getBigInteger4 = BigInteger.valueOf(81) + bigInteger3;
 
     public static void main(String[] args) {
         java.math.BigInteger d = BigInteger.ONE;
