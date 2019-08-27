@@ -1,8 +1,8 @@
 public class NothingChanges {
 
-    java.math.BigInteger e = BigInteger.valueOf(20);
+    java.math.BigInteger e = java.math.BigInteger.valueOf(20);
 
-    java.math.BigInteger f = BigInteger.TWO + BigInteger.valueOf(9) + BigInteger.valueOf(12) * BigInteger.valueOf(8) - BigInteger.valueOf(200) / BigInteger.valueOf(100);
+    java.math.BigInteger f = java.math.BigInteger.TWO + java.math.BigInteger.valueOf(9) + java.math.BigInteger.valueOf(12) * java.math.BigInteger.valueOf(8) - java.math.BigInteger.valueOf(200) / java.math.BigInteger.valueOf(100);
 
     long g = 200;
 
@@ -10,16 +10,16 @@ public class NothingChanges {
 
     double h = 2.2;
 
-    java.math.BigInteger k = BigInteger.TWO;
+    java.math.BigInteger k = java.math.BigInteger.TWO;
 
     java.math.BigInteger bigInteger3 = BigInteger.valueOf(300);
 
-    java.math.BigInteger j = BigInteger.TWO;
+    java.math.BigInteger j = java.math.BigInteger.TWO;
 
-    java.math.BigInteger getBigInteger4 = BigInteger.valueOf(81) + bigInteger3;
+    java.math.BigInteger getBigInteger4 = java.math.BigInteger.valueOf(81) + bigInteger3;
 
     public static void main(String[] args) {
-        java.math.BigInteger d = BigInteger.ONE;
+        java.math.BigInteger d = java.math.BigInteger.ONE;
         long b = 100;
         String string = "One";
         double c = 1.1;

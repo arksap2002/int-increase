@@ -72,21 +72,24 @@ public final class BigIntegerReplace {
 
         private Expression createIntegerLiteralExpr(
                 final int number) {
+            FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
+                    new FieldAccessExpr(
+                            new NameExpr("java"), "math"), "BigInteger");
             if (number == 0) {
                 return new FieldAccessExpr(
-                        new NameExpr("BigInteger"), "ZERO");
+                        fieldAccessExpr, "ZERO");
             } else if (number == 1) {
                 return new FieldAccessExpr(
-                        new NameExpr("BigInteger"), "ONE");
+                        fieldAccessExpr, "ONE");
             } else if (number == 2) {
                 return new FieldAccessExpr(
-                        new NameExpr("BigInteger"), "TWO");
+                        fieldAccessExpr, "TWO");
             } else if (number == /*CHECKSTYLE:OFF*/10/*CHECKSTYLE:ON*/) {
                 return new FieldAccessExpr(
-                        new NameExpr("BigInteger"), "TEN");
+                        fieldAccessExpr, "TEN");
             } else {
                 return new MethodCallExpr(
-                        new NameExpr("BigInteger"), "valueOf",
+                        fieldAccessExpr, "valueOf",
                         new NodeList<>(new IntegerLiteralExpr(number)));
             }
         }
