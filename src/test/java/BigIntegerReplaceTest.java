@@ -20,12 +20,12 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
-    public void testScannerChanges1() throws IOException {
+    public void testScannerFromImport() throws IOException {
         runTestFromFile("/ScannerFromImport");
     }
 
     @Test
-    public void testScannerChanges2() throws IOException {
+    public void testScannerWithClass() throws IOException {
         runTestFromFile("/ScannerWithClass");
     }
 
