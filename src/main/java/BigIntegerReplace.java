@@ -54,7 +54,8 @@ public final class BigIntegerReplace {
                 if (n.getType().asPrimitiveType().equals(
                         PrimitiveType.intType())) {
                     ClassOrInterfaceType classOrInterfaceType =
-                            new ClassOrInterfaceType(new ClassOrInterfaceType(                                    new ClassOrInterfaceType("java"),
+                            new ClassOrInterfaceType(new ClassOrInterfaceType(
+                                    new ClassOrInterfaceType("java"),
                                     "math"), "BigInteger");
                     n.setType(classOrInterfaceType);
                 }
