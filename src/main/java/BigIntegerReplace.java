@@ -59,8 +59,8 @@ public final class BigIntegerReplace {
                 super.visit(n, javaParserFacade);
                 if (n.getInitializer().isPresent()) {
                     try {
-                        changeInitializerOfVariableDeclarator(n.getInitializer().
-                                get());
+                        changeInitializerOfVariableDeclarator(n.
+                                getInitializer().get());
                     } catch (ExecutionControl.NotImplementedException e) {
                         e.printStackTrace();
                     }
