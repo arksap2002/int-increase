@@ -67,7 +67,8 @@ public final class BigIntegerReplace {
         }
 
         private void changeInitializerOfVariableDeclarator(
-                final Expression n) throws ExecutionControl.NotImplementedException {
+                final Expression n)
+                throws ExecutionControl.NotImplementedException {
             if (n.isIntegerLiteralExpr()) {
                 n.replace(createIntegerLiteralExpr(n.
                         asIntegerLiteralExpr().asInt()));
