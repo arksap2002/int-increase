@@ -13,3 +13,5 @@ buildNumber.properties
 .idea/
 out/
 *.iml
+*.png
+*.dot
