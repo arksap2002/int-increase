@@ -2,7 +2,7 @@ public class NumericLiteralChanging {
 
     java.math.BigInteger e = java.math.BigInteger.valueOf(20);
 
-    java.math.BigInteger f = java.math.BigInteger.TWO + java.math.BigInteger.valueOf(9) + java.math.BigInteger.valueOf(12) * java.math.BigInteger.valueOf(8) - java.math.BigInteger.valueOf(200) / java.math.BigInteger.valueOf(100);
+    java.math.BigInteger f = java.math.BigInteger.TWO.add(java.math.BigInteger.valueOf(9)).add(java.math.BigInteger.valueOf(12).multiply(java.math.BigInteger.valueOf(8))).subtract(java.math.BigInteger.valueOf(200).divide(java.math.BigInteger.valueOf(100)));
 
     long g = 200;
 
