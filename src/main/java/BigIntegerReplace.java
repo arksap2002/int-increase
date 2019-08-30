@@ -15,7 +15,6 @@ import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
-import jdk.jshell.spi.ExecutionControl;
 
 import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
@@ -58,12 +57,8 @@ public final class BigIntegerReplace {
             if (n.getType().equals(PrimitiveType.intType())) {
                 super.visit(n, javaParserFacade);
                 if (n.getInitializer().isPresent()) {
-                    try {
-                        changeInitializerOfVariableDeclarator(n.
-                                getInitializer().get());
-                    } catch (ExecutionControl.NotImplementedException e) {
-                        e.printStackTrace();
-                    }
+                    changeInitializerOfVariableDeclarator(n.getInitializer().
+                            get());
                 }
                 n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                         new ClassOrInterfaceType("java"),
@@ -72,8 +67,7 @@ public final class BigIntegerReplace {
         }
 
         private void changeInitializerOfVariableDeclarator(
-                final Expression n)
-                throws ExecutionControl.NotImplementedException {
+                final Expression n) {
             if (n.isIntegerLiteralExpr()) {
                 n.replace(createIntegerLiteralExpr(n.
                         asIntegerLiteralExpr().asInt()));
@@ -83,8 +77,7 @@ public final class BigIntegerReplace {
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getRight());
             } else {
-                throw new ExecutionControl.NotImplementedException("Object "
-                        + n.toString() + " is unhandled");
+                throw new UnsupportedOperationException();
             }
         }
 
