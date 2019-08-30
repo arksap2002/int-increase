@@ -23,4 +23,14 @@ public class BigIntegerReplaceTest {
     public void testReplaceVariableDeclarationType() throws IOException {
         runTestFromFile("/ReplaceVariableDeclarationType");
     }
+
+    @Test
+    public void testScannerFromImport() throws IOException {
+        runTestFromFile("/ScannerFromImport");
+    }
+
+    @Test
+    public void testScannerWithClass() throws IOException {
+        runTestFromFile("/ScannerWithClass");
+    }
 }
