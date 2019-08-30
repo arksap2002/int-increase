@@ -1,8 +1,14 @@
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -28,7 +34,7 @@ public final class BigIntegerReplace {
         return compilationUnit.toString();
     }
 
-    static class TransformVisitor
+    class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
         @Override
         public void visit(
@@ -49,17 +55,68 @@ public final class BigIntegerReplace {
         public void visit(
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
-            if (n.getType().isPrimitiveType()) {
-                if (n.getType().asPrimitiveType().equals(
-                        PrimitiveType.intType())) {
-                    ClassOrInterfaceType classOrInterfaceType =
-                            new ClassOrInterfaceType(new ClassOrInterfaceType(
-                                    new ClassOrInterfaceType("java"),
-                                    "math"), "BigInteger");
-                    n.setType(classOrInterfaceType);
+            if (n.getType().equals(PrimitiveType.intType())) {
+                super.visit(n, javaParserFacade);
+                if (n.getInitializer().isPresent()) {
+                    try {
+                        changeInitializerOfVariableDeclarator(n.
+                                getInitializer().get());
+                    } catch (UnhandledObjectException e) {
+                        e.printStackTrace();
+                    }
                 }
+                n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
+                        new ClassOrInterfaceType("java"),
+                        "math"), "BigInteger"));
             }
+        }
+
+        private void changeInitializerOfVariableDeclarator(
+                final Expression n) throws UnhandledObjectException {
+
+            if (n.isIntegerLiteralExpr()) {
+                n.replace(createIntegerLiteralExpr(n.
+                        asIntegerLiteralExpr().asInt()));
+            } else if (n.isBinaryExpr()) {
+                changeInitializerOfVariableDeclarator(n.asBinaryExpr().
+                        getLeft());
+                changeInitializerOfVariableDeclarator(n.asBinaryExpr().
+                        getRight());
+            } else {
+                throw new UnhandledObjectException("Object " + n.toString()
+                        + " is unhandled");
+            }
+        }
+
+        private Expression createIntegerLiteralExpr(
+                final int number) {
+            FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
+                    new FieldAccessExpr(
+                            new NameExpr("java"), "math"), "BigInteger");
+            if (number == 0) {
+                return new FieldAccessExpr(
+                        fieldAccessExpr, "ZERO");
+            } else if (number == 1) {
+                return new FieldAccessExpr(
+                        fieldAccessExpr, "ONE");
+            } else if (number == 2) {
+                return new FieldAccessExpr(
+                        fieldAccessExpr, "TWO");
+            } else if (number == /*CHECKSTYLE:OFF*/10/*CHECKSTYLE:ON*/) {
+                return new FieldAccessExpr(
+                        fieldAccessExpr, "TEN");
+            } else {
+                return new MethodCallExpr(
+                        fieldAccessExpr, "valueOf",
+                        new NodeList<>(new IntegerLiteralExpr(number)));
+            }
+        }
+    }
+
+    public class UnhandledObjectException extends Exception {
+
+        public UnhandledObjectException(final String message) {
+            super(message);
         }
     }
 }
