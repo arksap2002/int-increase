@@ -18,21 +18,6 @@ public class BigIntegerReplaceTest {
     public void testNothingChanges() throws IOException {
         runTestFromFile("/NothingChanges");
     }
-
-    @Test
-    public void testScannerFromImport() throws IOException {
-        runTestFromFile("/ScannerFromImport");
-    }
-
-    @Test
-    public void testScannerWithClass() throws IOException {
-        runTestFromFile("/ScannerWithClass");
-    }
-
-    @Test 
-    public void testNumericLiteralChanging() throws IOException {
-        runTestFromFile("/NumericLiteralChanging");
-    }
   
     @Test
     public void testReplaceVariableDeclarationType() throws IOException {
