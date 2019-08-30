@@ -60,6 +60,8 @@ public final class BigIntegerReplace {
                 if (n.getInitializer().isPresent()) {
                     changeInitializerOfVariableDeclarator(n.
                             getInitializer().get());
+                    changeInitializerOfVariableDeclarator(n.getInitializer().
+                            get());
                 }
                 n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                         new ClassOrInterfaceType("java"),
