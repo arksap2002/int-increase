@@ -3,7 +3,6 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
@@ -13,7 +12,6 @@ import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
@@ -37,21 +35,6 @@ public final class BigIntegerReplace {
 
     class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
-        @Override
-        public void visit(
-                final MethodCallExpr n,
-                final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
-            ResolvedMethodDeclaration resolvedMethodDeclaration = n.resolve();
-            if ((resolvedMethodDeclaration.getName().equals("nextInt"))) {
-                if (resolvedMethodDeclaration.getPackageName().
-                        equals("java.util") && resolvedMethodDeclaration.
-                        getClassName().equals("Scanner")) {
-                    n.setName(new SimpleName("nextBigInteger"));
-                }
-            }
-        }
-
         @Override
         public void visit(
                 final VariableDeclarator n,
@@ -97,6 +80,9 @@ public final class BigIntegerReplace {
                         Operator.PLUS)) {
                     n.replace(n.asUnaryExpr().getExpression());
                 }
+                n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
+                        operationOfBinaryExpr(n.asBinaryExpr()),
+                        new NodeList<>(n.asBinaryExpr().getRight())));
             } else if (n.isEnclosedExpr()) {
                 changeInitializerOfVariableDeclarator(n.asEnclosedExpr().
                         getInner());
