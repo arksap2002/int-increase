@@ -36,10 +36,6 @@ public final class BigIntegerReplace {
 
     class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
-        FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
-                new FieldAccessExpr(
-                        new NameExpr("java"), "math"), "BigInteger");
-
         @Override
         public void visit(
                 final MethodCallExpr n,
@@ -114,6 +110,9 @@ public final class BigIntegerReplace {
 
         private Expression createIntegerLiteralExpr(
                 final int number) {
+            FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
+                    new FieldAccessExpr(
+                            new NameExpr("java"), "math"), "BigInteger");
             if (number == 0) {
                 return new FieldAccessExpr(
                         fieldAccessExpr, "ZERO");
