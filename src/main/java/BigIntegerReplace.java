@@ -84,7 +84,10 @@ public final class BigIntegerReplace {
             if (binaryExpr.getOperator().equals(BinaryExpr.Operator.DIVIDE)) {
                 return "divide";
             }
-            return "remainder";
+            if (binaryExpr.getOperator().equals(BinaryExpr.Operator.REMAINDER)) {
+                return "remainder";
+            }
+            throw new UnsupportedOperationException();
         }
 
         private Expression createIntegerLiteralExpr(

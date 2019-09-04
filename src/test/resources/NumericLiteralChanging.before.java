@@ -1,5 +1,7 @@
 public class NumericLiteralChanging {
 
+    int a = 2 + 9 + 12 * 8 - 200 / 100;
+
     int e = 20;
 
     int f = 2 + 9 + 12 * 8 - 200 / 100;
@@ -24,5 +26,6 @@ public class NumericLiteralChanging {
         String string = "One";
         double c = 1.1;
         java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
+        int m = 1 + (2 * 3) - 100 * (12 - 11) - (13 + (12 / 3) + 1) / 3;
     }
 }

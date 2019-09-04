@@ -1,5 +1,7 @@
 public class NumericLiteralChanging {
 
+    java.math.BigInteger a = java.math.BigInteger.TWO.add(java.math.BigInteger.valueOf(9)).add(java.math.BigInteger.valueOf(12).multiply(java.math.BigInteger.valueOf(8))).subtract(java.math.BigInteger.valueOf(200).divide(java.math.BigInteger.valueOf(100)));
+
     java.math.BigInteger e = java.math.BigInteger.valueOf(20);
 
     java.math.BigInteger f = java.math.BigInteger.TWO.add(java.math.BigInteger.valueOf(9)).add(java.math.BigInteger.valueOf(12).multiply(java.math.BigInteger.valueOf(8))).subtract(java.math.BigInteger.valueOf(200).divide(java.math.BigInteger.valueOf(100)));
@@ -24,5 +26,6 @@ public class NumericLiteralChanging {
         String string = "One";
         double c = 1.1;
         java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
+        java.math.BigInteger m = java.math.BigInteger.ONE.add((java.math.BigInteger.TWO.multiply(java.math.BigInteger.valueOf(3)))).subtract(java.math.BigInteger.valueOf(100).multiply((java.math.BigInteger.valueOf(12).subtract(java.math.BigInteger.valueOf(11))))).subtract((java.math.BigInteger.valueOf(13).add((java.math.BigInteger.valueOf(12).divide(java.math.BigInteger.valueOf(3)))).add(java.math.BigInteger.ONE)).divide(java.math.BigInteger.valueOf(3)));
     }
 }

@@ -28,9 +28,4 @@ public class BigIntegerReplaceTest {
     public void testNumericLiteralChanging() throws IOException {
         runTestFromFile("/NumericLiteralChanging");
     }
-
-    @Test
-    public void testArithmeticOperationsChanging() throws IOException {
-        runTestFromFile("/ArithmeticOperations");
-    }
 }
