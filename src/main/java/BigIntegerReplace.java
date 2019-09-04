@@ -72,19 +72,24 @@ public final class BigIntegerReplace {
         }
 
         private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
-            if (binaryExpr.getOperator().equals(BinaryExpr.Operator.PLUS)) {
+            if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.PLUS)) {
                 return "add";
             }
-            if (binaryExpr.getOperator().equals(BinaryExpr.Operator.MINUS)) {
+            if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.MINUS)) {
                 return "subtract";
             }
-            if (binaryExpr.getOperator().equals(BinaryExpr.Operator.MULTIPLY)) {
+            if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.MULTIPLY)) {
                 return "multiply";
             }
-            if (binaryExpr.getOperator().equals(BinaryExpr.Operator.DIVIDE)) {
+            if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.DIVIDE)) {
                 return "divide";
             }
-            if (binaryExpr.getOperator().equals(BinaryExpr.Operator.REMAINDER)) {
+            if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.REMAINDER)) {
                 return "remainder";
             }
             throw new UnsupportedOperationException();
