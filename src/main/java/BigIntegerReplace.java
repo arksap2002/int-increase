@@ -2,11 +2,12 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -40,8 +41,8 @@ public final class BigIntegerReplace {
             if (n.getType().equals(PrimitiveType.intType())) {
                 super.visit(n, javaParserFacade);
                 if (n.getInitializer().isPresent()) {
-                    changeInitializerOfVariableDeclarator(n.getInitializer().
-                            get());
+                    changeInitializerOfVariableDeclarator(n.
+                            getInitializer().get());
                 }
                 n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                         new ClassOrInterfaceType("java"),
@@ -59,9 +60,39 @@ public final class BigIntegerReplace {
                         getLeft());
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getRight());
+                n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
+                        operationOfBinaryExpr(n.asBinaryExpr()),
+                        new NodeList<>(n.asBinaryExpr().getRight())));
+            } else if (n.isEnclosedExpr()) {
+                changeInitializerOfVariableDeclarator(n.asEnclosedExpr().
+                        getInner());
             } else {
                 throw new UnsupportedOperationException();
             }
+        }
+
+        private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
+            if (binaryExpr.getOperator().equals(
+                    BinaryExpr.Operator.PLUS)) {
+                return "add";
+            }
+            if (binaryExpr.getOperator().equals(
+                    BinaryExpr.Operator.MINUS)) {
+                return "subtract";
+            }
+            if (binaryExpr.getOperator().equals(
+                    BinaryExpr.Operator.MULTIPLY)) {
+                return "multiply";
+            }
+            if (binaryExpr.getOperator().equals(
+                    BinaryExpr.Operator.DIVIDE)) {
+                return "divide";
+            }
+            if (binaryExpr.getOperator().equals(
+                    BinaryExpr.Operator.REMAINDER)) {
+                return "remainder";
+            }
+            throw new UnsupportedOperationException();
         }
 
         private Expression createIntegerLiteralExpr(
