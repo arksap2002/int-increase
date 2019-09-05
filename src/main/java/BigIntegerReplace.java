@@ -2,6 +2,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
@@ -10,6 +11,7 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
@@ -35,13 +37,26 @@ public final class BigIntegerReplace {
             extends VoidVisitorAdapter<JavaParserFacade> {
         @Override
         public void visit(
+                final MethodCallExpr n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            ResolvedMethodDeclaration resolvedN = n.resolve();
+            if (resolvedN.getName().equals("nextInt") && resolvedN.
+                    getPackageName().equals("java.util") && resolvedN.
+                    getClassName().equals("Scanner")) {
+                n.setName(new SimpleName("nextBigInteger"));
+            }
+        }
+
+        @Override
+        public void visit(
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
             if (n.getType().equals(PrimitiveType.intType())) {
                 super.visit(n, javaParserFacade);
                 if (n.getInitializer().isPresent()) {
                     changeInitializerOfVariableDeclarator(n.getInitializer().
-                            get());
+                            get(), javaParserFacade);
                 }
                 n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                         new ClassOrInterfaceType("java"),
@@ -50,15 +65,18 @@ public final class BigIntegerReplace {
         }
 
         private void changeInitializerOfVariableDeclarator(
-                final Expression n) {
+                final Expression n,
+                final JavaParserFacade javaParserFacade) {
             if (n.isIntegerLiteralExpr()) {
                 n.replace(createIntegerLiteralExpr(n.
                         asIntegerLiteralExpr().asInt()));
             } else if (n.isBinaryExpr()) {
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                        getLeft());
+                        getLeft(), javaParserFacade);
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                        getRight());
+                        getRight(), javaParserFacade);
+            } else if (n.isMethodCallExpr()) {
+                visit(n.asMethodCallExpr(), javaParserFacade);
             } else {
                 throw new UnsupportedOperationException();
             }
