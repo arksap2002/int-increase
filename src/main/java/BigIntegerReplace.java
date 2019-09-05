@@ -8,6 +8,7 @@ import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -63,6 +64,19 @@ public final class BigIntegerReplace {
                 n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
                         operationOfBinaryExpr(n.asBinaryExpr()),
                         new NodeList<>(n.asBinaryExpr().getRight())));
+            } else if (n.isUnaryExpr()) {
+                changeInitializerOfVariableDeclarator(n.asUnaryExpr().
+                        getExpression());
+                if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                        Operator.MINUS)) {
+                    n.replace(new MethodCallExpr(
+                            n.asUnaryExpr().getExpression(), "negative"));
+                } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                        Operator.PLUS)) {
+                    n.replace(n.asUnaryExpr().getExpression());
+                } else {
+                    throw new UnsupportedOperationException();
+                }
             } else if (n.isEnclosedExpr()) {
                 changeInitializerOfVariableDeclarator(n.asEnclosedExpr().
                         getInner());

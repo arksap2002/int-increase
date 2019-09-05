@@ -1,4 +1,4 @@
-public class NumericLiteralChanging {
+public class ArithmeticOperations {
 
     int a = 2 + 9 + 12 * 8 - 200 / 100;
 
