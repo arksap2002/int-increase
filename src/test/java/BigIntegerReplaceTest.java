@@ -33,4 +33,14 @@ public class BigIntegerReplaceTest {
     public void testUnary() throws IOException {
         runTestFromFile("/Unary");
     }
+  
+    @Test
+    public void testScannerFromImport() throws IOException {
+        runTestFromFile("/ScannerFromImport");
+    }
+
+    @Test
+    public void testScannerWithClass() throws IOException {
+        runTestFromFile("/ScannerWithClass");
+    }
 }
