@@ -82,7 +82,7 @@ public final class BigIntegerReplace {
                         new NodeList<>(n.asBinaryExpr().getRight())));
             } else if (n.isUnaryExpr()) {
                 changeInitializerOfVariableDeclarator(n.asUnaryExpr().
-                        getExpression());
+                        getExpression(), javaParserFacade);
                 if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                         Operator.MINUS)) {
                     n.replace(new MethodCallExpr(
