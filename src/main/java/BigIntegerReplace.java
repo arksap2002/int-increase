@@ -17,10 +17,20 @@ import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+//import net.openhft.compiler.CachedCompiler;
+//import net.openhft.compiler.CompilerUtils;
+
+//import java.io.File;
 
 import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
+
+
 public final class BigIntegerReplace {
+
+//    private static final CachedCompiler JCC = CompilerUtils.DEBUGGING ?
+//            new CachedCompiler(new File("ArithmeticOperations.before.java", "src/test/java"), new File("ArithmeticOperations.before.java", "target/compiled")) :
+//            CompilerUtils.CACHED_COMPILER;
 
     public String transform(final String string) {
         CompilationUnit compilationUnit = JavaParser.parse(string);
@@ -32,6 +42,7 @@ public final class BigIntegerReplace {
         compilationUnit.accept(
                 new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
+
         return compilationUnit.toString();
     }
 
