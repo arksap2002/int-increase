@@ -5,7 +5,6 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
@@ -57,8 +56,6 @@ public final class BigIntegerReplace {
             if (n.getType().equals(PrimitiveType.intType())) {
                 super.visit(n, javaParserFacade);
                 if (n.getInitializer().isPresent()) {
-                    changeInitializerOfVariableDeclarator(n.
-                            getInitializer().get());
                     changeInitializerOfVariableDeclarator(n.getInitializer().
                             get(), javaParserFacade);
                 }
@@ -83,8 +80,8 @@ public final class BigIntegerReplace {
                         operationOfBinaryExpr(n.asBinaryExpr()),
                         new NodeList<>(n.asBinaryExpr().getRight())));
             } else if (n.isEnclosedExpr()) {
-                changeInitializerOfVariableDeclarator(n.asEnclosedExpr().
-                        getInner());
+                changeInitializerOfVariableDeclarator(
+                        n.asEnclosedExpr().getInner(), javaParserFacade);
             } else if (n.isMethodCallExpr()) {
                 visit(n.asMethodCallExpr(), javaParserFacade);
             } else {
