@@ -29,8 +29,9 @@ import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 public final class BigIntegerReplace {
 
 //    private static final CachedCompiler JCC = CompilerUtils.DEBUGGING ?
-//            new CachedCompiler(new File("ArithmeticOperations.before.java", "src/test/java"), new File("ArithmeticOperations.before.java", "target/compiled")) :
-//            CompilerUtils.CACHED_COMPILER;
+//            new CachedCompiler(new File("ArithmeticOperations.before.java",
+//            "src/test/java"), new File("ArithmeticOperations.before.java",
+//            "target/compiled")) : CompilerUtils.CACHED_COMPILER;
 
     public String transform(final String string) {
         CompilationUnit compilationUnit = JavaParser.parse(string);
