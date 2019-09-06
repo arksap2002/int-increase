@@ -78,14 +78,13 @@ public final class BigIntegerReplace {
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                         getLeft(), javaParserFacade);
                 changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                        getRight());
+                        getRight(), javaParserFacade);
                 n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
                         operationOfBinaryExpr(n.asBinaryExpr()),
                         new NodeList<>(n.asBinaryExpr().getRight())));
             } else if (n.isEnclosedExpr()) {
                 changeInitializerOfVariableDeclarator(n.asEnclosedExpr().
                         getInner());
-                        getRight(), javaParserFacade);
             } else if (n.isMethodCallExpr()) {
                 visit(n.asMethodCallExpr(), javaParserFacade);
             } else {
