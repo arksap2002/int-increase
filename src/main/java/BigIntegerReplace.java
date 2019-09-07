@@ -87,7 +87,7 @@ public final class BigIntegerReplace {
                 if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                         Operator.MINUS)) {
                     n.replace(new MethodCallExpr(
-                            n.asUnaryExpr().getExpression(), "negative"));
+                            n.asUnaryExpr().getExpression(), "negate"));
                 } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                         Operator.PLUS)) {
                     n.replace(n.asUnaryExpr().getExpression());
