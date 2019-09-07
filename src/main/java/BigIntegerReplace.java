@@ -46,6 +46,33 @@ public final class BigIntegerReplace {
                     getClassName().equals("Scanner")) {
                 n.setName(new SimpleName("nextBigInteger"));
             }
+            if (resolvedN.getPackageName().equals("java.lang") &&
+                    resolvedN.getClassName().equals("Math") &&
+                    resolvedN.getName().equals("abs")) {
+                if (n.getArguments().get(0).isNameExpr()) {
+                    n.replace(new MethodCallExpr(
+                            n.getArguments().get(0), "abs"));
+                } else if (n.getArguments().get(0).isUnaryExpr() ||
+                        n.getArguments().get(0).isIntegerLiteralExpr()) {
+                    n.replace(new MethodCallExpr(new MethodCallExpr(
+                            new FieldAccessExpr(new FieldAccessExpr(
+                                    new NameExpr("java"), "math"),
+                                    "BigInteger"), "valueOf",
+                                    n.getArguments()), "abs"));
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+            }
+            if (resolvedN.getPackageName().equals("java.lang") &&
+                    resolvedN.getClassName().equals("Math") &&
+                    resolvedN.getName().equals("min")) {
+
+            }
+            if (resolvedN.getPackageName().equals("java.lang") &&
+                    resolvedN.getClassName().equals("Math") &&
+                    resolvedN.getName().equals("max")) {
+
+            }
         }
 
         @Override
