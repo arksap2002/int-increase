@@ -19,7 +19,7 @@ class TransformVisitor
     private FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
             new FieldAccessExpr(new NameExpr("java"), "math"), "BigInteger");
 
-    private void changeMethodCallExpr(MethodCallExpr n) {
+    private void changeMethodCallExpr(final MethodCallExpr n) {
         ResolvedMethodDeclaration resolvedN = n.resolve();
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
@@ -37,7 +37,7 @@ class TransformVisitor
         }
     }
 
-    private void mathAbsChanging(MethodCallExpr n) {
+    private void mathAbsChanging(final MethodCallExpr n) {
         if (n.getArguments().get(0).isIntegerLiteralExpr()) {
             n.replace(new MethodCallExpr(createIntegerLiteralExpr(n.
                     getArguments().get(0).asIntegerLiteralExpr().asInt()),
@@ -55,7 +55,7 @@ class TransformVisitor
                 n.replace(new MethodCallExpr(createIntegerLiteralExpr(
                         n.getArguments().get(0).asUnaryExpr().
                                 getExpression().asIntegerLiteralExpr().
-                                asInt()),"abs"));
+                                asInt()), "abs"));
             } else {
                 throw new UnsupportedOperationException();
             }
@@ -69,17 +69,18 @@ class TransformVisitor
         }
     }
 
-    private boolean isMath(ResolvedMethodDeclaration resolvedN) {
-        return resolvedN.getPackageName().equals("java.lang") &&
-                resolvedN.getClassName().equals("Math");
+    private boolean isMath(final ResolvedMethodDeclaration resolvedN) {
+        return resolvedN.getPackageName().equals("java.lang")
+                && resolvedN.getClassName().equals("Math");
     }
 
-    private void mathMinOrMaxChanging(String string, MethodCallExpr n) {
+    private void mathMinOrMaxChanging(final String string,
+                                      final MethodCallExpr n) {
         NodeList<Expression> nodeList = n.getArguments();
         Expression expressionFirst = null;
         Expression expressionSecond = null;
         for (int i = 0; i < 2; i++) {
-            Expression expressionNow = null;
+            Expression expressionNow;
             Expression expr = nodeList.get(i);
             if (expr.isIntegerLiteralExpr()) {
                 expressionNow = createIntegerLiteralExpr(
@@ -95,7 +96,7 @@ class TransformVisitor
                         UnaryExpr.Operator.PLUS)) {
                     expressionNow = createIntegerLiteralExpr(expr.
                             asUnaryExpr().getExpression().
-                                    asIntegerLiteralExpr().asInt());
+                            asIntegerLiteralExpr().asInt());
                 } else {
                     throw new UnsupportedOperationException();
                 }
