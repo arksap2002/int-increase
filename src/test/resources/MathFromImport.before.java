@@ -2,17 +2,20 @@ import java.lang.Math;
 
 public class MathFromImport {
 
-    int a = Math.abs(-1);
+    int a = Math.abs(1);
 
-    int e = Math.abs(a);
+    int c = Math.min(9, 10);
 
-    int b = Math.max(a, 100);
+    int d = Math.abs(Math.abs(-98));
 
-    int c = Math.min(a, b) * -1 + Math.max(b, -10);
+    int e = Math.abs(Math.min(90, -10));
+
+    int h = Math.min(Math.max(-100, -9), Math.max(1, 2));
+
+    int f = Math.abs(Math.min(Math.max(-100, -9), Math.abs(Math.max(1, 2))));
 
     public static void main(String[] args) {
-        int d = Math.abs(-10);
-        int e = Math.max(d, a);
-        int f = Math.min(Math.max(d, a), Math.max(d, a));
+
+        int g = Math.abs(-10);
     }
 }

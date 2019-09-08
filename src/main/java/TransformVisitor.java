@@ -27,28 +27,45 @@ class TransformVisitor
             n.setName(new SimpleName("nextBigInteger"));
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
-            if (n.getArguments().get(0).isIntegerLiteralExpr()) {
-                n.replace(new MethodCallExpr(createIntegerLiteralExpr(n.
-                        getArguments().get(0).asIntegerLiteralExpr().asInt()),
-                        "abs"));
-            } else if (n.getArguments().get(0).isUnaryExpr()) {
-                //unary
-            } else if (n.getArguments().get(0).isMethodCallExpr()) {
-                //is min bigInt
-                //is max bigInt
-                //is abs bigInt
-                changeMethodCallExpr(n.getArguments().get(0).
-                        asMethodCallExpr());
-//            } else if (n.getArguments().get(0).isNameExpr()) {
-//                n.replace(new MethodCallExpr(
-//                        n.getArguments().get(0), "abs"));
-            }
+            mathAbsChanging(n);
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
-            minOrMaxChanging("min", n);
+            mathMinOrMaxChanging("min", n);
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
-            minOrMaxChanging("max", n);
+            mathMinOrMaxChanging("max", n);
+        }
+    }
+
+    private void mathAbsChanging(MethodCallExpr n) {
+        if (n.getArguments().get(0).isIntegerLiteralExpr()) {
+            n.replace(new MethodCallExpr(createIntegerLiteralExpr(n.
+                    getArguments().get(0).asIntegerLiteralExpr().asInt()),
+                    "abs"));
+        } else if (n.getArguments().get(0).isUnaryExpr()) {
+            if (n.getArguments().get(0).asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.MINUS)) {
+                n.replace(new MethodCallExpr(new MethodCallExpr(
+                        createIntegerLiteralExpr(n.getArguments().get(0).
+                                asUnaryExpr().getExpression().
+                                asIntegerLiteralExpr().asInt()), "negate"),
+                        "abs"));
+            } else if (n.getArguments().get(0).asUnaryExpr().getOperator().
+                    equals(UnaryExpr.Operator.PLUS)) {
+                n.replace(new MethodCallExpr(createIntegerLiteralExpr(
+                        n.getArguments().get(0).asUnaryExpr().
+                                getExpression().asIntegerLiteralExpr().
+                                asInt()),"abs"));
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        } else if (n.getArguments().get(0).isMethodCallExpr()) {
+            changeMethodCallExpr(n.getArguments().get(0).
+                    asMethodCallExpr());
+            n.replace(new MethodCallExpr(
+                    n.getArguments().get(0).asMethodCallExpr(), "abs"));
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -57,39 +74,41 @@ class TransformVisitor
                 resolvedN.getClassName().equals("Math");
     }
 
-    private void minOrMaxChanging(String string, MethodCallExpr n) {
+    private void mathMinOrMaxChanging(String string, MethodCallExpr n) {
         NodeList<Expression> nodeList = n.getArguments();
         Expression expressionFirst = null;
         Expression expressionSecond = null;
         for (int i = 0; i < 2; i++) {
-            MethodCallExpr methodCallExpr = null;
+            Expression expressionNow = null;
             Expression expr = nodeList.get(i);
             if (expr.isIntegerLiteralExpr()) {
-                //0, 1, 2, 10
-                methodCallExpr = new MethodCallExpr(fieldAccessExpr, "valueOf",
-                        new NodeList<>(expr));
+                expressionNow = createIntegerLiteralExpr(
+                        expr.asIntegerLiteralExpr().asInt());
             } else if (expr.isUnaryExpr()) {
                 if (expr.asUnaryExpr().getOperator().equals(UnaryExpr.
                         Operator.MINUS)) {
-                    methodCallExpr = new MethodCallExpr(new MethodCallExpr(
-                            fieldAccessExpr,"valueOf", new NodeList<>(
-                            expr.asUnaryExpr().getExpression())), "negate");
+                    expressionNow = new MethodCallExpr(
+                            createIntegerLiteralExpr(expr.asUnaryExpr().
+                                    getExpression().asIntegerLiteralExpr().
+                                    asInt()), "negate");
                 } else if (expr.asUnaryExpr().getOperator().equals(
                         UnaryExpr.Operator.PLUS)) {
-                    methodCallExpr = new MethodCallExpr(fieldAccessExpr,
-                            "valueOf", new NodeList<>(expr.
-                            asUnaryExpr().getExpression()));
+                    expressionNow = createIntegerLiteralExpr(expr.
+                            asUnaryExpr().getExpression().
+                                    asIntegerLiteralExpr().asInt());
                 } else {
                     throw new UnsupportedOperationException();
                 }
-//            } else if (expr.isMethodCallExpr()) {
-
-            }
-            //MethodCallExpr
-            if (i == 0) {
-                expressionFirst = methodCallExpr;
+            } else if (expr.isMethodCallExpr()) {
+                changeMethodCallExpr(expr.asMethodCallExpr());
+                expressionNow = nodeList.get(i).asMethodCallExpr();
             } else {
-                expressionSecond = methodCallExpr;
+                throw new UnsupportedOperationException();
+            }
+            if (i == 0) {
+                expressionFirst = expressionNow;
+            } else {
+                expressionSecond = expressionNow;
             }
         }
         n.replace(new MethodCallExpr(expressionFirst, string,
