@@ -27,12 +27,12 @@ class TransformVisitor
             n.setName(new SimpleName("nextBigInteger"));
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
-            if (n.getArguments().get(0).isUnaryExpr() ||
-                    n.getArguments().get(0).isIntegerLiteralExpr()) {
-                //0, 1, 2, 10
-                //unary have to be in another if
-                n.replace(new MethodCallExpr(new MethodCallExpr(
-                        fieldAccessExpr, "valueOf", n.getArguments()), "abs"));
+            if (n.getArguments().get(0).isIntegerLiteralExpr()) {
+                n.replace(new MethodCallExpr(createIntegerLiteralExpr(n.
+                        getArguments().get(0).asIntegerLiteralExpr().asInt()),
+                        "abs"));
+            } else if (n.getArguments().get(0).isUnaryExpr()) {
+                //unary
             } else if (n.getArguments().get(0).isMethodCallExpr()) {
                 //is min bigInt
                 //is max bigInt
