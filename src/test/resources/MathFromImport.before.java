@@ -4,6 +4,8 @@ public class MathFromImport {
 
     int a = Math.abs(-1);
 
+    int e = Math.abs(a);
+
     int b = Math.max(a, 100);
 
     int c = Math.min(a, b) * -1 + Math.max(b, -10);

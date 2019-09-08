@@ -19,41 +19,42 @@ class TransformVisitor
     private FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
             new FieldAccessExpr(new NameExpr("java"), "math"), "BigInteger");
 
-    @Override
-    public void visit(
-            final MethodCallExpr n,
-            final JavaParserFacade javaParserFacade) {
-        super.visit(n, javaParserFacade);
+    private void changeMethodCallExpr(MethodCallExpr n) {
         ResolvedMethodDeclaration resolvedN = n.resolve();
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
                 getClassName().equals("Scanner")) {
             n.setName(new SimpleName("nextBigInteger"));
         }
-        if (resolvedN.getPackageName().equals("java.lang") &&
-                resolvedN.getClassName().equals("Math") &&
-                resolvedN.getName().equals("abs")) {
-            if (n.getArguments().get(0).isNameExpr()) {
-                n.replace(new MethodCallExpr(
-                        n.getArguments().get(0), "abs"));
-            } else if (n.getArguments().get(0).isUnaryExpr() ||
+        if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
+            if (n.getArguments().get(0).isUnaryExpr() ||
                     n.getArguments().get(0).isIntegerLiteralExpr()) {
+                //0, 1, 2, 10
+                //unary have to be in another if
                 n.replace(new MethodCallExpr(new MethodCallExpr(
                         fieldAccessExpr, "valueOf", n.getArguments()), "abs"));
-            } else {
-                throw new UnsupportedOperationException();
+            } else if (n.getArguments().get(0).isMethodCallExpr()) {
+                //is min bigInt
+                //is max bigInt
+                //is abs bigInt
+                changeMethodCallExpr(n.getArguments().get(0).
+                        asMethodCallExpr());
+//            } else if (n.getArguments().get(0).isNameExpr()) {
+//                n.replace(new MethodCallExpr(
+//                        n.getArguments().get(0), "abs"));
             }
         }
-        if (resolvedN.getPackageName().equals("java.lang") &&
-                resolvedN.getClassName().equals("Math") &&
-                resolvedN.getName().equals("min")) {
+        if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
             minOrMaxChanging("min", n);
         }
-        if (resolvedN.getPackageName().equals("java.lang") &&
-                resolvedN.getClassName().equals("Math") &&
-                resolvedN.getName().equals("max")) {
+        if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
             minOrMaxChanging("max", n);
         }
+    }
+
+    private boolean isMath(ResolvedMethodDeclaration resolvedN) {
+        return resolvedN.getPackageName().equals("java.lang") &&
+                resolvedN.getClassName().equals("Math");
     }
 
     private void minOrMaxChanging(String string, MethodCallExpr n) {
@@ -62,26 +63,28 @@ class TransformVisitor
         Expression expressionSecond = null;
         for (int i = 0; i < 2; i++) {
             MethodCallExpr methodCallExpr = null;
-            if (nodeList.get(i).isIntegerLiteralExpr()) {
+            Expression expr = nodeList.get(i);
+            if (expr.isIntegerLiteralExpr()) {
+                //0, 1, 2, 10
                 methodCallExpr = new MethodCallExpr(fieldAccessExpr, "valueOf",
-                        new NodeList<>(nodeList.get(i)));
-            } else if (nodeList.get(i).isUnaryExpr()) {
-                if (nodeList.get(i).asUnaryExpr().getOperator().equals(UnaryExpr.
+                        new NodeList<>(expr));
+            } else if (expr.isUnaryExpr()) {
+                if (expr.asUnaryExpr().getOperator().equals(UnaryExpr.
                         Operator.MINUS)) {
                     methodCallExpr = new MethodCallExpr(new MethodCallExpr(
                             fieldAccessExpr,"valueOf", new NodeList<>(
-                                    nodeList.get(i).asUnaryExpr().
-                            getExpression())), "negate");
-                } else if (nodeList.get(i).asUnaryExpr().getOperator().equals(
+                            expr.asUnaryExpr().getExpression())), "negate");
+                } else if (expr.asUnaryExpr().getOperator().equals(
                         UnaryExpr.Operator.PLUS)) {
                     methodCallExpr = new MethodCallExpr(fieldAccessExpr,
-                            "valueOf", new NodeList<>(nodeList.get(i).
+                            "valueOf", new NodeList<>(expr.
                             asUnaryExpr().getExpression()));
                 } else {
                     throw new UnsupportedOperationException();
                 }
+//            } else if (expr.isMethodCallExpr()) {
+
             }
-            //NameExpr
             //MethodCallExpr
             if (i == 0) {
                 expressionFirst = methodCallExpr;
@@ -101,7 +104,7 @@ class TransformVisitor
             super.visit(n, javaParserFacade);
             if (n.getInitializer().isPresent()) {
                 changeInitializerOfVariableDeclarator(n.getInitializer().
-                        get(), javaParserFacade);
+                        get());
             }
             n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType("java"),
@@ -110,18 +113,17 @@ class TransformVisitor
     }
 
     private void changeInitializerOfVariableDeclarator(
-            final Expression n,
-            final JavaParserFacade javaParserFacade) {
+            final Expression n) {
         if (n.isIntegerLiteralExpr()) {
             n.replace(createIntegerLiteralExpr(n.
                     asIntegerLiteralExpr().asInt()));
         } else if (n.isBinaryExpr()) {
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getLeft(), javaParserFacade);
+                    getLeft());
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getRight(), javaParserFacade);
+                    getRight());
         } else if (n.isMethodCallExpr()) {
-            visit(n.asMethodCallExpr(), javaParserFacade);
+            changeMethodCallExpr(n.asMethodCallExpr());
         } else {
             throw new UnsupportedOperationException();
         }
