@@ -2,12 +2,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -19,6 +14,10 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
 public final class BigIntegerReplace {
+
+    FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
+            new FieldAccessExpr(
+                    new NameExpr("java"), "math"), "BigInteger");
 
     public String transform(final String string) {
         CompilationUnit compilationUnit = JavaParser.parse(string);
@@ -40,6 +39,35 @@ public final class BigIntegerReplace {
                 final MethodCallExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
+            if (n.getScope().get().isNameExpr() && n.getScope().get().
+                    asNameExpr().getName().toString().equals("Integer")
+                    && n.getName().toString().equals("toString")) {
+                if (n.getArgument(0).isIntegerLiteralExpr()) {
+                    n.replace(new MethodCallExpr(createIntegerLiteralExpr(
+                            n.getArgument(0).asIntegerLiteralExpr().asInt()),
+                            "toString"));
+                } else if (n.getArgument(0).isUnaryExpr()) {
+                    if (n.getArgument(0).asUnaryExpr().getOperator().equals(
+                            UnaryExpr.Operator.MINUS)) {
+                        n.replace(new MethodCallExpr(new MethodCallExpr(
+                                createIntegerLiteralExpr(n.getArgument(0).
+                                        asUnaryExpr().getExpression().
+                                        asIntegerLiteralExpr().asInt()),
+                                "negate"), "toString"));
+                    } else if (n.getArgument(0).asUnaryExpr().getOperator().equals(
+                            UnaryExpr.Operator.PLUS)) {
+                        n.replace(new MethodCallExpr(createIntegerLiteralExpr(
+                                n.getArgument(0).asUnaryExpr().getExpression().
+                                        asIntegerLiteralExpr().asInt()),
+                                "toString"));
+                    }
+//                } else if (n.getArgument(0).isNameExpr()) {
+//                    n.replace(new MethodCallExpr(n.getArgument(0).asNameExpr(),
+//                            "toString"));
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+            }
             ResolvedMethodDeclaration resolvedN = n.resolve();
             if (resolvedN.getName().equals("nextInt") && resolvedN.
                     getPackageName().equals("java.util") && resolvedN.
@@ -84,9 +112,6 @@ public final class BigIntegerReplace {
 
         private Expression createIntegerLiteralExpr(
                 final int number) {
-            FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
-                    new FieldAccessExpr(
-                            new NameExpr("java"), "math"), "BigInteger");
             if (number == 0) {
                 return new FieldAccessExpr(
                         fieldAccessExpr, "ZERO");
