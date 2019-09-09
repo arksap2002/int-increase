@@ -147,7 +147,7 @@ class TransformVisitor
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                     getRight());
         } else if (n.isMethodCallExpr()) {
-            changeMethodCallExpr(n.asMethodCallExpr());
+            changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                     getLeft(), javaParserFacade);
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                     getRight(), javaParserFacade);
