@@ -17,7 +17,8 @@ class TransformVisitor
         extends VoidVisitorAdapter<JavaParserFacade> {
 
     private void changeMethodCallExpr(final MethodCallExpr n) {
-      if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
+        ResolvedMethodDeclaration resolvedN = n.resolve();
+        if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
             mathAbsChanging(n);
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
@@ -26,14 +27,6 @@ class TransformVisitor
         if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
             mathMinOrMaxChanging("max", n);
         }
-    }
-  
-    @Override
-    public void visit(
-            final MethodCallExpr n,
-            final JavaParserFacade javaParserFacade) {
-        super.visit(n, javaParserFacade);
-        ResolvedMethodDeclaration resolvedN = n.resolve();
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
                 getClassName().equals("Scanner")) {
@@ -147,12 +140,7 @@ class TransformVisitor
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
                     getRight());
         } else if (n.isMethodCallExpr()) {
-            changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getLeft(), javaParserFacade);
-            changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getRight(), javaParserFacade);
-        } else if (n.isMethodCallExpr()) {
-            visit(n.asMethodCallExpr(), javaParserFacade);
+            changeMethodCallExpr(n.asMethodCallExpr());
         } else {
             throw new UnsupportedOperationException();
         }
