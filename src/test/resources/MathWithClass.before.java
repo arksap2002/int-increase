@@ -6,6 +6,7 @@ public class MathWithClass {
         int c = java.lang.Math.min(java.lang.Math.max(-19, -10), java.lang.Math.max(89, -2));
         int d = Math.abs(15);
         int e = Math.min(56, 67);
+        System.out.println(java.lang.Math.max(java.lang.Math.abs(-10), 90));
     }
 
     static class Math {

@@ -16,16 +16,20 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 class TransformVisitor
         extends VoidVisitorAdapter<JavaParserFacade> {
 
-    private void changeMethodCallExpr(final MethodCallExpr n) {
+    @Override
+    public void visit(
+            final MethodCallExpr n,
+            final JavaParserFacade javaParserFacade) {
+        super.visit(n, javaParserFacade);
         ResolvedMethodDeclaration resolvedN = n.resolve();
         if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
-            mathAbsChanging(n);
+            mathAbsChanging(n, javaParserFacade);
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
-            mathMinOrMaxChanging("min", n);
+            mathMinOrMaxChanging("min", n, javaParserFacade);
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
-            mathMinOrMaxChanging("max", n);
+            mathMinOrMaxChanging("max", n, javaParserFacade);
         }
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
@@ -34,7 +38,8 @@ class TransformVisitor
         }
     }
 
-    private void mathAbsChanging(final MethodCallExpr n) {
+    private void mathAbsChanging(final MethodCallExpr n,
+                                 final JavaParserFacade javaParserFacade) {
         if (n.getArguments().get(0).isIntegerLiteralExpr()) {
             n.replace(new MethodCallExpr(createIntegerLiteralExpr(n.
                     getArguments().get(0).asIntegerLiteralExpr().asInt()),
@@ -57,8 +62,8 @@ class TransformVisitor
                 throw new UnsupportedOperationException();
             }
         } else if (n.getArguments().get(0).isMethodCallExpr()) {
-            changeMethodCallExpr(n.getArguments().get(0).
-                    asMethodCallExpr());
+            visit(n.getArguments().get(0).
+                    asMethodCallExpr(), javaParserFacade);
             n.replace(new MethodCallExpr(
                     n.getArguments().get(0).asMethodCallExpr(), "abs"));
         } else {
@@ -72,7 +77,8 @@ class TransformVisitor
     }
 
     private void mathMinOrMaxChanging(final String string,
-                                      final MethodCallExpr n) {
+                                final MethodCallExpr n,
+                                final JavaParserFacade javaParserFacade) {
         NodeList<Expression> nodeList = n.getArguments();
         Expression expressionFirst = null;
         Expression expressionSecond = null;
@@ -98,7 +104,7 @@ class TransformVisitor
                     throw new UnsupportedOperationException();
                 }
             } else if (expr.isMethodCallExpr()) {
-                changeMethodCallExpr(expr.asMethodCallExpr());
+                visit(expr.asMethodCallExpr(), javaParserFacade);
                 expressionNow = nodeList.get(i).asMethodCallExpr();
             } else {
                 throw new UnsupportedOperationException();
@@ -121,7 +127,7 @@ class TransformVisitor
         if (n.getType().equals(PrimitiveType.intType())) {
             if (n.getInitializer().isPresent()) {
                 changeInitializerOfVariableDeclarator(n.getInitializer().
-                        get());
+                        get(), javaParserFacade);
             }
             n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType("java"),
@@ -130,17 +136,17 @@ class TransformVisitor
     }
 
     private void changeInitializerOfVariableDeclarator(
-            final Expression n) {
+            final Expression n, final JavaParserFacade javaParserFacade) {
         if (n.isIntegerLiteralExpr()) {
             n.replace(createIntegerLiteralExpr(n.
                     asIntegerLiteralExpr().asInt()));
         } else if (n.isBinaryExpr()) {
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getLeft());
+                    getLeft(), javaParserFacade);
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getRight());
+                    getRight(), javaParserFacade);
         } else if (n.isMethodCallExpr()) {
-            changeMethodCallExpr(n.asMethodCallExpr());
+            visit(n.asMethodCallExpr(), javaParserFacade);
         } else {
             throw new UnsupportedOperationException();
         }

@@ -17,5 +17,6 @@ public class MathFromImport {
     public static void main(String[] args) {
 
         int g = Math.abs(-10);
+        System.out.println(Math.max(Math.abs(-10), 90));
     }
 }
