@@ -16,17 +16,8 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 class TransformVisitor
         extends VoidVisitorAdapter<JavaParserFacade> {
 
-    private FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
-            new FieldAccessExpr(new NameExpr("java"), "math"), "BigInteger");
-
     private void changeMethodCallExpr(final MethodCallExpr n) {
-        ResolvedMethodDeclaration resolvedN = n.resolve();
-        if (resolvedN.getName().equals("nextInt") && resolvedN.
-                getPackageName().equals("java.util") && resolvedN.
-                getClassName().equals("Scanner")) {
-            n.setName(new SimpleName("nextBigInteger"));
-        }
-        if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
+      if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
             mathAbsChanging(n);
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
@@ -34,6 +25,19 @@ class TransformVisitor
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
             mathMinOrMaxChanging("max", n);
+        }
+    }
+  
+    @Override
+    public void visit(
+            final MethodCallExpr n,
+            final JavaParserFacade javaParserFacade) {
+        super.visit(n, javaParserFacade);
+        ResolvedMethodDeclaration resolvedN = n.resolve();
+        if (resolvedN.getName().equals("nextInt") && resolvedN.
+                getPackageName().equals("java.util") && resolvedN.
+                getClassName().equals("Scanner")) {
+            n.setName(new SimpleName("nextBigInteger"));
         }
     }
 
@@ -144,6 +148,11 @@ class TransformVisitor
                     getRight());
         } else if (n.isMethodCallExpr()) {
             changeMethodCallExpr(n.asMethodCallExpr());
+                    getLeft(), javaParserFacade);
+            changeInitializerOfVariableDeclarator(n.asBinaryExpr().
+                    getRight(), javaParserFacade);
+        } else if (n.isMethodCallExpr()) {
+            visit(n.asMethodCallExpr(), javaParserFacade);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -151,6 +160,9 @@ class TransformVisitor
 
     private Expression createIntegerLiteralExpr(
             final int number) {
+        FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
+                new FieldAccessExpr(
+                        new NameExpr("java"), "math"), "BigInteger");
         if (number == 0) {
             return new FieldAccessExpr(
                     fieldAccessExpr, "ZERO");
