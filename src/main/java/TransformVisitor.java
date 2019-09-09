@@ -16,7 +16,10 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 class TransformVisitor
         extends VoidVisitorAdapter<JavaParserFacade> {
 
-    private void changeMethodCallExpr(final MethodCallExpr n) {
+    @Override
+    public void visit(
+            final VariableDeclarator n,
+            final JavaParserFacade javaParserFacade) {
         ResolvedMethodDeclaration resolvedN = n.resolve();
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
@@ -59,7 +62,7 @@ class TransformVisitor
             changeInitializerOfVariableDeclarator(
                     n.asEnclosedExpr().getInner(), javaParserFacade);
         } else if (n.isMethodCallExpr()) {
-            changeMethodCallExpr(n.asMethodCallExpr());
+            visit(n.asMethodCallExpr(), javaParserFacade);
         } else {
             throw new UnsupportedOperationException();
         }
