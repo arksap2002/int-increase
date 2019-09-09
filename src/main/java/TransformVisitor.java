@@ -79,8 +79,8 @@ class TransformVisitor
     public void visit(
             final VariableDeclarator n,
             final JavaParserFacade javaParserFacade) {
+        super.visit(n, javaParserFacade);
         if (n.getType().equals(PrimitiveType.intType())) {
-            super.visit(n, javaParserFacade);
             if (n.getInitializer().isPresent()) {
                 changeInitializerOfVariableDeclarator(n.getInitializer().
                         get(), javaParserFacade);
