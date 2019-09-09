@@ -3,9 +3,10 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -32,7 +33,7 @@ class TransformVisitor
             super.visit(n, javaParserFacade);
             if (n.getInitializer().isPresent()) {
                 changeInitializerOfVariableDeclarator(n.getInitializer().
-                        get());
+                        get(), javaParserFacade);
             }
             n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType("java"),
@@ -41,20 +42,51 @@ class TransformVisitor
     }
 
     private void changeInitializerOfVariableDeclarator(
-            final Expression n) {
+            final Expression n,
+            final JavaParserFacade javaParserFacade) {
         if (n.isIntegerLiteralExpr()) {
             n.replace(createIntegerLiteralExpr(n.
                     asIntegerLiteralExpr().asInt()));
         } else if (n.isBinaryExpr()) {
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getLeft());
+                    getLeft(), javaParserFacade);
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getRight());
+                    getRight(), javaParserFacade);
+            n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
+                    operationOfBinaryExpr(n.asBinaryExpr()),
+                    new NodeList<>(n.asBinaryExpr().getRight())));
+        } else if (n.isEnclosedExpr()) {
+            changeInitializerOfVariableDeclarator(
+                    n.asEnclosedExpr().getInner(), javaParserFacade);
         } else if (n.isMethodCallExpr()) {
             changeMethodCallExpr(n.asMethodCallExpr());
         } else {
             throw new UnsupportedOperationException();
         }
+    }
+
+    private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.PLUS)) {
+            return "add";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.MINUS)) {
+            return "subtract";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.MULTIPLY)) {
+            return "multiply";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.DIVIDE)) {
+            return "divide";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.REMAINDER)) {
+            return "remainder";
+        }
+        throw new UnsupportedOperationException();
     }
 
     private Expression createIntegerLiteralExpr(
