@@ -7,12 +7,6 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -71,8 +65,8 @@ class TransformVisitor
                 visit((VariableDeclarator)
                                 ((JavaParserSymbolDeclaration)
                                         (n.getArgument(0).asNameExpr().
-                                                resolve())).getWrappedNode(),
-                        javaParserFacade);
+                                                resolve())).
+                      getWrappedNode(), javaParserFacade);
             }
             n.replace(new MethodCallExpr(n.getArgument(0).asNameExpr(),
                     "toString"));
