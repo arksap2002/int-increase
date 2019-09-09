@@ -1,7 +1,6 @@
 import net.openhft.compiler.CompilerUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 
