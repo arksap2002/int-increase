@@ -14,11 +14,8 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 
 class TransformVisitor
         extends VoidVisitorAdapter<JavaParserFacade> {
-    @Override
-    public void visit(
-            final MethodCallExpr n,
-            final JavaParserFacade javaParserFacade) {
-        super.visit(n, javaParserFacade);
+
+    private void changeMethodCallExpr(final MethodCallExpr n) {
         ResolvedMethodDeclaration resolvedN = n.resolve();
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
@@ -35,7 +32,7 @@ class TransformVisitor
             super.visit(n, javaParserFacade);
             if (n.getInitializer().isPresent()) {
                 changeInitializerOfVariableDeclarator(n.getInitializer().
-                        get(), javaParserFacade);
+                        get());
             }
             n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType("java"),
@@ -44,18 +41,17 @@ class TransformVisitor
     }
 
     private void changeInitializerOfVariableDeclarator(
-            final Expression n,
-            final JavaParserFacade javaParserFacade) {
+            final Expression n) {
         if (n.isIntegerLiteralExpr()) {
             n.replace(createIntegerLiteralExpr(n.
                     asIntegerLiteralExpr().asInt()));
         } else if (n.isBinaryExpr()) {
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getLeft(), javaParserFacade);
+                    getLeft());
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getRight(), javaParserFacade);
+                    getRight());
         } else if (n.isMethodCallExpr()) {
-            visit(n.asMethodCallExpr(), javaParserFacade);
+            changeMethodCallExpr(n.asMethodCallExpr());
         } else {
             throw new UnsupportedOperationException();
         }
