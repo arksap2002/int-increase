@@ -60,8 +60,8 @@ class TransformVisitor
                         "toString"));
             }
         } else if (n.getArgument(0).isNameExpr()) {
-            if (n.getArgument(0).asNameExpr().resolve() 
-                instanceof JavaParserSymbolDeclaration) {
+            if (n.getArgument(0).asNameExpr().
+                resolve() instanceof JavaParserSymbolDeclaration) {
                 visit((VariableDeclarator)
                                 ((JavaParserSymbolDeclaration)
                                         (n.getArgument(0).asNameExpr().
