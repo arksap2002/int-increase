@@ -26,26 +26,26 @@ public class BigIntegerReplaceTest {
 
     @Test
     public void testNothingChanges() throws IOException, ClassNotFoundException {
-        runTestFromFile("/NothingChanges");
+        runTestFromFile("NothingChanges");
     }
 
     @Test
     public void testReplaceVariableDeclarationType() throws IOException, ClassNotFoundException {
-        runTestFromFile("/ReplaceVariableDeclarationType");
+        runTestFromFile("ReplaceVariableDeclarationType");
     }
 
     @Test
     public void testScannerFromImport() throws IOException, ClassNotFoundException {
-        runTestFromFile("/ScannerFromImport");
+        runTestFromFile("ScannerFromImport");
     }
 
     @Test
     public void testScannerWithClass() throws IOException, ClassNotFoundException {
-        runTestFromFile("/ScannerWithClass");
+        runTestFromFile("ScannerWithClass");
     }
 
     @Test
     public void testNumericLiteralChanging() throws IOException, ClassNotFoundException {
-        runTestFromFile("/NumericLiteralChanging");
+        runTestFromFile("NumericLiteralChanging");
     }
 }
