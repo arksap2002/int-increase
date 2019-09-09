@@ -33,11 +33,6 @@ public class BigIntegerReplaceTest {
     public void testScannerWithClass() throws IOException {
         runTestFromFile("/ScannerWithClass");
     }
-  
-    @Test
-    public void testNumericLiteralChanging() throws IOException {
-        runTestFromFile("/NumericLiteralChanging");
-    }
 
     @Test
     public void testMathFromImport() throws IOException {
