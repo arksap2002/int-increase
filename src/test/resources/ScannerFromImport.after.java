@@ -8,5 +8,6 @@ public class ScannerFromImport {
         String c = scanner.nextLine();
         double d = scanner.nextDouble();
         long e = scanner.nextLong();
+        System.out.println(scanner.nextBigInteger());
     }
 }
