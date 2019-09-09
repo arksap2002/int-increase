@@ -1,4 +1,3 @@
-import net.openhft.compiler.CompilerUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -9,14 +8,8 @@ import static org.junit.Assert.*;
 
 public class BigIntegerReplaceTest {
 
-    private void runTestFromFile(String filePrefix) throws IOException, ClassNotFoundException {
+    private void runTestFromFile(String filePrefix) throws IOException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
-        CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
-                IOUtils.resourceToString("/" +
-                        filePrefix + ".before.java", Charset.defaultCharset()));
-        CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
-                IOUtils.resourceToString("/" +
-                        filePrefix + ".after.java", Charset.defaultCharset()));
         String gotOutput = bigIntegerReplace.transform(
                 IOUtils.resourceToString("/" +
                         filePrefix + ".before.java", Charset.defaultCharset()));
@@ -25,32 +18,32 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
-    public void testNothingChanges() throws IOException, ClassNotFoundException {
+    public void testNothingChanges() throws IOException {
         runTestFromFile("NothingChanges");
     }
 
     @Test
-    public void testReplaceVariableDeclarationType() throws IOException, ClassNotFoundException {
+    public void testReplaceVariableDeclarationType() throws IOException {
         runTestFromFile("ReplaceVariableDeclarationType");
     }
 
     @Test
-    public void testArithmeticOperations() throws IOException, ClassNotFoundException {
+    public void testArithmeticOperations() throws IOException {
         runTestFromFile("ArithmeticOperations");
     }
 
     @Test
-    public void testUnary() throws IOException, ClassNotFoundException {
+    public void testUnary() throws IOException {
         runTestFromFile("Unary");
     }
   
     @Test
-    public void testScannerFromImport() throws IOException, ClassNotFoundException {
+    public void testScannerFromImport() throws IOException {
         runTestFromFile("ScannerFromImport");
     }
 
     @Test
-    public void testScannerWithClass() throws IOException, ClassNotFoundException {
+    public void testScannerWithClass() throws IOException {
         runTestFromFile("ScannerWithClass");
     }
 }
