@@ -1,5 +1,6 @@
 import net.openhft.compiler.CompilerUtils;
 import org.apache.commons.io.IOUtils;
+
 import org.junit.Test;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -25,31 +26,26 @@ public class BigIntegerReplaceTest {
 
     @Test
     public void testNothingChanges() throws IOException, ClassNotFoundException {
-        runTestFromFile("NothingChanges");
+        runTestFromFile("/NothingChanges");
     }
 
     @Test
     public void testReplaceVariableDeclarationType() throws IOException, ClassNotFoundException {
-        runTestFromFile("ReplaceVariableDeclarationType");
+        runTestFromFile("/ReplaceVariableDeclarationType");
     }
 
-    @Test
-    public void testArithmeticOperations() throws IOException, ClassNotFoundException {
-        runTestFromFile("ArithmeticOperations");
-    }
-
-    @Test
-    public void testUnary() throws IOException, ClassNotFoundException {
-        runTestFromFile("Unary");
-    }
-  
     @Test
     public void testScannerFromImport() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerFromImport");
+        runTestFromFile("/ScannerFromImport");
     }
 
     @Test
     public void testScannerWithClass() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerWithClass");
+        runTestFromFile("/ScannerWithClass");
+    }
+
+    @Test
+    public void testNumericLiteralChanging() throws IOException, ClassNotFoundException {
+        runTestFromFile("/NumericLiteralChanging");
     }
 }
