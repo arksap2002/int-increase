@@ -35,12 +35,7 @@ public class BigIntegerReplaceTest {
     }
   
     @Test
-    public void testNumericLiteralChanging() throws IOException {
-        runTestFromFile("/NumericLiteralChanging");
-    }
-
-    @Test
-    public void testParse() throws IOException {
-        runTestFromFile("/NumericLiteralChanging");
+    public void testScannerWithClass() throws IOException {
+        runTestFromFile("/Parse");
     }
 }
