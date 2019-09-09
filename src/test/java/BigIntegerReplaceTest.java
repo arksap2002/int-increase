@@ -43,9 +43,4 @@ public class BigIntegerReplaceTest {
     public void testScannerWithClass() throws IOException, ClassNotFoundException {
         runTestFromFile("ScannerWithClass");
     }
-
-    @Test
-    public void testNumericLiteralChanging() throws IOException, ClassNotFoundException {
-        runTestFromFile("NumericLiteralChanging");
-    }
 }
