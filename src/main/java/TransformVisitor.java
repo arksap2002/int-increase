@@ -18,7 +18,7 @@ class TransformVisitor
 
     @Override
     public void visit(
-            final VariableDeclarator n,
+            final MethodCallExpr n,
             final JavaParserFacade javaParserFacade) {
         ResolvedMethodDeclaration resolvedN = n.resolve();
         if (resolvedN.getName().equals("nextInt") && resolvedN.
