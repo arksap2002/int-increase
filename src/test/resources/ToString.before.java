@@ -6,5 +6,6 @@ public class ToString {
         String string = Integer.toString(a);
         System.out.println(Integer.toString(2));
         System.out.println(Integer.toString(8));
+        System.out.println(a.toString());
     }
 }
