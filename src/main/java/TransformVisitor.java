@@ -1,6 +1,12 @@
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -10,9 +16,9 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 class TransformVisitor
         extends VoidVisitorAdapter<JavaParserFacade> {
 
-    public ClassOrInterfaceType bigIntegerType =
+    private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
-            new ClassOrInterfaceType("java"),"math"), "BigInteger");
+                    new ClassOrInterfaceType("java"), "math"), "BigInteger");
 
     @Override
     public void visit(
