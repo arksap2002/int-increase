@@ -17,7 +17,10 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 class TransformVisitor
         extends VoidVisitorAdapter<JavaParserFacade> {
 
-    private void changeMethodCallExpr(final MethodCallExpr n) {
+    @Override
+    public void visit(
+            final MethodCallExpr n,
+            final JavaParserFacade javaParserFacade) {
         ResolvedMethodDeclaration resolvedN = n.resolve();
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
@@ -34,7 +37,7 @@ class TransformVisitor
             super.visit(n, javaParserFacade);
             if (n.getInitializer().isPresent()) {
                 changeInitializerOfVariableDeclarator(n.getInitializer().
-                        get());
+                        get(), javaParserFacade);
             }
             n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType("java"),
@@ -43,21 +46,22 @@ class TransformVisitor
     }
 
     private void changeInitializerOfVariableDeclarator(
-            final Expression n) {
+            final Expression n,
+            final JavaParserFacade javaParserFacade) {
         if (n.isIntegerLiteralExpr()) {
             n.replace(createIntegerLiteralExpr(n.
                     asIntegerLiteralExpr().asInt()));
         } else if (n.isBinaryExpr()) {
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getLeft());
+                    getLeft(), javaParserFacade);
             changeInitializerOfVariableDeclarator(n.asBinaryExpr().
-                    getRight());
+                    getRight(), javaParserFacade);
             n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
                     operationOfBinaryExpr(n.asBinaryExpr()),
                     new NodeList<>(n.asBinaryExpr().getRight())));
         } else if (n.isUnaryExpr()) {
             changeInitializerOfVariableDeclarator(n.asUnaryExpr().
-                    getExpression());
+                    getExpression(), javaParserFacade);
             if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.MINUS)) {
                 n.replace(new MethodCallExpr(
@@ -70,9 +74,9 @@ class TransformVisitor
             }
         } else if (n.isEnclosedExpr()) {
             changeInitializerOfVariableDeclarator(
-                    n.asEnclosedExpr().getInner());
+                    n.asEnclosedExpr().getInner(), javaParserFacade);
         } else if (n.isMethodCallExpr()) {
-            changeMethodCallExpr(n.asMethodCallExpr());
+            visit(n.asMethodCallExpr(), javaParserFacade);
         } else {
             throw new UnsupportedOperationException();
         }
