@@ -10,32 +10,35 @@ public class BigIntegerReplaceTest {
 
     private void runTestFromFile(String filePrefix) throws IOException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
-        String gotOutput = bigIntegerReplace.transform(IOUtils.resourceToString(filePrefix + ".before.java", Charset.defaultCharset()));
-        assertEquals(IOUtils.resourceToString(filePrefix + ".after.java", Charset.defaultCharset()), gotOutput);
+        String gotOutput = bigIntegerReplace.transform(
+                IOUtils.resourceToString("/" +
+                        filePrefix + ".before.java", Charset.defaultCharset()));
+        assertEquals(IOUtils.resourceToString("/" +
+                filePrefix + ".after.java", Charset.defaultCharset()), gotOutput);
     }
 
     @Test
     public void testNothingChanges() throws IOException {
-        runTestFromFile("/NothingChanges");
+        runTestFromFile("NothingChanges");
     }
 
     @Test
     public void testReplaceVariableDeclarationType() throws IOException {
-        runTestFromFile("/ReplaceVariableDeclarationType");
+        runTestFromFile("ReplaceVariableDeclarationType");
     }
 
     @Test
     public void testArithmeticOperations() throws IOException {
-        runTestFromFile("/ArithmeticOperations");
+        runTestFromFile("ArithmeticOperations");
     }
-  
+
     @Test
     public void testScannerFromImport() throws IOException {
-        runTestFromFile("/ScannerFromImport");
+        runTestFromFile("ScannerFromImport");
     }
 
     @Test
     public void testScannerWithClass() throws IOException {
-        runTestFromFile("/ScannerWithClass");
+        runTestFromFile("ScannerWithClass");
     }
 }
