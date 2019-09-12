@@ -41,19 +41,19 @@ class TransformVisitor
                                                  javaParserFacade) {
         if (n.getArgument(0).isNameExpr()) {
             if (n.getArgument(0).asNameExpr().
-                resolve() instanceof JavaParserSymbolDeclaration) {
+                    resolve() instanceof JavaParserSymbolDeclaration) {
                 visit((VariableDeclarator)
-                                ((JavaParserSymbolDeclaration)
-                                        (n.getArgument(0).asNameExpr().
-                                                resolve())).
-                      getWrappedNode(), javaParserFacade);
+                        ((JavaParserSymbolDeclaration)
+                                (n.getArgument(0).asNameExpr().
+                                        resolve())).
+                                getWrappedNode(), javaParserFacade);
             }
             n.replace(new MethodCallExpr(n.getArgument(0).asNameExpr(),
                     "toString"));
         } else {
             changeInitializerOfVariableDeclarator(n.getArgument(0),
                     javaParserFacade);
-            n.replace(new MethodCallExpr(n.getArgument(0),"toString"));
+            n.replace(new MethodCallExpr(n.getArgument(0), "toString"));
         }
     }
 
