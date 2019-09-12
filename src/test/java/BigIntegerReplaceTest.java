@@ -33,4 +33,9 @@ public class BigIntegerReplaceTest {
     public void testScannerWithClass() throws IOException {
         runTestFromFile("/ScannerWithClass");
     }
+
+    @Test
+    public void testParse() throws IOException {
+        runTestFromFile("/Parse");
+    }
 }

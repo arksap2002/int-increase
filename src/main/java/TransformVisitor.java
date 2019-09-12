@@ -3,9 +3,10 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -29,6 +30,13 @@ class TransformVisitor
                 getPackageName().equals("java.util") && resolvedN.
                 getClassName().equals("Scanner")) {
             n.setName(new SimpleName("nextBigInteger"));
+        }
+        if (resolvedN.getName().equals("parseInt") && n.getArguments().
+                size() == 1 && resolvedN.getPackageName().
+                equals("java.lang") && resolvedN.getClassName().
+                equals("Integer")) {
+            n.replace(new ObjectCreationExpr(null, bigIntegerType,
+                    n.getArguments()));
         }
     }
 
@@ -59,6 +67,10 @@ class TransformVisitor
                     getRight(), javaParserFacade);
         } else if (n.isMethodCallExpr()) {
             visit(n.asMethodCallExpr(), javaParserFacade);
+        } else if (n.isObjectCreationExpr()) {
+            if (!n.asObjectCreationExpr().getType().equals(bigIntegerType)) {
+                throw new UnsupportedOperationException();
+            }
         } else {
             throw new UnsupportedOperationException();
         }
