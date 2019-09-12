@@ -1,5 +1,6 @@
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
@@ -8,10 +9,23 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 
 class TransformVisitor
         extends VoidVisitorAdapter<JavaParserFacade> {
+    @Override
+    public void visit(
+            final MethodCallExpr n,
+            final JavaParserFacade javaParserFacade) {
+        super.visit(n, javaParserFacade);
+        ResolvedMethodDeclaration resolvedN = n.resolve();
+        if (resolvedN.getName().equals("nextInt") && resolvedN.
+                getPackageName().equals("java.util") && resolvedN.
+                getClassName().equals("Scanner")) {
+            n.setName(new SimpleName("nextBigInteger"));
+        }
+    }
 
     @Override
     public void visit(
