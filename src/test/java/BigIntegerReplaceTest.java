@@ -38,4 +38,9 @@ public class BigIntegerReplaceTest {
     public void testArithmeticOperations() throws IOException {
         runTestFromFile("/ArithmeticOperations");
     }
+
+    @Test
+    public void testUnary() throws IOException {
+        runTestFromFile("/Unary");
+    }
 }
