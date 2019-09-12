@@ -40,34 +40,15 @@ class TransformVisitor
 
     private void mathAbsChanging(final MethodCallExpr n,
                                  final JavaParserFacade javaParserFacade) {
-        if (n.getArguments().get(0).isIntegerLiteralExpr()) {
-            n.replace(new MethodCallExpr(createIntegerLiteralExpr(n.
-                    getArguments().get(0).asIntegerLiteralExpr().asInt()),
-                    "abs"));
-        } else if (n.getArguments().get(0).isUnaryExpr()) {
-            if (n.getArguments().get(0).asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.MINUS)) {
-                n.replace(new MethodCallExpr(new MethodCallExpr(
-                        createIntegerLiteralExpr(n.getArguments().get(0).
-                                asUnaryExpr().getExpression().
-                                asIntegerLiteralExpr().asInt()), "negate"),
-                        "abs"));
-            } else if (n.getArguments().get(0).asUnaryExpr().getOperator().
-                    equals(UnaryExpr.Operator.PLUS)) {
-                n.replace(new MethodCallExpr(createIntegerLiteralExpr(
-                        n.getArguments().get(0).asUnaryExpr().
-                                getExpression().asIntegerLiteralExpr().
-                                asInt()), "abs"));
-            } else {
-                throw new UnsupportedOperationException();
-            }
-        } else if (n.getArguments().get(0).isMethodCallExpr()) {
+        if (n.getArguments().get(0).isMethodCallExpr()) {
             visit(n.getArguments().get(0).
                     asMethodCallExpr(), javaParserFacade);
             n.replace(new MethodCallExpr(
                     n.getArguments().get(0).asMethodCallExpr(), "abs"));
         } else {
-            throw new UnsupportedOperationException();
+            changeInitializerOfVariableDeclarator(n.getArguments().get(0),
+                    javaParserFacade);
+            n.replace(new MethodCallExpr(n, "abs"));
         }
     }
 
@@ -77,8 +58,8 @@ class TransformVisitor
     }
 
     private void mathMinOrMaxChanging(final String string,
-                                final MethodCallExpr n,
-                                final JavaParserFacade javaParserFacade) {
+                                      final MethodCallExpr n,
+                                      final JavaParserFacade javaParserFacade) {
         NodeList<Expression> nodeList = n.getArguments();
         Expression expressionFirst = null;
         Expression expressionSecond = null;
