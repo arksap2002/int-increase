@@ -2,7 +2,6 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
@@ -40,26 +39,7 @@ class TransformVisitor
     private void integerToStringChanging(final MethodCallExpr n,
                                          final JavaParserFacade
                                                  javaParserFacade) {
-        if (n.getArgument(0).isIntegerLiteralExpr()) {
-            n.replace(new MethodCallExpr(createIntegerLiteralExpr(
-                    n.getArgument(0).asIntegerLiteralExpr().asInt()),
-                    "toString"));
-        } else if (n.getArgument(0).isUnaryExpr()) {
-            if (n.getArgument(0).asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.MINUS)) {
-                n.replace(new MethodCallExpr(new MethodCallExpr(
-                        createIntegerLiteralExpr(n.getArgument(0).
-                                asUnaryExpr().getExpression().
-                                asIntegerLiteralExpr().asInt()),
-                        "negate"), "toString"));
-            } else if (n.getArgument(0).asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.PLUS)) {
-                n.replace(new MethodCallExpr(createIntegerLiteralExpr(
-                        n.getArgument(0).asUnaryExpr().getExpression().
-                                asIntegerLiteralExpr().asInt()),
-                        "toString"));
-            }
-        } else if (n.getArgument(0).isNameExpr()) {
+        if (n.getArgument(0).isNameExpr()) {
             if (n.getArgument(0).asNameExpr().
                 resolve() instanceof JavaParserSymbolDeclaration) {
                 visit((VariableDeclarator)
@@ -71,7 +51,9 @@ class TransformVisitor
             n.replace(new MethodCallExpr(n.getArgument(0).asNameExpr(),
                     "toString"));
         } else {
-            throw new UnsupportedOperationException();
+            changeInitializerOfVariableDeclarator(n.getArgument(0),
+                    javaParserFacade);
+            n.replace(new MethodCallExpr(n.getArgument(0),"toString"));
         }
     }
 
