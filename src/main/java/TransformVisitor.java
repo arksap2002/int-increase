@@ -5,7 +5,6 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -23,7 +22,9 @@ class TransformVisitor
         super.visit(n, javaParserFacade);
         ResolvedMethodDeclaration resolvedN = n.resolve();
         if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
-            mathAbsChanging(n, javaParserFacade);
+            changeInitializerOfVariableDeclarator(n.getArguments().get(0),
+                    javaParserFacade);
+            n.replace(new MethodCallExpr(n, "abs"));
         }
         if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
             mathMinOrMaxChanging("min", n, javaParserFacade);
@@ -38,20 +39,6 @@ class TransformVisitor
         }
     }
 
-    private void mathAbsChanging(final MethodCallExpr n,
-                                 final JavaParserFacade javaParserFacade) {
-        if (n.getArguments().get(0).isMethodCallExpr()) {
-            visit(n.getArguments().get(0).
-                    asMethodCallExpr(), javaParserFacade);
-            n.replace(new MethodCallExpr(
-                    n.getArguments().get(0).asMethodCallExpr(), "abs"));
-        } else {
-            changeInitializerOfVariableDeclarator(n.getArguments().get(0),
-                    javaParserFacade);
-            n.replace(new MethodCallExpr(n, "abs"));
-        }
-    }
-
     private boolean isMath(final ResolvedMethodDeclaration resolvedN) {
         return resolvedN.getPackageName().equals("java.lang")
                 && resolvedN.getClassName().equals("Math");
@@ -59,41 +46,19 @@ class TransformVisitor
 
     private void mathMinOrMaxChanging(final String string,
                                       final MethodCallExpr n,
-                                      final JavaParserFacade javaParserFacade) {
+                                      final JavaParserFacade
+                                              javaParserFacade) {
         NodeList<Expression> nodeList = n.getArguments();
         Expression expressionFirst = null;
         Expression expressionSecond = null;
         for (int i = 0; i < 2; i++) {
-            Expression expressionNow;
             Expression expr = nodeList.get(i);
-            if (expr.isIntegerLiteralExpr()) {
-                expressionNow = createIntegerLiteralExpr(
-                        expr.asIntegerLiteralExpr().asInt());
-            } else if (expr.isUnaryExpr()) {
-                if (expr.asUnaryExpr().getOperator().equals(UnaryExpr.
-                        Operator.MINUS)) {
-                    expressionNow = new MethodCallExpr(
-                            createIntegerLiteralExpr(expr.asUnaryExpr().
-                                    getExpression().asIntegerLiteralExpr().
-                                    asInt()), "negate");
-                } else if (expr.asUnaryExpr().getOperator().equals(
-                        UnaryExpr.Operator.PLUS)) {
-                    expressionNow = createIntegerLiteralExpr(expr.
-                            asUnaryExpr().getExpression().
-                            asIntegerLiteralExpr().asInt());
-                } else {
-                    throw new UnsupportedOperationException();
-                }
-            } else if (expr.isMethodCallExpr()) {
-                visit(expr.asMethodCallExpr(), javaParserFacade);
-                expressionNow = nodeList.get(i).asMethodCallExpr();
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            changeInitializerOfVariableDeclarator(
+                    expr, javaParserFacade);
             if (i == 0) {
-                expressionFirst = expressionNow;
+                expressionFirst = expr;
             } else {
-                expressionSecond = expressionNow;
+                expressionSecond = expr;
             }
         }
         n.replace(new MethodCallExpr(expressionFirst, string,
