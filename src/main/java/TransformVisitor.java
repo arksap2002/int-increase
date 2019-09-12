@@ -20,8 +20,8 @@ class TransformVisitor
     public void visit(
             final MethodCallExpr n,
             final JavaParserFacade javaParserFacade) {
-        ResolvedMethodDeclaration resolvedN = n.resolve();
         super.visit(n, javaParserFacade);
+        ResolvedMethodDeclaration resolvedN = n.resolve();
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
                 getClassName().equals("Scanner")) {
