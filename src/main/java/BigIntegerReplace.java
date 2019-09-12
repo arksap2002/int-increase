@@ -15,7 +15,8 @@ public final class BigIntegerReplace {
         compilationUnit.setData(
                 SYMBOL_RESOLVER_KEY,
                 new JavaSymbolSolver(reflectionTypeSolver));
-        (new PlanProgressing()).doReplace(compilationUnit, reflectionTypeSolver);
+        (new PlanProgressing()).doReplace(compilationUnit,
+                reflectionTypeSolver);
         compilationUnit.accept(
                 new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));

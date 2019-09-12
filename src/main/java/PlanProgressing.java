@@ -15,8 +15,8 @@ public class PlanProgressing {
     private ArrayList<MethodCallExpr>
             expressions = new ArrayList<>();
 
-    public void doReplace(CompilationUnit compilationUnit,
-                          ReflectionTypeSolver reflectionTypeSolver) {
+    final void doReplace(final CompilationUnit compilationUnit,
+                   final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new MakingPlanVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
         for (int i = 0; i < resolvedMethodDeclarations.size(); i++) {
