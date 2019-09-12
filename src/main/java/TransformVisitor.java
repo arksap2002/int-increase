@@ -21,6 +21,7 @@ class TransformVisitor
             final MethodCallExpr n,
             final JavaParserFacade javaParserFacade) {
         ResolvedMethodDeclaration resolvedN = n.resolve();
+        super.visit(n, javaParserFacade);
         if (resolvedN.getName().equals("nextInt") && resolvedN.
                 getPackageName().equals("java.util") && resolvedN.
                 getClassName().equals("Scanner")) {
@@ -32,8 +33,8 @@ class TransformVisitor
     public void visit(
             final VariableDeclarator n,
             final JavaParserFacade javaParserFacade) {
+        super.visit(n, javaParserFacade);
         if (n.getType().equals(PrimitiveType.intType())) {
-            super.visit(n, javaParserFacade);
             if (n.getInitializer().isPresent()) {
                 changeInitializerOfVariableDeclarator(n.getInitializer().
                         get(), javaParserFacade);
