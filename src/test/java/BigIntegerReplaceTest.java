@@ -28,7 +28,7 @@ public class BigIntegerReplaceTest {
     public void testNothingChanges() throws IOException, ClassNotFoundException {
         runTestFromFile("NothingChanges");
     }
-  
+
     @Test
     public void testReplaceVariableDeclarationType() throws IOException, ClassNotFoundException {
         runTestFromFile("ReplaceVariableDeclarationType");
