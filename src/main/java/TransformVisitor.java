@@ -48,21 +48,12 @@ class TransformVisitor
                                       final MethodCallExpr n,
                                       final JavaParserFacade
                                               javaParserFacade) {
-        NodeList<Expression> nodeList = n.getArguments();
-        Expression expressionFirst = null;
-        Expression expressionSecond = null;
-        for (int i = 0; i < 2; i++) {
-            Expression expr = nodeList.get(i);
-            changeInitializerOfVariableDeclarator(
-                    expr, javaParserFacade);
-            if (i == 0) {
-                expressionFirst = expr;
-            } else {
-                expressionSecond = expr;
-            }
-        }
-        n.replace(new MethodCallExpr(expressionFirst, string,
-                new NodeList<>(expressionSecond)));
+        changeInitializerOfVariableDeclarator(
+                n.getArguments().get(0), javaParserFacade);
+        changeInitializerOfVariableDeclarator(
+                n.getArguments().get(1), javaParserFacade);
+        n.replace(new MethodCallExpr(n.getArguments().get(0), string,
+                new NodeList<>(n.getArguments().get(1))));
     }
 
     @Override
