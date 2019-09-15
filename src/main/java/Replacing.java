@@ -14,8 +14,6 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 class Replacing {
 
