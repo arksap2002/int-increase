@@ -1,12 +1,7 @@
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
-import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -17,8 +12,10 @@ import java.util.ArrayList;
 
 class Replacing {
 
-    private ArrayList<Expression> expressions = new ArrayList<>();
-    private ArrayList<VariableDeclarator> variableDeclarators =
+    private ArrayList<Expression[]> expressions = new ArrayList<>();
+    private ArrayList<VariableDeclarator> variableDeclaratorsBefore =
+            new ArrayList<>();
+    private ArrayList<Expression> variableDeclaratorsAfter =
             new ArrayList<>();
 
     final void doReplace(final CompilationUnit compilationUnit,
@@ -30,13 +27,14 @@ class Replacing {
                              final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
-        for (Expression expression : expressions) {
-            expressionsChanging(expression);
+        for (Expression[] expression : expressions) {
+            expression[0].replace(expression[1]);
         }
-        for (VariableDeclarator variableDeclarator : variableDeclarators) {
-            variableDeclarator.setType(new ClassOrInterfaceType(
-                    new ClassOrInterfaceType(new ClassOrInterfaceType("java"),
-                            "math"), "BigInteger"));
+        for (int i = 0; i < variableDeclaratorsBefore.size(); i++) {
+            variableDeclaratorsBefore.get(i).setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
+                    new ClassOrInterfaceType("java"),
+                    "math"), "BigInteger"));
+            variableDeclaratorsBefore.get(i).replace(variableDeclaratorsAfter.get(i));
         }
     }
 
@@ -93,11 +91,31 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())) {
-                variableDeclarators.add(n);
+                variableDeclaratorsBefore.add(n);
                 if (n.getInitializer().isPresent()) {
-                    expressions.add(n.getInitializer().get());
+                    variableDeclaratorsAfter.add(makingAfter(
+                            n.getInitializer().get()));
                 }
             }
+        }
+
+        private Expression makingAfter(Expression n) {
+            if (n.isIntegerLiteralExpr()) {
+                return createIntegerLiteralExpr(n.asIntegerLiteralExpr().
+                        asInt());
+            } else if (n.isUnaryExpr()) {
+                if (n.asUnaryExpr().getOperator().equals(
+                        UnaryExpr.Operator.MINUS)) {
+                    return new MethodCallExpr(n.asUnaryExpr().getExpression(),
+                            "negate");
+                } else if (n.asUnaryExpr().getOperator().equals(
+                        UnaryExpr.Operator.PLUS)) {
+                    variableDeclaratorsAfter.add(
+                            n.asUnaryExpr().getExpression());
+                }
+                // add nameExpr
+            }
+            return n;
         }
 
         @Override
@@ -106,6 +124,23 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             expressions.add(n);
+        }
+
+        @Override
+        public void visit(
+                final BinaryExpr n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if ()
+            expressions.add(n);
+        }
+
+        @Override
+        public void visit(
+                final EnclosedExpr n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            expressions.add(new Expression[]{n, n.asEnclosedExpr().getInner()});
         }
     }
 }
