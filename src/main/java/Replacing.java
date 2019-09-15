@@ -15,7 +15,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 
 import java.util.ArrayList;
 
-public class Replacing {
+class Replacing {
 
     private ArrayList<Expression> expressions = new ArrayList<>();
     private ArrayList<VariableDeclarator> variableDeclarators =
@@ -23,6 +23,11 @@ public class Replacing {
 
     final void doReplace(final CompilationUnit compilationUnit,
                          final ReflectionTypeSolver reflectionTypeSolver) {
+        mainReplace(compilationUnit, reflectionTypeSolver);
+    }
+
+    private void mainReplace(final CompilationUnit compilationUnit,
+                           final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
         for (Expression expression : expressions) {

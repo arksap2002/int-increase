@@ -8,7 +8,7 @@ public class ReplaceVariableDeclarationType {
 
     double e = 9.75;
 
-    BigInteger bigInteger = BigInteger.ONE;
+    java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
 
     public static void main(String[] args) {
         java.math.BigInteger f;
