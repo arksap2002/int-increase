@@ -14,6 +14,8 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 class Replacing {
 
@@ -27,7 +29,7 @@ class Replacing {
     }
 
     private void mainReplace(final CompilationUnit compilationUnit,
-                           final ReflectionTypeSolver reflectionTypeSolver) {
+                             final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
         for (Expression expression : expressions) {
@@ -84,7 +86,7 @@ class Replacing {
         }
     }
 
-    class TransformVisitor
+    private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
         @Override
@@ -95,16 +97,7 @@ class Replacing {
             if (n.getType().equals(PrimitiveType.intType())) {
                 variableDeclarators.add(n);
                 if (n.getInitializer().isPresent()) {
-                    boolean flag = true;
-                    for (Expression expression : expressions) {
-                        if (expression.equals(
-                                n.getInitializer().get())) {
-                            flag = false;
-                        }
-                    }
-                    if (flag) {
-                        expressions.add(n.getInitializer().get());
-                    }
+                    expressions.add(n.getInitializer().get());
                 }
             }
         }
