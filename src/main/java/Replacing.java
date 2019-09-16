@@ -6,6 +6,7 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 
 class Replacing {
 
+    private ArrayList<Expression> expressionsBefore = new ArrayList<>();
+    private ArrayList<Expression> expressionsAfter = new ArrayList<>();
     private ArrayList<VariableDeclarator> variableDeclaratorsBefore =
             new ArrayList<>();
     private ArrayList<Expression> variableDeclaratorsAfter =
@@ -30,11 +33,14 @@ class Replacing {
                              final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
+        for (int i = 0; i < expressionsBefore.size(); i++) {
+            expressionsBefore.get(i).replace(expressionsAfter.get(i));
+        }
         for (int i = 0; i < variableDeclaratorsBefore.size(); i++) {
             variableDeclaratorsBefore.get(i).setType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType(
-                    new ClassOrInterfaceType("java"),
-                    "math"), "BigInteger"));
+                            new ClassOrInterfaceType("java"),
+                            "math"), "BigInteger"));
             if (variableDeclaratorsBefore.get(i).getInitializer().isPresent()) {
                 variableDeclaratorsBefore.get(i).getInitializer().get().replace(
                         variableDeclaratorsAfter.get(i));
@@ -89,6 +95,21 @@ class Replacing {
                         asInt());
             }
             return n;
+        }
+
+        @Override
+        public void visit(
+                final MethodCallExpr n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
+                    && n.asMethodCallExpr().resolve().getPackageName().
+                    equals("java.util") && n.asMethodCallExpr().resolve().
+                    getClassName().equals("Scanner")) {
+                expressionsBefore.add(n);
+                n.asMethodCallExpr().setName(new SimpleName("nextBigInteger"));
+                expressionsAfter.add(n);
+            }
         }
     }
 }

@@ -33,4 +33,14 @@ public class BigIntegerReplaceTest {
     public void testReplaceVariableDeclarationType() throws IOException, ClassNotFoundException {
         runTestFromFile("ReplaceVariableDeclarationType");
     }
+
+    @Test
+    public void testScannerWithClass() throws IOException, ClassNotFoundException {
+        runTestFromFile("ScannerWithClass");
+    }
+
+    @Test
+    public void testScannerFromImport() throws IOException, ClassNotFoundException {
+        runTestFromFile("ScannerFromImport");
+    }
 }
