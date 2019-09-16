@@ -21,12 +21,11 @@ class Replacing {
     private ArrayList<Expression> expressionsAfter = new ArrayList<>();
     private ArrayList<VariableDeclarator> variableDeclaratorsBefore =
             new ArrayList<>();
-    private ArrayList<Expression> variableDeclaratorsAfter =
-            new ArrayList<>();
 
-    final void doReplace(final CompilationUnit compilationUnit,
-                         final ReflectionTypeSolver reflectionTypeSolver) {
-        mainReplace(compilationUnit, reflectionTypeSolver);
+    static void doReplace(final CompilationUnit compilationUnit,
+                          final ReflectionTypeSolver reflectionTypeSolver) {
+        Replacing replacing = new Replacing();
+        replacing.mainReplace(compilationUnit, reflectionTypeSolver);
     }
 
     private void mainReplace(final CompilationUnit compilationUnit,
@@ -36,14 +35,14 @@ class Replacing {
         for (int i = 0; i < expressionsBefore.size(); i++) {
             expressionsBefore.get(i).replace(expressionsAfter.get(i));
         }
-        for (int i = 0; i < variableDeclaratorsBefore.size(); i++) {
-            variableDeclaratorsBefore.get(i).setType(new ClassOrInterfaceType(
+        for (VariableDeclarator variableDeclarator : variableDeclaratorsBefore) {
+            variableDeclarator.setType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType(
                             new ClassOrInterfaceType("java"),
                             "math"), "BigInteger"));
-            if (variableDeclaratorsBefore.get(i).getInitializer().isPresent()) {
-                variableDeclaratorsBefore.get(i).getInitializer().get().replace(
-                        variableDeclaratorsAfter.get(i));
+            if (variableDeclarator.getInitializer().isPresent()) {
+                variableDeclarator.setInitializer(makingAfter(
+                        variableDeclarator.getInitializer().get()));
             }
         }
     }
@@ -72,6 +71,14 @@ class Replacing {
         }
     }
 
+    private Expression makingAfter(final Expression n) {
+        if (n.isIntegerLiteralExpr()) {
+            return createIntegerLiteralExpr(n.asIntegerLiteralExpr().
+                    asInt());
+        }
+        return n;
+    }
+
     private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
@@ -82,19 +89,7 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())) {
                 variableDeclaratorsBefore.add(n);
-                if (n.getInitializer().isPresent()) {
-                    variableDeclaratorsAfter.add(makingAfter(
-                            n.getInitializer().get()));
-                }
             }
-        }
-
-        private Expression makingAfter(final Expression n) {
-            if (n.isIntegerLiteralExpr()) {
-                return createIntegerLiteralExpr(n.asIntegerLiteralExpr().
-                        asInt());
-            }
-            return n;
         }
 
         @Override

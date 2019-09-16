@@ -5,17 +5,16 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 
 import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
 
-final class BigIntegerReplace {
+public final class BigIntegerReplace {
 
-    String transform(final String string) {
+    public String transform(final String string) {
         CompilationUnit compilationUnit = JavaParser.parse(string);
         ReflectionTypeSolver reflectionTypeSolver =
                 new ReflectionTypeSolver();
         compilationUnit.setData(
                 SYMBOL_RESOLVER_KEY,
                 new JavaSymbolSolver(reflectionTypeSolver));
-        new Replacing().doReplace(compilationUnit,
-                reflectionTypeSolver);
+        Replacing.doReplace(compilationUnit, reflectionTypeSolver);
         return compilationUnit.toString();
     }
 }
