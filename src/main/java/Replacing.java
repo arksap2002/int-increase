@@ -83,7 +83,7 @@ class Replacing {
             }
         }
 
-        private Expression makingAfter(Expression n) {
+        private Expression makingAfter(final Expression n) {
             if (n.isIntegerLiteralExpr()) {
                 return createIntegerLiteralExpr(n.asIntegerLiteralExpr().
                         asInt());
