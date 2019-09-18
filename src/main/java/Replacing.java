@@ -15,11 +15,10 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 
 import java.util.ArrayList;
 
-class Replacing {
+class Replacing implements Runnable {
 
-    private ArrayList<Expression> expressionsBefore = new ArrayList<>();
-    private ArrayList<Expression> expressionsAfter = new ArrayList<>();
-    private ArrayList<VariableDeclarator> variableDeclaratorsBefore =
+    private ArrayList<ExpressionsToChange> expressions = new ArrayList<>();
+    private ArrayList<VariableDeclarator> variableDeclarators =
             new ArrayList<>();
 
     static void doReplace(final CompilationUnit compilationUnit,
@@ -32,10 +31,10 @@ class Replacing {
                              final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
-        for (int i = 0; i < expressionsBefore.size(); i++) {
-            expressionsBefore.get(i).replace(expressionsAfter.get(i));
+        for (ExpressionsToChange expression : expressions) {
+            expression.from.replace(expression.to);
         }
-        for (VariableDeclarator variableDeclarator : variableDeclaratorsBefore) {
+        for (VariableDeclarator variableDeclarator : variableDeclarators) {
             variableDeclarator.setType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType(
                             new ClassOrInterfaceType("java"),
@@ -79,6 +78,11 @@ class Replacing {
         return n;
     }
 
+    @Override
+    public void run() {
+
+    }
+
     private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
@@ -88,7 +92,7 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())) {
-                variableDeclaratorsBefore.add(n);
+                variableDeclarators.add(n);
             }
         }
 
@@ -101,10 +105,29 @@ class Replacing {
                     && n.asMethodCallExpr().resolve().getPackageName().
                     equals("java.util") && n.asMethodCallExpr().resolve().
                     getClassName().equals("Scanner")) {
-                expressionsBefore.add(n);
+                if (n.getScope().isPresent()) {
+                    expressions.add(new ExpressionsToChange(n,
+                            new MethodCallExpr(n.getScope().get(),
+                                    new SimpleName("nextBigInteger"),
+                                    n.getArguments())));
+                } else {
+                    expressions.add(new ExpressionsToChange(n,
+                            new MethodCallExpr(null,
+                                    new SimpleName("nextBigInteger"),
+                                    n.getArguments())));
+                }
                 n.asMethodCallExpr().setName(new SimpleName("nextBigInteger"));
-                expressionsAfter.add(n);
             }
+        }
+    }
+
+    class ExpressionsToChange {
+        private Expression from;
+        private Expression to;
+
+        ExpressionsToChange(final Expression first, final Expression second) {
+            from = first;
+            to = second;
         }
     }
 }
