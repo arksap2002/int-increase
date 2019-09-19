@@ -15,11 +15,9 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 
 import java.util.ArrayList;
 
-class Replacing implements Runnable {
+class Replacing {
 
-    private ArrayList<ExpressionsToChange> expressions = new ArrayList<>();
-    private ArrayList<VariableDeclarator> variableDeclarators =
-            new ArrayList<>();
+    private ArrayList<Runnable> changes = new ArrayList<>();
 
     static void doReplace(final CompilationUnit compilationUnit,
                           final ReflectionTypeSolver reflectionTypeSolver) {
@@ -31,18 +29,8 @@ class Replacing implements Runnable {
                              final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
-        for (ExpressionsToChange expression : expressions) {
-            expression.from.replace(expression.to);
-        }
-        for (VariableDeclarator variableDeclarator : variableDeclarators) {
-            variableDeclarator.setType(new ClassOrInterfaceType(
-                    new ClassOrInterfaceType(
-                            new ClassOrInterfaceType("java"),
-                            "math"), "BigInteger"));
-            if (variableDeclarator.getInitializer().isPresent()) {
-                variableDeclarator.setInitializer(makingAfter(
-                        variableDeclarator.getInitializer().get()));
-            }
+        for (Runnable change: changes) {
+            change.run();
         }
     }
 
@@ -78,11 +66,6 @@ class Replacing implements Runnable {
         return n;
     }
 
-    @Override
-    public void run() {
-
-    }
-
     private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
@@ -92,7 +75,14 @@ class Replacing implements Runnable {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())) {
-                variableDeclarators.add(n);
+                changes.add(() -> {
+                    n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
+                            new ClassOrInterfaceType("java"),
+                            "math"), "BigInteger"));
+                    if (n.getInitializer().isPresent()) {
+                        n.setInitializer(makingAfter(n.getInitializer().get()));
+                    }
+                });
             }
         }
 
@@ -106,28 +96,9 @@ class Replacing implements Runnable {
                     equals("java.util") && n.asMethodCallExpr().resolve().
                     getClassName().equals("Scanner")) {
                 if (n.getScope().isPresent()) {
-                    expressions.add(new ExpressionsToChange(n,
-                            new MethodCallExpr(n.getScope().get(),
-                                    new SimpleName("nextBigInteger"),
-                                    n.getArguments())));
-                } else {
-                    expressions.add(new ExpressionsToChange(n,
-                            new MethodCallExpr(null,
-                                    new SimpleName("nextBigInteger"),
-                                    n.getArguments())));
+                    changes.add(() -> n.asMethodCallExpr().setName(new SimpleName("nextBigInteger")));
                 }
-                n.asMethodCallExpr().setName(new SimpleName("nextBigInteger"));
             }
-        }
-    }
-
-    class ExpressionsToChange {
-        private Expression from;
-        private Expression to;
-
-        ExpressionsToChange(final Expression first, final Expression second) {
-            from = first;
-            to = second;
         }
     }
 }
