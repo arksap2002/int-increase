@@ -96,7 +96,8 @@ class Replacing {
                     equals("java.util") && n.asMethodCallExpr().resolve().
                     getClassName().equals("Scanner")) {
                 if (n.getScope().isPresent()) {
-                    changes.add(() -> n.asMethodCallExpr().setName(new SimpleName("nextBigInteger")));
+                    changes.add(() -> n.asMethodCallExpr().setName(
+                            new SimpleName("nextBigInteger")));
                 }
             }
         }
