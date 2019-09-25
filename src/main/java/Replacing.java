@@ -58,12 +58,22 @@ class Replacing {
         }
     }
 
-    private Expression makingAfter(final Expression n) {
+    private void makingAfter(final Expression n) {
         if (n.isIntegerLiteralExpr()) {
-            return createIntegerLiteralExpr(n.asIntegerLiteralExpr().
-                    asInt());
+            changes.add(() -> n.replace(createIntegerLiteralExpr(
+                    n.asIntegerLiteralExpr().asInt())));
         }
-        return n;
+        if (n.isMethodCallExpr()) {
+            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
+                    && n.asMethodCallExpr().resolve().getPackageName().
+                    equals("java.util") && n.asMethodCallExpr().resolve().
+                    getClassName().equals("Scanner")) {
+                if (n.asMethodCallExpr().getScope().isPresent()) {
+                    changes.add(() -> n.asMethodCallExpr().setName(
+                            new SimpleName("nextBigInteger")));
+                }
+            }
+        }
     }
 
     private class TransformVisitor
@@ -75,30 +85,13 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())) {
-                changes.add(() -> {
-                    n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
-                            new ClassOrInterfaceType("java"),
-                            "math"), "BigInteger"));
-                    if (n.getInitializer().isPresent()) {
-                        n.setInitializer(makingAfter(n.getInitializer().get()));
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void visit(
-                final MethodCallExpr n,
-                final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
-            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
-                    && n.asMethodCallExpr().resolve().getPackageName().
-                    equals("java.util") && n.asMethodCallExpr().resolve().
-                    getClassName().equals("Scanner")) {
-                if (n.getScope().isPresent()) {
-                    changes.add(() -> n.asMethodCallExpr().setName(
-                            new SimpleName("nextBigInteger")));
+                if (n.getInitializer().isPresent()) {
+                    makingAfter(n.getInitializer().get());
                 }
+                changes.add(() -> n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
+                        new ClassOrInterfaceType("java"),
+                        "math"), "BigInteger")));
+
             }
         }
     }
