@@ -94,5 +94,21 @@ class Replacing {
 
             }
         }
+
+        @Override
+        public void visit(
+                final MethodCallExpr n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
+                    && n.asMethodCallExpr().resolve().getPackageName().
+                    equals("java.util") && n.asMethodCallExpr().resolve().
+                    getClassName().equals("Scanner")) {
+                if (n.getScope().isPresent()) {
+                    changes.add(() -> n.asMethodCallExpr().setName(
+                            new SimpleName("nextBigInteger")));
+                }
+            }
+        }
     }
 }
