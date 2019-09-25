@@ -35,12 +35,12 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
-    public void testScannerFromImport() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerFromImport");
+    public void testScannerWithClass() throws IOException, ClassNotFoundException {
+        runTestFromFile("ScannerWithClass");
     }
 
     @Test
-    public void testScannerWithClass() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerWithClass");
+    public void testScannerFromImport() throws IOException, ClassNotFoundException {
+        runTestFromFile("ScannerFromImport");
     }
 }

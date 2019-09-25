@@ -1,7 +1,6 @@
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
-import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import static com.github.javaparser.ast.Node.SYMBOL_RESOLVER_KEY;
@@ -15,9 +14,7 @@ public final class BigIntegerReplace {
         compilationUnit.setData(
                 SYMBOL_RESOLVER_KEY,
                 new JavaSymbolSolver(reflectionTypeSolver));
-        compilationUnit.accept(
-                new TransformVisitor(),
-                JavaParserFacade.get(reflectionTypeSolver));
+        Replacing.doReplace(compilationUnit, reflectionTypeSolver);
         return compilationUnit.toString();
     }
 }

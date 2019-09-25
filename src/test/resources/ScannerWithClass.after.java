@@ -10,7 +10,6 @@ public class ScannerWithClass {
         double d = scanner.nextDouble();
         long e = scanner.nextLong();
         java.math.BigInteger f = scanner1.nextInt();
-        System.out.println(scanner.nextBigInteger());
     }
 
     static class Scanner {
