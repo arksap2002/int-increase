@@ -88,7 +88,8 @@ class Replacing {
                 if (n.getInitializer().isPresent()) {
                     makingAfter(n.getInitializer().get());
                 }
-                changes.add(() -> n.setType(new ClassOrInterfaceType(new ClassOrInterfaceType(
+                changes.add(() -> n.setType(new ClassOrInterfaceType(
+                        new ClassOrInterfaceType(
                         new ClassOrInterfaceType("java"),
                         "math"), "BigInteger")));
 
