@@ -101,20 +101,22 @@ class Replacing {
         } else if (n.isBinaryExpr()) {
             makingAfter(n.asBinaryExpr().getLeft());
             makingAfter(n.asBinaryExpr().getRight());
-            n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
+            changes.add(() -> n.replace(new MethodCallExpr(
+                n.asBinaryExpr().getLeft(),
                     operationOfBinaryExpr(n.asBinaryExpr()),
-                    new NodeList<>(n.asBinaryExpr().getRight())));
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
         } else if (n.isEnclosedExpr()) {
             makingAfter(n.asEnclosedExpr().getInner());
         } else if (n.isUnaryExpr()) {
             makingAfter(n.asUnaryExpr().getExpression());
             if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.MINUS)) {
-                n.replace(new MethodCallExpr(
-                        n.asUnaryExpr().getExpression(), "negate"));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asUnaryExpr().getExpression(), "negate")));
             } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.PLUS)) {
-                n.replace(n.asUnaryExpr().getExpression());
+                changes.add(() -> n.replace(
+                    n.asUnaryExpr().getExpression()));
             } else {
                 throw new UnsupportedOperationException();
             }
