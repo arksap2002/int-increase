@@ -11,7 +11,6 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
-import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
@@ -59,29 +58,7 @@ class Replacing {
         }
     }
 
-    private void integerToStringChanging(final MethodCallExpr n,
-                                         final JavaParserFacade
-                                                 javaParserFacade) {
-        if (n.getArgument(0).isNameExpr()) {
-            if (n.getArgument(0).asNameExpr().
-                    resolve() instanceof JavaParserSymbolDeclaration) {
-                new TransformVisitor().visit((VariableDeclarator)
-                        ((JavaParserSymbolDeclaration)
-                                (n.getArgument(0).asNameExpr().
-                                        resolve())).
-                                getWrappedNode(), javaParserFacade);
-            }
-            n.replace(new MethodCallExpr(n.getArgument(0).asNameExpr(),
-                    "toString"));
-        } else {
-            makingAfter(n.getArgument(0), javaParserFacade);
-            changes.add(() -> n.replace(new MethodCallExpr(
-                    n.getArgument(0), "toString")));
-        }
-    }
-
-    private void makingAfter(final Expression n,
-                             final JavaParserFacade javaParserFacade) {
+    private void makingAfter(final Expression n) {
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
                     n.asIntegerLiteralExpr().asInt())));
@@ -93,7 +70,7 @@ class Replacing {
                     getName().toString().equals("Integer")
                     && n.asMethodCallExpr().getName().toString().
                     equals("toString")) {
-                integerToStringChanging(n.asMethodCallExpr(), javaParserFacade);
+                makingAfter(n.asMethodCallExpr().getArgument(0));
             } else if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
                     && n.asMethodCallExpr().resolve().getPackageName().
                     equals("java.util") && n.asMethodCallExpr().resolve().
@@ -116,7 +93,7 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())) {
                 if (n.getInitializer().isPresent()) {
-                    makingAfter(n.getInitializer().get(), javaParserFacade);
+                    makingAfter(n.getInitializer().get());
                 }
                 changes.add(() -> n.setType(new ClassOrInterfaceType(
                         new ClassOrInterfaceType(
