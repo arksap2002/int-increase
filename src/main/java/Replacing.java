@@ -62,8 +62,7 @@ class Replacing {
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
                     n.asIntegerLiteralExpr().asInt())));
-        }
-        if (n.isMethodCallExpr()) {
+        } else if (n.isMethodCallExpr()) {
             if (n.asMethodCallExpr().getScope().isPresent()
                     && n.asMethodCallExpr().getScope().get().isNameExpr()
                     && n.asMethodCallExpr().getScope().get().asNameExpr().
@@ -71,6 +70,9 @@ class Replacing {
                     && n.asMethodCallExpr().getName().toString().
                     equals("toString")) {
                 makingAfter(n.asMethodCallExpr().getArgument(0));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArgument(0),
+                        new SimpleName("toString"))));
             } else if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
                     && n.asMethodCallExpr().resolve().getPackageName().
                     equals("java.util") && n.asMethodCallExpr().resolve().
@@ -80,6 +82,8 @@ class Replacing {
                             new SimpleName("nextBigInteger")));
                 }
             }
+        } else if (n.isNameExpr()) {
+
         }
     }
 
