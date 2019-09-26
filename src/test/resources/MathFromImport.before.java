@@ -14,7 +14,7 @@ public class MathFromImport {
 
     int f = Math.abs(Math.min(Math.max(-100, -9), Math.abs(Math.max(1, 2))));
 
-    int k = Math.abs(Math.min(Math.max(a, b), Math.abs(Math.max(c, d))));
+    int k = Math.abs(Math.min(Math.max(a, c), Math.abs(Math.max(c, d))));
 
     int m = Math.min(Math.min(Math.max(a, c), Math.abs(Math.max(d, f))), k);
 
@@ -23,6 +23,5 @@ public class MathFromImport {
     public static void main(String[] args) {
 
         int g = Math.abs(-10);
-        System.out.println(Math.max(Math.abs(-10), 90));
     }
 }
