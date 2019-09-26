@@ -100,9 +100,9 @@ class Replacing {
         } else if (n.isBinaryExpr()) {
             makingAfter(n.asBinaryExpr().getLeft());
             makingAfter(n.asBinaryExpr().getRight());
-            n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
+            changes.add(() -> n.replace(new MethodCallExpr(n.asBinaryExpr().getLeft(),
                     operationOfBinaryExpr(n.asBinaryExpr()),
-                    new NodeList<>(n.asBinaryExpr().getRight())));
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
         } else if (n.isEnclosedExpr()) {
             makingAfter(n.asEnclosedExpr().getInner());
         }
