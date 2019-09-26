@@ -5,6 +5,5 @@ public class Parse {
         String number1 = "11";
         java.math.BigInteger integer = new java.math.BigInteger(number);
         java.math.BigInteger integer1 = new java.math.BigInteger(number1);
-        System.out.println(new java.math.BigInteger(number));
     }
 }
