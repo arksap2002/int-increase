@@ -121,23 +121,23 @@ class Replacing {
         }
     }
 
-        private class TransformVisitor
-                extends VoidVisitorAdapter<JavaParserFacade> {
+    private class TransformVisitor
+            extends VoidVisitorAdapter<JavaParserFacade> {
 
-            @Override
-            public void visit(
-                    final VariableDeclarator n,
-                    final JavaParserFacade javaParserFacade) {
-                super.visit(n, javaParserFacade);
-                if (n.getType().equals(PrimitiveType.intType())) {
-                    if (n.getInitializer().isPresent()) {
-                        makingAfter(n.getInitializer().get());
-                    }
-                    changes.add(() -> n.setType(new ClassOrInterfaceType(
-                            new ClassOrInterfaceType(
-                                    new ClassOrInterfaceType("java"),
-                                    "math"), "BigInteger")));
+        @Override
+        public void visit(
+                final VariableDeclarator n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (n.getType().equals(PrimitiveType.intType())) {
+                if (n.getInitializer().isPresent()) {
+                    makingAfter(n.getInitializer().get());
                 }
+                changes.add(() -> n.setType(new ClassOrInterfaceType(
+                        new ClassOrInterfaceType(
+                                new ClassOrInterfaceType("java"),
+                                "math"), "BigInteger")));
             }
         }
     }
+}
