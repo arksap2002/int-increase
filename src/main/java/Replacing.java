@@ -85,7 +85,8 @@ class Replacing {
                     getArguments().size() == 1 && resolvedN.getPackageName().
                     equals("java.lang") && resolvedN.getClassName().
                     equals("Integer")) {
-                changes.add(() -> n.replace(new ObjectCreationExpr(null, bigIntegerType,
+                changes.add(() -> n.replace(new ObjectCreationExpr(
+                    null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
             }
         }
