@@ -5,9 +5,10 @@ public class ParseInt {
         String number1 = "11";
         java.math.BigInteger integer = new java.math.BigInteger(number);
         java.math.BigInteger integer1 = new java.math.BigInteger(number1);
+        java.math.BigInteger a = parseInt(10);
     }
 
-    public static void parseInt(int number) {
-        System.out.println("Hello");
+    public static int parseInt(int number) {
+        return number;
     }
 }

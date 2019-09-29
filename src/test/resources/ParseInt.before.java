@@ -4,9 +4,10 @@ public class ParseInt {
         String number1 = "11";
         int integer = Integer.parseInt(number);
         int integer1 = Integer.parseInt(number1);
+        int a = parseInt(10);
     }
 
-    public static void parseInt(int number) {
-        System.out.println("Hello");
+    public static int parseInt(int number) {
+        return number;
     }
 }
