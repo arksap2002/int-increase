@@ -20,12 +20,15 @@ public class ArithmeticOperations {
 
     java.math.BigInteger getBigInteger4 = java.math.BigInteger.valueOf(81);
 
+    java.math.BigInteger getBigInteger5 = java.math.BigInteger.valueOf(70).remainder(java.math.BigInteger.valueOf(7));
+
     public static void main(String[] args) {
         java.math.BigInteger d = java.math.BigInteger.ONE;
         long b = 100;
         String string = "One";
         double c = 1.1;
         java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
+        java.math.BigInteger q = java.math.BigInteger.valueOf(5).remainder(d);
         java.math.BigInteger m = java.math.BigInteger.ONE.add((java.math.BigInteger.TWO.multiply(java.math.BigInteger.valueOf(3)))).subtract(java.math.BigInteger.valueOf(100).multiply((java.math.BigInteger.valueOf(12).subtract(java.math.BigInteger.valueOf(11))))).subtract((java.math.BigInteger.valueOf(13).add((java.math.BigInteger.valueOf(12).divide(java.math.BigInteger.valueOf(3)))).add(java.math.BigInteger.ONE)).divide(java.math.BigInteger.valueOf(3)));
     }
 }

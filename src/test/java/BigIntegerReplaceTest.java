@@ -35,8 +35,8 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
-    public void testArithmeticOperations() throws IOException, ClassNotFoundException {
-        runTestFromFile("ArithmeticOperations");
+    public void testScannerWithClass() throws IOException, ClassNotFoundException {
+        runTestFromFile("ScannerWithClass");
     }
 
     @Test
@@ -45,7 +45,7 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
-    public void testScannerWithClass() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerWithClass");
+    public void testArithmeticOperations() throws IOException, ClassNotFoundException {
+        runTestFromFile("ArithmeticOperations");
     }
 }
