@@ -15,3 +15,5 @@ out/
 *.iml
 *.png
 *.dot
+src/main/java/Parsing.java
+src/main/resources

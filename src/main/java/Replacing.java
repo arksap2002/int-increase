@@ -12,6 +12,8 @@ import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ class Replacing {
                              final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
-        for (Runnable change: changes) {
+        for (Runnable change : changes) {
             change.run();
         }
     }
@@ -64,14 +66,6 @@ class Replacing {
                 && resolvedN.getClassName().equals("Math");
     }
 
-    private void mathMinOrMaxChanging(final String string,
-                                      final MethodCallExpr n) {
-        makingAfter(n.getArguments().get(0));
-        makingAfter(n.getArguments().get(1));
-        changes.add(() -> n.replace(new MethodCallExpr(n.getArguments().get(0),
-                string, new NodeList<>(n.getArguments().get(1)))));
-    }
-
     private void makingAfter(final Expression n) {
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
@@ -89,16 +83,54 @@ class Replacing {
                             new SimpleName("nextBigInteger")));
                 }
             }
-            if (isMath(resolvedN) && resolvedN.getName().equals("abs")) {
-                makingAfter(n.asMethodCallExpr().getArguments().get(0));
-                changes.add(() -> n.replace(new MethodCallExpr(n, "abs")));
+            if (isMath(resolvedN) && (resolvedN.getName().equals("abs"))) {
+                if (checkingArgumentForInt(n.asMethodCallExpr().getArguments().
+                        get(0))) {
+                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
+                    changes.add(() -> n.replace(new MethodCallExpr(
+                            n.asMethodCallExpr().getArguments().get(0),
+                            new SimpleName("abs"))));
+                }
             }
             if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
-                mathMinOrMaxChanging("min", n.asMethodCallExpr());
+                if (checkingArgumentForInt(n.asMethodCallExpr().getArguments().
+                        get(0)) && checkingArgumentForInt(n.asMethodCallExpr().
+                        getArguments().get(0))) {
+                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
+                    makingAfter(n.asMethodCallExpr().getArguments().get(1));
+                    changes.add(() -> n.replace(new MethodCallExpr(
+                            n.asMethodCallExpr().getArguments().get(0),
+                            "min", new NodeList<>(
+                            n.asMethodCallExpr().getArguments().get(1)))));
+                }
             }
             if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
-                mathMinOrMaxChanging("max", n.asMethodCallExpr());
+                if (checkingArgumentForInt(n.asMethodCallExpr().getArguments().
+                        get(0)) && checkingArgumentForInt(n.asMethodCallExpr().
+                        getArguments().get(0))) {
+                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
+                    makingAfter(n.asMethodCallExpr().getArguments().get(1));
+                    changes.add(() -> n.replace(new MethodCallExpr(
+                            n.asMethodCallExpr().getArguments().get(0),
+                            "max", new NodeList<>(
+                            n.asMethodCallExpr().getArguments().get(1)))));
+                }
             }
+        }
+    }
+
+    private boolean checkingArgumentForInt(final Expression n) {
+        if (!n.isNameExpr()) {
+            return true;
+        }
+        if (n.asNameExpr().resolve() instanceof JavaParserSymbolDeclaration) {
+            return ((VariableDeclarator) ((JavaParserSymbolDeclaration)
+                    (n.asNameExpr().resolve())).getWrappedNode()).getType().
+                    equals(PrimitiveType.intType());
+        } else {
+            return (((JavaParserFieldDeclaration) (n.asNameExpr().resolve())).
+                    getWrappedNode()).getVariable(0).getType().
+                    equals(PrimitiveType.intType());
         }
     }
 
