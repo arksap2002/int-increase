@@ -28,19 +28,19 @@ public class BigIntegerReplaceTest {
     public void testNothingChanges() throws IOException, ClassNotFoundException {
         runTestFromFile("NothingChanges");
     }
-  
+
     @Test
     public void testReplaceVariableDeclarationType() throws IOException, ClassNotFoundException {
         runTestFromFile("ReplaceVariableDeclarationType");
     }
 
     @Test
-    public void testScannerFromImport() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerFromImport");
+    public void testScannerWithClass() throws IOException, ClassNotFoundException {
+        runTestFromFile("ScannerWithClass");
     }
 
     @Test
-    public void testScannerWithClass() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerWithClass");
+    public void testScannerFromImport() throws IOException, ClassNotFoundException {
+        runTestFromFile("ScannerFromImport");
     }
 }
