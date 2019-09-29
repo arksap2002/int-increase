@@ -20,12 +20,15 @@ public class ArithmeticOperations {
 
     int getBigInteger4 = 81;
 
+    int getBigInteger5 = 70 % 7;
+
     public static void main(String[] args) {
         int d = 1;
         long b = 100;
         String string = "One";
         double c = 1.1;
         java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
+        int q = 5 % d;
         int m = 1 + (2 * 3) - 100 * (12 - 11) - (13 + (12 / 3) + 1) / 3;
     }
 }
