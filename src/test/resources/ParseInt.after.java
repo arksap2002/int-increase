@@ -1,4 +1,4 @@
-public class Parse {
+public class ParseInt {
 
     public static void main(String[] args) {
         String number = "10";
