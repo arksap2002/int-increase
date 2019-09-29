@@ -6,4 +6,8 @@ public class ParseInt {
         java.math.BigInteger integer = new java.math.BigInteger(number);
         java.math.BigInteger integer1 = new java.math.BigInteger(number1);
     }
+
+    public static void parseInt(int number) {
+        System.out.println("Hello");
+    }
 }
