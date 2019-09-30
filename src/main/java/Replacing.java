@@ -95,7 +95,7 @@ class Replacing {
             if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
                 if (checkingArgumentForInt(n.asMethodCallExpr().getArguments().
                         get(0)) && checkingArgumentForInt(n.asMethodCallExpr().
-                        getArguments().get(0))) {
+                        getArguments().get(1))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
                     makingAfter(n.asMethodCallExpr().getArguments().get(1));
                     changes.add(() -> n.replace(new MethodCallExpr(
@@ -107,7 +107,7 @@ class Replacing {
             if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
                 if (checkingArgumentForInt(n.asMethodCallExpr().getArguments().
                         get(0)) && checkingArgumentForInt(n.asMethodCallExpr().
-                        getArguments().get(0))) {
+                        getArguments().get(1))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
                     makingAfter(n.asMethodCallExpr().getArguments().get(1));
                     changes.add(() -> n.replace(new MethodCallExpr(
