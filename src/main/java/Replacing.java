@@ -98,7 +98,6 @@ class Replacing {
         if (n.isMethodCallExpr()) {
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                     resolve();
-        } else if (n.isMethodCallExpr()) {
             if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
                     && n.asMethodCallExpr().resolve().getPackageName().
                     equals("java.util") && n.asMethodCallExpr().resolve().
@@ -113,13 +112,14 @@ class Replacing {
                     equals("java.lang") && resolvedN.getClassName().
                     equals("Integer")) {
                 changes.add(() -> n.replace(new ObjectCreationExpr(
-                    null, bigIntegerType,
+                        null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
+            }
         } else if (n.isBinaryExpr()) {
             makingAfter(n.asBinaryExpr().getLeft());
             makingAfter(n.asBinaryExpr().getRight());
             changes.add(() -> n.replace(new MethodCallExpr(
-                n.asBinaryExpr().getLeft(),
+                    n.asBinaryExpr().getLeft(),
                     operationOfBinaryExpr(n.asBinaryExpr()),
                     new NodeList<>(n.asBinaryExpr().getRight()))));
         } else if (n.isEnclosedExpr()) {
@@ -133,7 +133,7 @@ class Replacing {
             } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.PLUS)) {
                 changes.add(() -> n.replace(
-                    n.asUnaryExpr().getExpression()));
+                        n.asUnaryExpr().getExpression()));
             } else {
                 throw new UnsupportedOperationException();
             }
