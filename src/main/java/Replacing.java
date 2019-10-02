@@ -7,9 +7,11 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
@@ -68,7 +70,9 @@ class Replacing {
                     n.asIntegerLiteralExpr().asInt())));
         }
         if (n.isMethodCallExpr()) {
-            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
+            ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                    resolve();
+            if (resolvedN.getName().equals("nextInt")
                     && n.asMethodCallExpr().resolve().getPackageName().
                     equals("java.util") && n.asMethodCallExpr().resolve().
                     getClassName().equals("Scanner")) {
@@ -76,6 +80,14 @@ class Replacing {
                     changes.add(() -> n.asMethodCallExpr().setName(
                             new SimpleName("nextBigInteger")));
                 }
+            }
+            if (resolvedN.getName().equals("parseInt") && n.asMethodCallExpr().
+                    getArguments().size() == 1 && resolvedN.getPackageName().
+                    equals("java.lang") && resolvedN.getClassName().
+                    equals("Integer")) {
+                changes.add(() -> n.replace(new ObjectCreationExpr(
+                    null, bigIntegerType,
+                        n.asMethodCallExpr().getArguments())));
             }
         }
     }
