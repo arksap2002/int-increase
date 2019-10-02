@@ -7,6 +7,9 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -21,6 +24,10 @@ import java.util.ArrayList;
 class Replacing {
 
     private ArrayList<Runnable> changes = new ArrayList<>();
+
+    private ClassOrInterfaceType bigIntegerType =
+            new ClassOrInterfaceType(new ClassOrInterfaceType(
+                    new ClassOrInterfaceType("java"), "math"), "BigInteger");
 
     static void doReplace(final CompilationUnit compilationUnit,
                           final ReflectionTypeSolver reflectionTypeSolver) {
@@ -65,6 +72,30 @@ class Replacing {
         return resolvedN.getPackageName().equals("java.lang")
                 && resolvedN.getClassName().equals("Math");
     }
+  
+    private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.PLUS)) {
+            return "add";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.MINUS)) {
+            return "subtract";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.MULTIPLY)) {
+            return "multiply";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.DIVIDE)) {
+            return "divide";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.REMAINDER)) {
+            return "remainder";
+        }
+        throw new UnsupportedOperationException();
+    }
 
     private void makingAfter(final Expression n) {
         if (n.isIntegerLiteralExpr()) {
@@ -74,7 +105,7 @@ class Replacing {
         if (n.isMethodCallExpr()) {
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                     resolve();
-            if (resolvedN.getName().equals("nextInt")
+            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
                     && n.asMethodCallExpr().resolve().getPackageName().
                     equals("java.util") && n.asMethodCallExpr().resolve().
                     getClassName().equals("Scanner")) {
@@ -116,6 +147,36 @@ class Replacing {
                             n.asMethodCallExpr().getArguments().get(1)))));
                 }
             }
+            if (resolvedN.getName().equals("parseInt") && n.asMethodCallExpr().
+                    getArguments().size() == 1 && resolvedN.getPackageName().
+                    equals("java.lang") && resolvedN.getClassName().
+                    equals("Integer")) {
+                changes.add(() -> n.replace(new ObjectCreationExpr(
+                        null, bigIntegerType,
+                        n.asMethodCallExpr().getArguments())));
+            }
+        } else if (n.isBinaryExpr()) {
+            makingAfter(n.asBinaryExpr().getLeft());
+            makingAfter(n.asBinaryExpr().getRight());
+            changes.add(() -> n.replace(new MethodCallExpr(
+                    n.asBinaryExpr().getLeft(),
+                    operationOfBinaryExpr(n.asBinaryExpr()),
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
+        } else if (n.isEnclosedExpr()) {
+            makingAfter(n.asEnclosedExpr().getInner());
+        } else if (n.isUnaryExpr()) {
+            makingAfter(n.asUnaryExpr().getExpression());
+            if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                    Operator.MINUS)) {
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asUnaryExpr().getExpression(), "negate")));
+            } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                    Operator.PLUS)) {
+                changes.add(() -> n.replace(
+                        n.asUnaryExpr().getExpression()));
+            } else {
+                throw new UnsupportedOperationException();
+            }
         }
     }
 
@@ -131,7 +192,6 @@ class Replacing {
             return (((JavaParserFieldDeclaration) (n.asNameExpr().resolve())).
                     getWrappedNode()).getVariable(0).getType().
                     equals(PrimitiveType.intType());
-        }
     }
 
     private class TransformVisitor
@@ -146,10 +206,7 @@ class Replacing {
                 if (n.getInitializer().isPresent()) {
                     makingAfter(n.getInitializer().get());
                 }
-                changes.add(() -> n.setType(new ClassOrInterfaceType(
-                        new ClassOrInterfaceType(
-                                new ClassOrInterfaceType("java"),
-                                "math"), "BigInteger")));
+                changes.add(() -> n.setType(bigIntegerType));
             }
         }
     }
