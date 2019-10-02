@@ -102,7 +102,7 @@ class Replacing {
             makingAfter(n.asBinaryExpr().getLeft());
             makingAfter(n.asBinaryExpr().getRight());
             changes.add(() -> n.replace(new MethodCallExpr(
-                n.asBinaryExpr().getLeft(),
+                    n.asBinaryExpr().getLeft(),
                     operationOfBinaryExpr(n.asBinaryExpr()),
                     new NodeList<>(n.asBinaryExpr().getRight()))));
         } else if (n.isEnclosedExpr()) {
@@ -116,7 +116,7 @@ class Replacing {
             } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.PLUS)) {
                 changes.add(() -> n.replace(
-                    n.asUnaryExpr().getExpression()));
+                        n.asUnaryExpr().getExpression()));
             } else {
                 throw new UnsupportedOperationException();
             }
