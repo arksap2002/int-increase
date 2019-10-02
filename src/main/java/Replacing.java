@@ -189,7 +189,7 @@ class Replacing {
     }
 
     private boolean isOfTypeInt(final Expression n) {
-        return  (n.calculateResolvedType().asPrimitive().getBoxTypeQName().equals("java.lang.Integer"));
+        return (n.calculateResolvedType().asPrimitive().getBoxTypeQName().equals("java.lang.Integer"));
     }
 
     private class TransformVisitor
