@@ -43,4 +43,14 @@ public class BigIntegerReplaceTest {
     public void testScannerFromImport() throws IOException, ClassNotFoundException {
         runTestFromFile("ScannerFromImport");
     }
+
+    @Test
+    public void testArithmeticOperations() throws IOException, ClassNotFoundException {
+        runTestFromFile("ArithmeticOperations");
+    }
+
+    @Test
+    public void testUnary() throws IOException, ClassNotFoundException {
+        runTestFromFile("Unary");
+    }
 }
