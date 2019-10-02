@@ -8,6 +8,7 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -30,7 +31,7 @@ class Replacing {
                              final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
-        for (Runnable change: changes) {
+        for (Runnable change : changes) {
             change.run();
         }
     }
@@ -106,6 +107,19 @@ class Replacing {
                     new NodeList<>(n.asBinaryExpr().getRight()))));
         } else if (n.isEnclosedExpr()) {
             makingAfter(n.asEnclosedExpr().getInner());
+        } else if (n.isUnaryExpr()) {
+            makingAfter(n.asUnaryExpr().getExpression());
+            if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                    Operator.MINUS)) {
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asUnaryExpr().getExpression(), "negate")));
+            } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                    Operator.PLUS)) {
+                changes.add(() -> n.replace(
+                    n.asUnaryExpr().getExpression()));
+            } else {
+                throw new UnsupportedOperationException();
+            }
         }
     }
 
