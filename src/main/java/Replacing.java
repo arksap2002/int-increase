@@ -72,7 +72,7 @@ class Replacing {
         return resolvedN.getPackageName().equals("java.lang")
                 && resolvedN.getClassName().equals("Math");
     }
-  
+
     private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
         if (binaryExpr.getOperator().equals(
                 BinaryExpr.Operator.PLUS)) {
@@ -192,6 +192,7 @@ class Replacing {
             return (((JavaParserFieldDeclaration) (n.asNameExpr().resolve())).
                     getWrappedNode()).getVariable(0).getType().
                     equals(PrimitiveType.intType());
+        }
     }
 
     private class TransformVisitor
