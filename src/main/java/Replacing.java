@@ -1,4 +1,5 @@
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
@@ -12,11 +13,18 @@ import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
+import com.github.javaparser.ast.visitor.GenericVisitor;
+import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
+import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
+import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
+import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
@@ -115,7 +123,7 @@ class Replacing {
                 }
             }
             if (isMath(resolvedN) && (resolvedN.getName().equals("abs"))) {
-                if (checkingArgumentForInt(n.asMethodCallExpr().getArguments().
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
                     changes.add(() -> n.replace(new MethodCallExpr(
@@ -124,8 +132,8 @@ class Replacing {
                 }
             }
             if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
-                if (checkingArgumentForInt(n.asMethodCallExpr().getArguments().
-                        get(0)) && checkingArgumentForInt(n.asMethodCallExpr().
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
                     makingAfter(n.asMethodCallExpr().getArguments().get(1));
@@ -136,8 +144,8 @@ class Replacing {
                 }
             }
             if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
-                if (checkingArgumentForInt(n.asMethodCallExpr().getArguments().
-                        get(0)) && checkingArgumentForInt(n.asMethodCallExpr().
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
                     makingAfter(n.asMethodCallExpr().getArguments().get(1));
@@ -180,19 +188,8 @@ class Replacing {
         }
     }
 
-    private boolean checkingArgumentForInt(final Expression n) {
-        if (!n.isNameExpr()) {
-            return true;
-        }
-        if (n.asNameExpr().resolve() instanceof JavaParserSymbolDeclaration) {
-            return ((VariableDeclarator) ((JavaParserSymbolDeclaration)
-                    (n.asNameExpr().resolve())).getWrappedNode()).getType().
-                    equals(PrimitiveType.intType());
-        } else {
-            return (((JavaParserFieldDeclaration) (n.asNameExpr().resolve())).
-                    getWrappedNode()).getVariable(0).getType().
-                    equals(PrimitiveType.intType());
-        }
+    private boolean isOfTypeInt(final Expression n) {
+        return  (n.calculateResolvedType().asPrimitive().getBoxTypeQName().equals("java.lang.Integer"));
     }
 
     private class TransformVisitor
