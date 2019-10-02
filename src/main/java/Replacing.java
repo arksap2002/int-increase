@@ -8,6 +8,8 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -35,7 +37,7 @@ class Replacing {
                              final ReflectionTypeSolver reflectionTypeSolver) {
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
-        for (Runnable change: changes) {
+        for (Runnable change : changes) {
             change.run();
         }
     }
@@ -64,6 +66,30 @@ class Replacing {
         }
     }
 
+    private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.PLUS)) {
+            return "add";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.MINUS)) {
+            return "subtract";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.MULTIPLY)) {
+            return "multiply";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.DIVIDE)) {
+            return "divide";
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.REMAINDER)) {
+            return "remainder";
+        }
+        throw new UnsupportedOperationException();
+    }
+
     private void makingAfter(final Expression n) {
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
@@ -72,7 +98,8 @@ class Replacing {
         if (n.isMethodCallExpr()) {
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                     resolve();
-            if (resolvedN.getName().equals("nextInt")
+        } else if (n.isMethodCallExpr()) {
+            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
                     && n.asMethodCallExpr().resolve().getPackageName().
                     equals("java.util") && n.asMethodCallExpr().resolve().
                     getClassName().equals("Scanner")) {
@@ -88,6 +115,27 @@ class Replacing {
                 changes.add(() -> n.replace(new ObjectCreationExpr(
                     null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
+        } else if (n.isBinaryExpr()) {
+            makingAfter(n.asBinaryExpr().getLeft());
+            makingAfter(n.asBinaryExpr().getRight());
+            changes.add(() -> n.replace(new MethodCallExpr(
+                n.asBinaryExpr().getLeft(),
+                    operationOfBinaryExpr(n.asBinaryExpr()),
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
+        } else if (n.isEnclosedExpr()) {
+            makingAfter(n.asEnclosedExpr().getInner());
+        } else if (n.isUnaryExpr()) {
+            makingAfter(n.asUnaryExpr().getExpression());
+            if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                    Operator.MINUS)) {
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asUnaryExpr().getExpression(), "negate")));
+            } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                    Operator.PLUS)) {
+                changes.add(() -> n.replace(
+                    n.asUnaryExpr().getExpression()));
+            } else {
+                throw new UnsupportedOperationException();
             }
         }
     }

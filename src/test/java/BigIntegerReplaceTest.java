@@ -48,4 +48,14 @@ public class BigIntegerReplaceTest {
     public void testParseInt() throws IOException, ClassNotFoundException {
         runTestFromFile("ParseInt");
     }
+    
+    @Test
+    public void testArithmeticOperations() throws IOException, ClassNotFoundException {
+        runTestFromFile("ArithmeticOperations");
+    }
+
+    @Test
+    public void testUnary() throws IOException, ClassNotFoundException {
+        runTestFromFile("Unary");
+    }
 }
