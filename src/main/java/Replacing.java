@@ -7,11 +7,13 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
@@ -20,6 +22,10 @@ import java.util.ArrayList;
 class Replacing {
 
     private ArrayList<Runnable> changes = new ArrayList<>();
+
+    private ClassOrInterfaceType bigIntegerType =
+            new ClassOrInterfaceType(new ClassOrInterfaceType(
+                    new ClassOrInterfaceType("java"), "math"), "BigInteger");
 
     static void doReplace(final CompilationUnit compilationUnit,
                           final ReflectionTypeSolver reflectionTypeSolver) {
@@ -88,7 +94,10 @@ class Replacing {
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
                     n.asIntegerLiteralExpr().asInt())));
-        } else if (n.isMethodCallExpr()) {
+        }
+        if (n.isMethodCallExpr()) {
+            ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                    resolve();
             if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
                     && n.asMethodCallExpr().resolve().getPackageName().
                     equals("java.util") && n.asMethodCallExpr().resolve().
@@ -97,6 +106,14 @@ class Replacing {
                     changes.add(() -> n.asMethodCallExpr().setName(
                             new SimpleName("nextBigInteger")));
                 }
+            }
+            if (resolvedN.getName().equals("parseInt") && n.asMethodCallExpr().
+                    getArguments().size() == 1 && resolvedN.getPackageName().
+                    equals("java.lang") && resolvedN.getClassName().
+                    equals("Integer")) {
+                changes.add(() -> n.replace(new ObjectCreationExpr(
+                        null, bigIntegerType,
+                        n.asMethodCallExpr().getArguments())));
             }
         } else if (n.isBinaryExpr()) {
             makingAfter(n.asBinaryExpr().getLeft());
@@ -135,10 +152,7 @@ class Replacing {
                 if (n.getInitializer().isPresent()) {
                     makingAfter(n.getInitializer().get());
                 }
-                changes.add(() -> n.setType(new ClassOrInterfaceType(
-                        new ClassOrInterfaceType(
-                                new ClassOrInterfaceType("java"),
-                                "math"), "BigInteger")));
+                changes.add(() -> n.setType(bigIntegerType));
             }
         }
     }
