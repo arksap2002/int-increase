@@ -14,6 +14,7 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
@@ -66,6 +67,11 @@ class Replacing {
         }
     }
 
+    private boolean isMath(final ResolvedMethodDeclaration resolvedN) {
+        return resolvedN.getPackageName().equals("java.lang")
+                && resolvedN.getClassName().equals("Math");
+    }
+
     private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
         if (binaryExpr.getOperator().equals(
                 BinaryExpr.Operator.PLUS)) {
@@ -107,6 +113,39 @@ class Replacing {
                             new SimpleName("nextBigInteger")));
                 }
             }
+            if (isMath(resolvedN) && (resolvedN.getName().equals("abs"))) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0))) {
+                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
+                    changes.add(() -> n.replace(new MethodCallExpr(
+                            n.asMethodCallExpr().getArguments().get(0),
+                            new SimpleName("abs"))));
+                }
+            }
+            if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
+                        getArguments().get(1))) {
+                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
+                    makingAfter(n.asMethodCallExpr().getArguments().get(1));
+                    changes.add(() -> n.replace(new MethodCallExpr(
+                            n.asMethodCallExpr().getArguments().get(0),
+                            "min", new NodeList<>(
+                            n.asMethodCallExpr().getArguments().get(1)))));
+                }
+            }
+            if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
+                        getArguments().get(1))) {
+                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
+                    makingAfter(n.asMethodCallExpr().getArguments().get(1));
+                    changes.add(() -> n.replace(new MethodCallExpr(
+                            n.asMethodCallExpr().getArguments().get(0),
+                            "max", new NodeList<>(
+                            n.asMethodCallExpr().getArguments().get(1)))));
+                }
+            }
             if (resolvedN.getName().equals("parseInt") && n.asMethodCallExpr().
                     getArguments().size() == 1 && resolvedN.getPackageName().
                     equals("java.lang") && resolvedN.getClassName().
@@ -138,6 +177,10 @@ class Replacing {
                 throw new UnsupportedOperationException();
             }
         }
+    }
+
+    private boolean isOfTypeInt(final Expression n) {
+        return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
     }
 
     private class TransformVisitor
