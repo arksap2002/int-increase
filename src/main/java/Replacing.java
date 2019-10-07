@@ -14,6 +14,8 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
+import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
@@ -179,8 +181,7 @@ class Replacing {
     }
 
     private boolean isOfTypeInt(final Expression n) {
-        return (n.calculateResolvedType().equals(
-                PrimitiveType.intType().resolve()));
+        return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
     }
 
     private class TransformVisitor
