@@ -2,6 +2,7 @@ import net.openhft.compiler.CompilerUtils;
 import org.apache.commons.io.IOUtils;
 
 import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -53,12 +54,12 @@ public class BigIntegerReplaceTest {
     public void testMathFromImport() throws IOException, ClassNotFoundException {
         runTestFromFile("MathFromImport");
     }
-  
+
     @Test
     public void testParseInt() throws IOException, ClassNotFoundException {
         runTestFromFile("ParseInt");
     }
-    
+
     @Test
     public void testArithmeticOperations() throws IOException, ClassNotFoundException {
         runTestFromFile("ArithmeticOperations");
@@ -72,5 +73,10 @@ public class BigIntegerReplaceTest {
     @Test
     public void testIf() throws IOException, ClassNotFoundException {
         runTestFromFile("If");
+    }
+  
+    @Test
+    public void testAssingExpr() throws IOException, ClassNotFoundException {
+        runTestFromFile("AssingExpr");
     }
 }

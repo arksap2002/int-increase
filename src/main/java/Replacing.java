@@ -11,6 +11,7 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -212,7 +213,7 @@ class Replacing {
             }
         }
     }
-
+  
     private boolean isOfTypeInt(final Expression n) {
         return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
     }
@@ -239,6 +240,16 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             makingAfter(n.getCondition());
+        }
+      
+        @Override
+        public void visit(
+                final AssignExpr n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (isOfTypeInt(n.getTarget())) {
+                makingAfter(n.getValue());
+            }
         }
     }
 }
