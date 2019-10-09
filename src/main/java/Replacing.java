@@ -94,30 +94,26 @@ class Replacing {
                 BinaryExpr.Operator.REMAINDER)) {
             return "remainder";
         }
-        return "";
+        throw new UnsupportedOperationException();
     }
 
-    private void operationOfIf(final BinaryExpr binaryExpr) {
+    private void changingOfBinaryExpr(final BinaryExpr binaryExpr) {
+        makingAfter(binaryExpr.asBinaryExpr().getLeft());
+        makingAfter(binaryExpr.asBinaryExpr().getRight());
         if (binaryExpr.getOperator().equals(
                 BinaryExpr.Operator.EQUALS)) {
             changes.add(() -> binaryExpr.replace(new MethodCallExpr(
                     binaryExpr.asBinaryExpr().getLeft(),
                     new SimpleName("equals"),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
-        }
-        if (binaryExpr.getOperator().equals(
+        } else if (binaryExpr.getOperator().equals(
                 BinaryExpr.Operator.NOT_EQUALS)) {
-            changes.add(() -> binaryExpr.replace(new UnaryExpr(new MethodCallExpr(
-                    binaryExpr.asBinaryExpr().getLeft(),
+            changes.add(() -> binaryExpr.replace(new UnaryExpr(
+                    new MethodCallExpr(binaryExpr.asBinaryExpr().getLeft(),
                     new SimpleName("equals"),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight())),
                     UnaryExpr.Operator.LOGICAL_COMPLEMENT)));
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.GREATER)) {
-            System.out.println("lala");
-        }
-        if (binaryExpr.getOperator().equals(
+        } else if (binaryExpr.getOperator().equals(
                 BinaryExpr.Operator.GREATER)
                 || binaryExpr.getOperator().equals(
                 BinaryExpr.Operator.GREATER_EQUALS)
@@ -130,8 +126,12 @@ class Replacing {
                     new SimpleName("compareTo"),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
             changes.add(() -> binaryExpr.setRight(new IntegerLiteralExpr(0)));
+        } else {
+            changes.add(() -> binaryExpr.replace(new MethodCallExpr(
+                    binaryExpr.asBinaryExpr().getLeft(),
+                    operationOfBinaryExpr(binaryExpr.asBinaryExpr()),
+                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
         }
-        throw new UnsupportedOperationException();
     }
 
     private void makingAfter(final Expression n) {
@@ -193,16 +193,7 @@ class Replacing {
                         n.asMethodCallExpr().getArguments())));
             }
         } else if (n.isBinaryExpr()) {
-            makingAfter(n.asBinaryExpr().getLeft());
-            makingAfter(n.asBinaryExpr().getRight());
-            if (!operationOfBinaryExpr(n.asBinaryExpr()).equals("")) {
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        n.asBinaryExpr().getLeft(),
-                        operationOfBinaryExpr(n.asBinaryExpr()),
-                        new NodeList<>(n.asBinaryExpr().getRight()))));
-            } else {
-                operationOfIf(n.asBinaryExpr());
-            }
+            changingOfBinaryExpr(n.asBinaryExpr());
         } else if (n.isEnclosedExpr()) {
             makingAfter(n.asEnclosedExpr().getInner());
         } else if (n.isUnaryExpr()) {
@@ -215,7 +206,8 @@ class Replacing {
                     Operator.PLUS)) {
                 changes.add(() -> n.replace(
                         n.asUnaryExpr().getExpression()));
-            } else {
+            } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                    Operator.LOGICAL_COMPLEMENT)) {
                 throw new UnsupportedOperationException();
             }
         }
