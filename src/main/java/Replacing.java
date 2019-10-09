@@ -112,7 +112,8 @@ class Replacing {
             changes.add(() -> binaryExpr.replace(new UnaryExpr(
                     new MethodCallExpr(binaryExpr.asBinaryExpr().getLeft(),
                             new SimpleName("equals"),
-                            new NodeList<>(binaryExpr.asBinaryExpr().getRight())),
+                            new NodeList<>(binaryExpr.asBinaryExpr().
+                                    getRight())),
                     UnaryExpr.Operator.LOGICAL_COMPLEMENT)));
         } else if (binaryExpr.getOperator().equals(
                 BinaryExpr.Operator.GREATER)
@@ -207,10 +208,9 @@ class Replacing {
                     Operator.PLUS)) {
                 changes.add(() -> n.replace(
                         n.asUnaryExpr().getExpression()));
-            } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+
+            } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.LOGICAL_COMPLEMENT)) {
-                //Do nothing
-            } else {
                 throw new UnsupportedOperationException();
             }
         }
