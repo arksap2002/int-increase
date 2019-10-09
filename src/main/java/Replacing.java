@@ -208,7 +208,6 @@ class Replacing {
                     Operator.PLUS)) {
                 changes.add(() -> n.replace(
                         n.asUnaryExpr().getExpression()));
-
             } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.LOGICAL_COMPLEMENT)) {
                 throw new UnsupportedOperationException();
