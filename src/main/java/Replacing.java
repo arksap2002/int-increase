@@ -10,6 +10,7 @@ import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -93,6 +94,43 @@ class Replacing {
                 BinaryExpr.Operator.REMAINDER)) {
             return "remainder";
         }
+        return "";
+    }
+
+    private void operationOfIf(final BinaryExpr binaryExpr) {
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.EQUALS)) {
+            changes.add(() -> binaryExpr.replace(new MethodCallExpr(
+                    binaryExpr.asBinaryExpr().getLeft(),
+                    new SimpleName("equals"),
+                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.NOT_EQUALS)) {
+            changes.add(() -> binaryExpr.replace(new UnaryExpr(new MethodCallExpr(
+                    binaryExpr.asBinaryExpr().getLeft(),
+                    new SimpleName("equals"),
+                    new NodeList<>(binaryExpr.asBinaryExpr().getRight())),
+                    UnaryExpr.Operator.LOGICAL_COMPLEMENT)));
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.GREATER)) {
+            System.out.println("lala");
+        }
+        if (binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.GREATER)
+                || binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.GREATER_EQUALS)
+                || binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.LESS)
+                || binaryExpr.getOperator().equals(
+                BinaryExpr.Operator.LESS_EQUALS)) {
+            changes.add(() -> binaryExpr.setLeft(new MethodCallExpr(
+                    binaryExpr.asBinaryExpr().getLeft(),
+                    new SimpleName("compareTo"),
+                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
+            changes.add(() -> binaryExpr.setRight(new IntegerLiteralExpr(0)));
+        }
         throw new UnsupportedOperationException();
     }
 
@@ -157,10 +195,14 @@ class Replacing {
         } else if (n.isBinaryExpr()) {
             makingAfter(n.asBinaryExpr().getLeft());
             makingAfter(n.asBinaryExpr().getRight());
-            changes.add(() -> n.replace(new MethodCallExpr(
-                    n.asBinaryExpr().getLeft(),
-                    operationOfBinaryExpr(n.asBinaryExpr()),
-                    new NodeList<>(n.asBinaryExpr().getRight()))));
+            if (!operationOfBinaryExpr(n.asBinaryExpr()).equals("")) {
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asBinaryExpr().getLeft(),
+                        operationOfBinaryExpr(n.asBinaryExpr()),
+                        new NodeList<>(n.asBinaryExpr().getRight()))));
+            } else {
+                operationOfIf(n.asBinaryExpr());
+            }
         } else if (n.isEnclosedExpr()) {
             makingAfter(n.asEnclosedExpr().getInner());
         } else if (n.isUnaryExpr()) {
@@ -197,6 +239,14 @@ class Replacing {
                 }
                 changes.add(() -> n.setType(bigIntegerType));
             }
+        }
+
+        @Override
+        public void visit(
+                final IfStmt n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            makingAfter(n.getCondition());
         }
     }
 }

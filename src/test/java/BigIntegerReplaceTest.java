@@ -68,4 +68,9 @@ public class BigIntegerReplaceTest {
     public void testUnary() throws IOException, ClassNotFoundException {
         runTestFromFile("Unary");
     }
+
+    @Test
+    public void testIf() throws IOException, ClassNotFoundException {
+        runTestFromFile("If");
+    }
 }
