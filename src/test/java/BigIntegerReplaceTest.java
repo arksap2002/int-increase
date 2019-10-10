@@ -79,4 +79,9 @@ public class BigIntegerReplaceTest {
     public void testAssingExpr() throws IOException, ClassNotFoundException {
         runTestFromFile("AssingExpr");
     }
+
+    @Test
+    public void testBrief() throws IOException, ClassNotFoundException {
+        runTestFromFile("Brief");
+    }
 }
