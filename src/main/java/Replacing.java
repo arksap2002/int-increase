@@ -120,10 +120,6 @@ class Replacing {
                 AssignExpr.Operator.REMAINDER)) {
             return "remainder";
         }
-        if (assignExpr.getOperator().equals(
-                AssignExpr.Operator.ASSIGN)) {
-            return "assign";
-        }
         throw new UnsupportedOperationException();
     }
 
