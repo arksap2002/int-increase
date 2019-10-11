@@ -22,10 +22,32 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 class Replacing {
 
     private ArrayList<Runnable> changes = new ArrayList<>();
+
+    final static private Map<AssignExpr.Operator, String> operatorfAssignExpr = new HashMap<>();
+
+    static {
+        operatorfAssignExpr.put(AssignExpr.Operator.PLUS, "add");
+        operatorfAssignExpr.put(AssignExpr.Operator.MINUS, "subtract");
+        operatorfAssignExpr.put(AssignExpr.Operator.DIVIDE, "divide");
+        operatorfAssignExpr.put(AssignExpr.Operator.MULTIPLY, "multiply");
+        operatorfAssignExpr.put(AssignExpr.Operator.REMAINDER, "remainder");
+    }
+
+    final static private Map<BinaryExpr.Operator, String> operatorfBinaryExpr = new HashMap<>();
+
+    static {
+        operatorfBinaryExpr.put(BinaryExpr.Operator.PLUS, "add");
+        operatorfBinaryExpr.put(BinaryExpr.Operator.MINUS, "subtract");
+        operatorfBinaryExpr.put(BinaryExpr.Operator.DIVIDE, "divide");
+        operatorfBinaryExpr.put(BinaryExpr.Operator.MULTIPLY, "multiply");
+        operatorfBinaryExpr.put(BinaryExpr.Operator.REMAINDER, "remainder");
+    }
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -75,54 +97,6 @@ class Replacing {
                 && resolvedN.getClassName().equals("Math");
     }
 
-    private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.PLUS)) {
-            return "add";
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.MINUS)) {
-            return "subtract";
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.MULTIPLY)) {
-            return "multiply";
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.DIVIDE)) {
-            return "divide";
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.REMAINDER)) {
-            return "remainder";
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    private String operationOfAssignExpr(final AssignExpr assignExpr) {
-        if (assignExpr.getOperator().equals(
-                AssignExpr.Operator.PLUS)) {
-            return "add";
-        }
-        if (assignExpr.getOperator().equals(
-                AssignExpr.Operator.MINUS)) {
-            return "subtract";
-        }
-        if (assignExpr.getOperator().equals(
-                AssignExpr.Operator.MULTIPLY)) {
-            return "multiply";
-        }
-        if (assignExpr.getOperator().equals(
-                AssignExpr.Operator.DIVIDE)) {
-            return "divide";
-        }
-        if (assignExpr.getOperator().equals(
-                AssignExpr.Operator.REMAINDER)) {
-            return "remainder";
-        }
-        throw new UnsupportedOperationException();
-    }
-
     private void changingOfBinaryExpr(final BinaryExpr binaryExpr) {
         makingAfter(binaryExpr.asBinaryExpr().getLeft());
         makingAfter(binaryExpr.asBinaryExpr().getRight());
@@ -156,7 +130,7 @@ class Replacing {
         } else {
             changes.add(() -> binaryExpr.replace(new MethodCallExpr(
                     binaryExpr.asBinaryExpr().getLeft(),
-                    operationOfBinaryExpr(binaryExpr.asBinaryExpr()),
+                    operatorfBinaryExpr.get(binaryExpr.getOperator()),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
         }
     }
@@ -302,7 +276,8 @@ class Replacing {
                 if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
                             new MethodCallExpr(
-                                    n.getValue(), operationOfAssignExpr(n),
+                                    n.getValue(), operatorfAssignExpr.get(
+                                    n.getOperator()),
                                     new NodeList<>(n.getTarget())),
                             AssignExpr.Operator.ASSIGN)));
                 }
