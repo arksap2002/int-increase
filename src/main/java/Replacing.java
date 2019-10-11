@@ -303,7 +303,7 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (isOfTypeInt(n.getTarget())) {
                 makingAfter(n.getValue());
-                if (!operationOfAssignExpr(n).equals("assign")) {
+                if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
                             new MethodCallExpr(
                                     n.getValue(), operationOfAssignExpr(n),
