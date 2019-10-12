@@ -10,6 +10,7 @@ import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -21,10 +22,34 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 class Replacing {
 
     private ArrayList<Runnable> changes = new ArrayList<>();
+
+    private static final Map<AssignExpr.Operator, String>
+            OPERATOR_OF_ASSIGN = new HashMap<>();
+
+    static {
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.PLUS, "add");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MINUS, "subtract");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.DIVIDE, "divide");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MULTIPLY, "multiply");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.REMAINDER, "remainder");
+    }
+
+    private static final Map<BinaryExpr.Operator, String>
+            OPERATOR_OF_BINARY = new HashMap<>();
+
+    static {
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.PLUS, "add");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MINUS, "subtract");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.DIVIDE, "divide");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MULTIPLY, "multiply");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
+    }
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -74,30 +99,6 @@ class Replacing {
                 && resolvedN.getClassName().equals("Math");
     }
 
-    private String operationOfBinaryExpr(final BinaryExpr binaryExpr) {
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.PLUS)) {
-            return "add";
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.MINUS)) {
-            return "subtract";
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.MULTIPLY)) {
-            return "multiply";
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.DIVIDE)) {
-            return "divide";
-        }
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.REMAINDER)) {
-            return "remainder";
-        }
-        throw new UnsupportedOperationException();
-    }
-
     private void changingOfBinaryExpr(final BinaryExpr binaryExpr) {
         makingAfter(binaryExpr.asBinaryExpr().getLeft());
         makingAfter(binaryExpr.asBinaryExpr().getRight());
@@ -131,7 +132,7 @@ class Replacing {
         } else {
             changes.add(() -> binaryExpr.replace(new MethodCallExpr(
                     binaryExpr.asBinaryExpr().getLeft(),
-                    operationOfBinaryExpr(binaryExpr.asBinaryExpr()),
+                    OPERATOR_OF_BINARY.get(binaryExpr.getOperator()),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
         }
     }
@@ -208,6 +209,30 @@ class Replacing {
                     Operator.PLUS)) {
                 changes.add(() -> n.replace(
                         n.asUnaryExpr().getExpression()));
+            } else if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_INCREMENT)
+                    && n.asUnaryExpr().getExpression().isNameExpr()
+                    && isOfTypeInt(
+                    n.asUnaryExpr().getExpression().asNameExpr())) {
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression().asNameExpr(),
+                        new MethodCallExpr(createIntegerLiteralExpr(1),
+                                new SimpleName("add"), new NodeList<>(
+                                n.asUnaryExpr().getExpression().
+                                        asNameExpr())),
+                        AssignExpr.Operator.ASSIGN)));
+            } else if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_DECREMENT)
+                    && n.asUnaryExpr().getExpression().isNameExpr()
+                    && isOfTypeInt(
+                    n.asUnaryExpr().getExpression().asNameExpr())) {
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression().asNameExpr(),
+                        new MethodCallExpr(createIntegerLiteralExpr(1),
+                                new SimpleName("subtract"), new NodeList<>(
+                                n.asUnaryExpr().getExpression().
+                                        asNameExpr())),
+                        AssignExpr.Operator.ASSIGN)));
             } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.LOGICAL_COMPLEMENT)) {
                 throw new UnsupportedOperationException();
@@ -250,7 +275,23 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (isOfTypeInt(n.getTarget())) {
                 makingAfter(n.getValue());
+                if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
+                    changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
+                            new MethodCallExpr(
+                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                    n.getOperator()),
+                                    new NodeList<>(n.getTarget())),
+                            AssignExpr.Operator.ASSIGN)));
+                }
             }
+        }
+
+        @Override
+        public void visit(
+                final ExpressionStmt n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            makingAfter(n.getExpression());
         }
     }
 }
