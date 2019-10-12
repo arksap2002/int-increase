@@ -29,24 +29,26 @@ class Replacing {
 
     private ArrayList<Runnable> changes = new ArrayList<>();
 
-    final static private Map<AssignExpr.Operator, String> operatorfAssignExpr = new HashMap<>();
+    private static final Map<AssignExpr.Operator, String>
+            OPERATOR_OF_ASSIGN = new HashMap<>();
 
     static {
-        operatorfAssignExpr.put(AssignExpr.Operator.PLUS, "add");
-        operatorfAssignExpr.put(AssignExpr.Operator.MINUS, "subtract");
-        operatorfAssignExpr.put(AssignExpr.Operator.DIVIDE, "divide");
-        operatorfAssignExpr.put(AssignExpr.Operator.MULTIPLY, "multiply");
-        operatorfAssignExpr.put(AssignExpr.Operator.REMAINDER, "remainder");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.PLUS, "add");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MINUS, "subtract");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.DIVIDE, "divide");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MULTIPLY, "multiply");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.REMAINDER, "remainder");
     }
 
-    final static private Map<BinaryExpr.Operator, String> operatorfBinaryExpr = new HashMap<>();
+    private static final Map<BinaryExpr.Operator, String>
+            OPERATOR_OF_BINARY = new HashMap<>();
 
     static {
-        operatorfBinaryExpr.put(BinaryExpr.Operator.PLUS, "add");
-        operatorfBinaryExpr.put(BinaryExpr.Operator.MINUS, "subtract");
-        operatorfBinaryExpr.put(BinaryExpr.Operator.DIVIDE, "divide");
-        operatorfBinaryExpr.put(BinaryExpr.Operator.MULTIPLY, "multiply");
-        operatorfBinaryExpr.put(BinaryExpr.Operator.REMAINDER, "remainder");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.PLUS, "add");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MINUS, "subtract");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.DIVIDE, "divide");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MULTIPLY, "multiply");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
     private ClassOrInterfaceType bigIntegerType =
@@ -130,7 +132,7 @@ class Replacing {
         } else {
             changes.add(() -> binaryExpr.replace(new MethodCallExpr(
                     binaryExpr.asBinaryExpr().getLeft(),
-                    operatorfBinaryExpr.get(binaryExpr.getOperator()),
+                    OPERATOR_OF_BINARY.get(binaryExpr.getOperator()),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
         }
     }
@@ -276,7 +278,7 @@ class Replacing {
                 if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
                             new MethodCallExpr(
-                                    n.getValue(), operatorfAssignExpr.get(
+                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
                                     n.getOperator()),
                                     new NodeList<>(n.getTarget())),
                             AssignExpr.Operator.ASSIGN)));
