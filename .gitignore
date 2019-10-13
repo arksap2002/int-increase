@@ -17,3 +17,4 @@ out/
 *.dot
 src/main/java/Parsing.java
 src/main/resources
+src/main/java/TestFile.java
