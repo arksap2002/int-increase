@@ -195,6 +195,15 @@ class Replacing {
                         null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
             }
+            if (resolvedN.getName().equals("signum") && n.asMethodCallExpr().
+                    getArguments().size() == 1 && resolvedN.getPackageName().
+                    equals("java.lang") && resolvedN.getClassName().
+                    equals("Integer")) {
+                makingAfter(n.asMethodCallExpr().getArgument(0));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArgument(0),
+                        n.asMethodCallExpr().getName())));
+            }
         } else if (n.isBinaryExpr()) {
             changingOfBinaryExpr(n.asBinaryExpr());
         } else if (n.isEnclosedExpr()) {
