@@ -237,6 +237,10 @@ class Replacing {
                     Operator.LOGICAL_COMPLEMENT)) {
                 throw new UnsupportedOperationException();
             }
+        } else if (n.isNameExpr()) {
+            if (!isOfTypeInt(n)) {
+                throw new UnsupportedOperationException();
+            }
         }
     }
 
