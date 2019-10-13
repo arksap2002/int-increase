@@ -186,6 +186,10 @@ class Replacing {
             } else {
                 throw new UnsupportedOperationException();
             }
+        } else if (n.isNameExpr()) {
+            if (!isOfTypeInt(n)) {
+                throw new UnsupportedOperationException();
+            }
         }
     }
 
