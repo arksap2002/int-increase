@@ -195,6 +195,23 @@ class Replacing {
                         null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
             }
+            if ((resolvedN.getName().equals("print")
+                    || resolvedN.getName().equals("println"))
+                    && ((resolvedN.getPackageName().equals("java.io")
+                    && resolvedN.getClassName().equals("PrintWriter"))
+                    || (n.asMethodCallExpr().getScope().isPresent()
+                    && n.asMethodCallExpr().getScope().get().
+                    isFieldAccessExpr()
+                    && n.asMethodCallExpr().getScope().get().
+                    asFieldAccessExpr().getName().toString().equals("out")
+                    && n.asMethodCallExpr().getScope().get().
+                    asFieldAccessExpr().getScope().isNameExpr()
+                    && n.asMethodCallExpr().getScope().get().
+                    asFieldAccessExpr().getScope().asNameExpr().getName().
+                    toString().equals("System")))
+                    && n.asMethodCallExpr().getArguments().size() == 1) {
+                makingAfter(n.asMethodCallExpr().getArgument(0));
+            }
         } else if (n.isBinaryExpr()) {
             changingOfBinaryExpr(n.asBinaryExpr());
         } else if (n.isEnclosedExpr()) {

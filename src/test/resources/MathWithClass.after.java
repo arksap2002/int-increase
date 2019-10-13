@@ -9,7 +9,7 @@ public class MathWithClass {
         java.math.BigInteger f = a.max(b).min(c.max(d));
         java.math.BigInteger g = c.max(d).max(e.max(f)).abs();
         java.math.BigInteger h = a.max(c).max(e.max(g)).min(b).abs();
-        System.out.println(java.lang.Math.max(java.lang.Math.abs(10), 90));
+        System.out.println(java.math.BigInteger.TEN.abs().max(java.math.BigInteger.valueOf(90)));
     }
 
     static class Math {
