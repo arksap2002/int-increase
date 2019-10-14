@@ -154,17 +154,6 @@ class Replacing {
                             new SimpleName("nextBigInteger")));
                 }
             }
-            if (n.asMethodCallExpr().getScope().isPresent()
-                    && n.asMethodCallExpr().getScope().get().isNameExpr()
-                    && n.asMethodCallExpr().getScope().get().asNameExpr().
-                    getName().toString().equals("Integer")
-                    && n.asMethodCallExpr().getName().toString().
-                    equals("toString")) {
-                makingAfter(n.asMethodCallExpr().getArgument(0));
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        n.asMethodCallExpr().getArgument(0),
-                        new SimpleName("toString"))));
-            }
             if (isMath(resolvedN) && (resolvedN.getName().equals("abs"))) {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0))) {
@@ -314,10 +303,11 @@ class Replacing {
                 final MethodCallExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.asMethodCallExpr().getScope().isPresent()
-                    && n.asMethodCallExpr().getScope().get().isNameExpr()
-                    && n.asMethodCallExpr().getScope().get().asNameExpr().
-                    getName().toString().equals("Integer")
+            ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                    resolve();
+            if (resolvedN.getPackageName().equals("java.lang")
+                    && resolvedN.getClassName().
+                    equals("Integer")
                     && n.asMethodCallExpr().getName().toString().
                     equals("toString")) {
                 makingAfter(n.asMethodCallExpr().getArgument(0));
