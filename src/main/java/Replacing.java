@@ -145,10 +145,8 @@ class Replacing {
         if (n.isMethodCallExpr()) {
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                     resolve();
-            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
-                    && n.asMethodCallExpr().resolve().getPackageName().
-                    equals("java.util") && n.asMethodCallExpr().resolve().
-                    getClassName().equals("Scanner")) {
+            if (resolvedN.getQualifiedName().
+                    equals("java.util.Scanner.nextInt")) {
                 if (n.asMethodCallExpr().getScope().isPresent()) {
                     changes.add(() -> n.asMethodCallExpr().setName(
                             new SimpleName("nextBigInteger")));
@@ -187,10 +185,9 @@ class Replacing {
                             n.asMethodCallExpr().getArguments().get(1)))));
                 }
             }
-            if (resolvedN.getName().equals("parseInt") && n.asMethodCallExpr().
-                    getArguments().size() == 1 && resolvedN.getPackageName().
-                    equals("java.lang") && resolvedN.getClassName().
-                    equals("Integer")) {
+            if (resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.parseInt")
+                    && n.asMethodCallExpr().getArguments().size() == 1) {
                 changes.add(() -> n.replace(new ObjectCreationExpr(
                         null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
@@ -305,11 +302,8 @@ class Replacing {
             super.visit(n, javaParserFacade);
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                     resolve();
-            if (resolvedN.getPackageName().equals("java.lang")
-                    && resolvedN.getClassName().
-                    equals("Integer")
-                    && n.asMethodCallExpr().getName().toString().
-                    equals("toString")) {
+            if (resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.toString")) {
                 makingAfter(n.asMethodCallExpr().getArgument(0));
                 changes.add(() -> n.replace(new MethodCallExpr(
                         n.asMethodCallExpr().getArgument(0),
