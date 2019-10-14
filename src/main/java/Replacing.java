@@ -197,6 +197,7 @@ class Replacing {
             }
         } else if (n.isFieldAccessExpr()) {
             ResolvedValueDeclaration resolvedN = n.asFieldAccessExpr().resolve();
+            //plus size
         } else if (n.isBinaryExpr()) {
             changingOfBinaryExpr(n.asBinaryExpr());
         } else if (n.isEnclosedExpr()) {
