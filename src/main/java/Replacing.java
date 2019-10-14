@@ -191,7 +191,7 @@ class Replacing {
             else if (isMath(resolvedN)) {
                 changes.add(() -> n.replace(new MethodCallExpr(
                         fieldAccessExpr, "valueOf",
-                        new NodeList<>(n.asMethodCallExpr()))));
+                        new NodeList<>(n.clone().asMethodCallExpr()))));
             }
             else if (resolvedN.getName().equals("parseInt") && n.asMethodCallExpr().
                     getArguments().size() == 1 && resolvedN.getPackageName().
