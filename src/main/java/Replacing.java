@@ -154,8 +154,8 @@ class Replacing {
                     changes.add(() -> n.asMethodCallExpr().setName(
                             new SimpleName("nextBigInteger")));
                 }
-            }
-            else if (isMath(resolvedN) && (resolvedN.getName().equals("abs"))) {
+            } else if (isMath(resolvedN)
+                    && (resolvedN.getName().equals("abs"))) {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
@@ -163,8 +163,7 @@ class Replacing {
                             n.asMethodCallExpr().getArguments().get(0),
                             new SimpleName("abs"))));
                 }
-            }
-            else if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
+            } else if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0)) && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
@@ -175,10 +174,9 @@ class Replacing {
                             "min", new NodeList<>(
                             n.asMethodCallExpr().getArguments().get(1)))));
                 }
-            }
-            else if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
-                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
+            } else if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().get(0))
+                        && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
                     makingAfter(n.asMethodCallExpr().getArguments().get(1));
@@ -187,14 +185,13 @@ class Replacing {
                             "max", new NodeList<>(
                             n.asMethodCallExpr().getArguments().get(1)))));
                 }
-            }
-            else if (isMath(resolvedN)) {
+            } else if (isMath(resolvedN)) {
                 changes.add(() -> n.replace(new MethodCallExpr(
                         fieldAccessExpr, "valueOf",
                         new NodeList<>(n.clone().asMethodCallExpr()))));
-            }
-            else if (resolvedN.getName().equals("parseInt") && n.asMethodCallExpr().
-                    getArguments().size() == 1 && resolvedN.getPackageName().
+            } else if (resolvedN.getName().equals("parseInt")
+                    && n.asMethodCallExpr().getArguments().size() == 1
+                    && resolvedN.getPackageName().
                     equals("java.lang") && resolvedN.getClassName().
                     equals("Integer")) {
                 changes.add(() -> n.replace(new ObjectCreationExpr(
