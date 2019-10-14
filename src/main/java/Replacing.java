@@ -29,6 +29,10 @@ class Replacing {
 
     private ArrayList<Runnable> changes = new ArrayList<>();
 
+    private FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
+            new FieldAccessExpr(
+                    new NameExpr("java"), "math"), "BigInteger");
+
     private static final Map<AssignExpr.Operator, String>
             OPERATOR_OF_ASSIGN = new HashMap<>();
 
@@ -72,9 +76,6 @@ class Replacing {
 
     private Expression createIntegerLiteralExpr(
             final int number) {
-        FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
-                new FieldAccessExpr(
-                        new NameExpr("java"), "math"), "BigInteger");
         if (number == 0) {
             return new FieldAccessExpr(
                     fieldAccessExpr, "ZERO");
@@ -296,6 +297,38 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             makingAfter(n.getExpression());
+        }
+
+        @Override
+        public void visit(
+                final MethodCallExpr n,
+                final JavaParserFacade javaParserFacade) {
+            if (n.getName().toString().equals("longValue")
+                    || n.getName().toString().equals("intValue")
+                    || n.getName().toString().equals("doubleValue")
+                    || n.getName().toString().equals("shortValue")
+                    || n.getName().toString().equals("floatValue")
+                    || n.getName().toString().equals("byteValue")) {
+                ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                        resolve();
+                super.visit(n, javaParserFacade);
+                if (resolvedN.getPackageName().equals("java.lang")
+                        && resolvedN.getClassName().equals("Integer")
+                        && n.asMethodCallExpr().getScope().isPresent()) {
+                    changes.add(() -> n.setScope(
+                            new MethodCallExpr(fieldAccessExpr, "valueOf",
+                                    new NodeList<>(n.asMethodCallExpr().
+                                            getScope().get()))));
+                }
+                if (n.asMethodCallExpr().getScope().isPresent()
+                        && n.asMethodCallExpr().getScope().get().
+                        isMethodCallExpr()
+                        && n.asMethodCallExpr().getScope().get().
+                        asMethodCallExpr().getScope().isPresent()) {
+                    changes.add(() -> n.asMethodCallExpr().getScope().get().
+                            asMethodCallExpr().setScope(fieldAccessExpr));
+                }
+            }
         }
     }
 }
