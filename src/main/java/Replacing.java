@@ -316,6 +316,10 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             makingAfter(n.getCondition());
+        }
+
+        @Override
+        public void visit(
                 final MethodCallExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
