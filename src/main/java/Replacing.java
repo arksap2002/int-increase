@@ -146,10 +146,8 @@ class Replacing {
         if (n.isMethodCallExpr()) {
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                     resolve();
-            if (n.asMethodCallExpr().resolve().getName().equals("nextInt")
-                    && n.asMethodCallExpr().resolve().getPackageName().
-                    equals("java.util") && n.asMethodCallExpr().resolve().
-                    getClassName().equals("Scanner")) {
+            if (resolvedN.getQualifiedName().
+                    equals("java.util.Scanner.nextInt")) {
                 if (n.asMethodCallExpr().getScope().isPresent()) {
                     changes.add(() -> n.asMethodCallExpr().setName(
                             new SimpleName("nextBigInteger")));
@@ -188,10 +186,9 @@ class Replacing {
                             n.asMethodCallExpr().getArguments().get(1)))));
                 }
             }
-            if (resolvedN.getName().equals("parseInt") && n.asMethodCallExpr().
-                    getArguments().size() == 1 && resolvedN.getPackageName().
-                    equals("java.lang") && resolvedN.getClassName().
-                    equals("Integer")) {
+            if (resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.parseInt")
+                    && n.asMethodCallExpr().getArguments().size() == 1) {
                 changes.add(() -> n.replace(new ObjectCreationExpr(
                         null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
@@ -303,15 +300,15 @@ class Replacing {
         public void visit(
                 final MethodCallExpr n,
                 final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                        resolve();
             if (n.getName().toString().equals("longValue")
                     || n.getName().toString().equals("intValue")
                     || n.getName().toString().equals("doubleValue")
                     || n.getName().toString().equals("shortValue")
                     || n.getName().toString().equals("floatValue")
                     || n.getName().toString().equals("byteValue")) {
-                ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
-                        resolve();
-                super.visit(n, javaParserFacade);
                 if (resolvedN.getPackageName().equals("java.lang")
                         && resolvedN.getClassName().equals("Integer")
                         && n.asMethodCallExpr().getScope().isPresent()) {
@@ -328,6 +325,12 @@ class Replacing {
                     changes.add(() -> n.asMethodCallExpr().getScope().get().
                             asMethodCallExpr().setScope(fieldAccessExpr));
                 }
+            if (resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.toString")) {
+                makingAfter(n.asMethodCallExpr().getArgument(0));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArgument(0),
+                        new SimpleName("toString"))));
             }
         }
     }
