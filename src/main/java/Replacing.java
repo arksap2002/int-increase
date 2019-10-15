@@ -321,21 +321,21 @@ class Replacing {
                                     new NodeList<>(n.asMethodCallExpr().
                                             getScope().get()))));
                 }
-                if (n.asMethodCallExpr().getScope().isPresent()
-                        && n.asMethodCallExpr().getScope().get().
-                        isMethodCallExpr()
-                        && n.asMethodCallExpr().getScope().get().
-                        asMethodCallExpr().getScope().isPresent()) {
-                    changes.add(() -> n.asMethodCallExpr().getScope().get().
-                            asMethodCallExpr().setScope(fieldAccessExpr));
-                }
-                if (resolvedN.getQualifiedName().
-                        equals("java.lang.Integer.toString")) {
-                    makingAfter(n.asMethodCallExpr().getArgument(0));
-                    changes.add(() -> n.replace(new MethodCallExpr(
-                            n.asMethodCallExpr().getArgument(0),
-                            new SimpleName("toString"))));
-                }
+//                if (n.asMethodCallExpr().getScope().isPresent()
+//                        && n.asMethodCallExpr().getScope().get().
+//                        isMethodCallExpr()
+//                        && n.asMethodCallExpr().getScope().get().
+//                        asMethodCallExpr().getScope().isPresent()) {
+//                    changes.add(() -> n.asMethodCallExpr().getScope().get().
+//                            asMethodCallExpr().setScope(fieldAccessExpr));
+//                }
+            }
+            if (resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.toString")) {
+                makingAfter(n.asMethodCallExpr().getArgument(0));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.clone().asMethodCallExpr().getArgument(0),
+                        new SimpleName("toString"))));
             }
         }
     }

@@ -88,7 +88,8 @@ public class BigIntegerReplaceTest {
     @Test
     public void testOtherTypeValues() throws IOException, ClassNotFoundException {
         runTestFromFile("OtherTypeValues");
-      
+    }
+    
     @Test
     public void testToString() throws IOException, ClassNotFoundException {
         runTestFromFile("ToString");
