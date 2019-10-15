@@ -302,16 +302,20 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
-                        resolve();
-            if (n.getName().toString().equals("longValue")
-                    || n.getName().toString().equals("intValue")
-                    || n.getName().toString().equals("doubleValue")
-                    || n.getName().toString().equals("shortValue")
-                    || n.getName().toString().equals("floatValue")
-                    || n.getName().toString().equals("byteValue")) {
-                if (resolvedN.getPackageName().equals("java.lang")
-                        && resolvedN.getClassName().equals("Integer")
-                        && n.asMethodCallExpr().getScope().isPresent()) {
+                    resolve();
+            if (resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.longValue")
+                    || resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.intValue")
+                    || resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.doubleValue")
+                    || resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.shortValue")
+                    || resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.floatValue")
+                    || resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.byteValue")) {
+                if (n.asMethodCallExpr().getScope().isPresent()) {
                     changes.add(() -> n.setScope(
                             new MethodCallExpr(fieldAccessExpr, "valueOf",
                                     new NodeList<>(n.asMethodCallExpr().
@@ -325,12 +329,13 @@ class Replacing {
                     changes.add(() -> n.asMethodCallExpr().getScope().get().
                             asMethodCallExpr().setScope(fieldAccessExpr));
                 }
-            if (resolvedN.getQualifiedName().
-                    equals("java.lang.Integer.toString")) {
-                makingAfter(n.asMethodCallExpr().getArgument(0));
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        n.asMethodCallExpr().getArgument(0),
-                        new SimpleName("toString"))));
+                if (resolvedN.getQualifiedName().
+                        equals("java.lang.Integer.toString")) {
+                    makingAfter(n.asMethodCallExpr().getArgument(0));
+                    changes.add(() -> n.replace(new MethodCallExpr(
+                            n.asMethodCallExpr().getArgument(0),
+                            new SimpleName("toString"))));
+                }
             }
         }
     }
