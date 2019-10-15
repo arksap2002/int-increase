@@ -88,7 +88,13 @@ public class BigIntegerReplaceTest {
     @Test
     public void testShift() throws IOException, ClassNotFoundException {
         runTestFromFile("Shift");
-      
+    }
+
+    @Test
+    public void testForWhile() throws IOException, ClassNotFoundException {
+        runTestFromFile("ForWhile");
+    }
+
     @Test
     public void testToString() throws IOException, ClassNotFoundException {
         runTestFromFile("ToString");
