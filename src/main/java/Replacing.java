@@ -11,8 +11,10 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.expr.AssignExpr;
+import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -294,6 +296,27 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             makingAfter(n.getExpression());
+        }
+
+        @Override
+        public void visit(
+                final ForStmt n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (n.getCompare().isPresent()) {
+                makingAfter(n.getCompare().get());
+            }
+            for (int i = 0; i < n.getUpdate().size(); i++) {
+                makingAfter(n.getUpdate().get(i));
+            }
+        }
+
+        @Override
+        public void visit(
+                final WhileStmt n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            makingAfter(n.getCondition());
         }
 
         @Override
