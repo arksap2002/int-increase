@@ -194,6 +194,17 @@ class Replacing {
                         null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
             }
+            if ((resolvedN.getQualifiedName().
+                    equals("java.io.PrintWriter.print")
+                || resolvedN.getQualifiedName().
+                    equals("java.io.PrintWriter.println")
+                || resolvedN.getQualifiedName().
+                    equals("java.io.PrintStream.print")
+                || resolvedN.getQualifiedName().
+                    equals("java.io.PrintStream.println"))
+                && n.asMethodCallExpr().getArguments().size() == 1) {
+                makingAfter(n.asMethodCallExpr().getArgument(0));
+            }
         } else if (n.isBinaryExpr()) {
             changingOfBinaryExpr(n.asBinaryExpr());
         } else if (n.isEnclosedExpr()) {
