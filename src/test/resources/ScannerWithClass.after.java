@@ -21,7 +21,6 @@ public class ScannerWithClass {
         }
 
         private void printOne() {
-            System.out.println(java.math.BigInteger.ONE);
         }
 
         private int nextInt() {
