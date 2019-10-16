@@ -16,8 +16,6 @@ public class Print {
     }
 
     static class PrintWriter {
-        public static void println(int number) {
-            return;
-        }
+        public static void println(int number) {}
     }
 }
