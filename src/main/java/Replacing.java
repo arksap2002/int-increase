@@ -185,10 +185,6 @@ class Replacing {
                             "max", new NodeList<>(
                             n.asMethodCallExpr().getArguments().get(1)))));
                 }
-            } else if (isMath(resolvedN)) {
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        fieldAccessExpr, "valueOf",
-                        new NodeList<>(n.clone().asMethodCallExpr()))));
             } else if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.parseInt")
                     && n.asMethodCallExpr().getArguments().size() == 1) {
