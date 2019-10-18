@@ -9,6 +9,9 @@ public class MathWithClass {
         int f = java.lang.Math.min(java.lang.Math.max(a, b), java.lang.Math.max(c, d));
         int g = java.lang.Math.abs(java.lang.Math.max(java.lang.Math.max(c, d), java.lang.Math.max(e, f)));
         int h = java.lang.Math.abs(java.lang.Math.min(java.lang.Math.max(java.lang.Math.max(a, c), java.lang.Math.max(e, g)), b));
+        int j = java.lang.Math.getExponent(-2);
+        int k = java.lang.Math.multiplyExact(1, 2);
+        int l = java.lang.Math.addExact(10, 2);
         System.out.println(java.lang.Math.max(java.lang.Math.abs(10), 90));
     }
 

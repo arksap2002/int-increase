@@ -9,6 +9,9 @@ public class MathWithClass {
         java.math.BigInteger f = a.max(b).min(c.max(d));
         java.math.BigInteger g = c.max(d).max(e.max(f)).abs();
         java.math.BigInteger h = a.max(c).max(e.max(g)).min(b).abs();
+        java.math.BigInteger j = java.math.BigInteger.valueOf(java.lang.Math.getExponent(-2));
+        java.math.BigInteger k = java.math.BigInteger.valueOf(java.lang.Math.multiplyExact(1, 2));
+        java.math.BigInteger l = java.math.BigInteger.valueOf(java.lang.Math.addExact(10, 2));
         System.out.println(java.math.BigInteger.TEN.abs().max(java.math.BigInteger.valueOf(90)));
     }
 
