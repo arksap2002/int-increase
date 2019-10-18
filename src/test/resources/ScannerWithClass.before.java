@@ -20,9 +20,7 @@ public class ScannerWithClass {
             int g = nextInt();
         }
 
-        private void printOne() {
-            System.out.println(1);
-        }
+        private void printOne() {}
 
         private int nextInt() {
             return 42;

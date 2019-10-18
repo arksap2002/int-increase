@@ -21,7 +21,6 @@ public class ScannerWithClass {
         }
 
         private void printOne() {
-            System.out.println(1);
         }
 
         private int nextInt() {
