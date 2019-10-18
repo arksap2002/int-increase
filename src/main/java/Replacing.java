@@ -31,6 +31,10 @@ class Replacing {
 
     private ArrayList<Runnable> changes = new ArrayList<>();
 
+    private FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
+            new FieldAccessExpr(
+                    new NameExpr("java"), "math"), "BigInteger");
+
     private static final Map<AssignExpr.Operator, String>
             OPERATOR_OF_ASSIGN = new HashMap<>();
 
@@ -74,9 +78,6 @@ class Replacing {
 
     private Expression createIntegerLiteralExpr(
             final int number) {
-        FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
-                new FieldAccessExpr(
-                        new NameExpr("java"), "math"), "BigInteger");
         if (number == 0) {
             return new FieldAccessExpr(
                     fieldAccessExpr, "ZERO");
@@ -153,8 +154,8 @@ class Replacing {
                     changes.add(() -> n.asMethodCallExpr().setName(
                             new SimpleName("nextBigInteger")));
                 }
-            }
-            if (isMath(resolvedN) && (resolvedN.getName().equals("abs"))) {
+            } else if (isMath(resolvedN)
+                    && (resolvedN.getName().equals("abs"))) {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
@@ -162,8 +163,7 @@ class Replacing {
                             n.asMethodCallExpr().getArguments().get(0),
                             new SimpleName("abs"))));
                 }
-            }
-            if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
+            } else if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0)) && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
@@ -174,10 +174,9 @@ class Replacing {
                             "min", new NodeList<>(
                             n.asMethodCallExpr().getArguments().get(1)))));
                 }
-            }
-            if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
-                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
+            } else if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().get(0))
+                        && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
                     makingAfter(n.asMethodCallExpr().getArguments().get(0));
                     makingAfter(n.asMethodCallExpr().getArguments().get(1));
@@ -186,8 +185,11 @@ class Replacing {
                             "max", new NodeList<>(
                             n.asMethodCallExpr().getArguments().get(1)))));
                 }
-            }
-            if (resolvedN.getQualifiedName().
+            } else if (isMath(resolvedN)) {
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        fieldAccessExpr, "valueOf",
+                        new NodeList<>(n.clone().asMethodCallExpr()))));
+            } else if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.parseInt")
                     && n.asMethodCallExpr().getArguments().size() == 1) {
                 changes.add(() -> n.replace(new ObjectCreationExpr(
