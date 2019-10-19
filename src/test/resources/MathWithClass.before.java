@@ -10,6 +10,8 @@ public class MathWithClass {
         int g /* BigInteger */ = java.lang.Math.abs(java.lang.Math.max(java.lang.Math.max(c, d), java.lang.Math.max(e, f)));
         int h /* BigInteger */ = java.lang.Math.abs(java.lang.Math.min(java.lang.Math.max(java.lang.Math.max(a, c), java.lang.Math.max(e, g)), b));
         System.out.println(java.lang.Math.max(java.lang.Math.abs(10), 90));
+        System.out.println(java.lang.Math.max(java.lang.Math.abs(10), f));
+
     }
 
     static class Math {

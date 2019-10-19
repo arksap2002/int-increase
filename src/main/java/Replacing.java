@@ -256,7 +256,9 @@ class Replacing {
         } else if (n.isNameExpr()) {
             if (!isOfTypeInt(n) || (isOfTypeInt(n)
                     && (!isInVariableDeclarators(n.asNameExpr())))) {
-                throw new UnsupportedOperationException();
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        fieldAccessExpr, "valueOf",
+                        new NodeList<>(n.clone()))));
             }
         }
     }
