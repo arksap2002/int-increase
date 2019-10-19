@@ -20,8 +20,10 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
@@ -266,12 +268,83 @@ class Replacing {
     private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
+        private boolean isInVariableDeclarators(NameExpr n) {
+            return n.resolve() instanceof JavaParserSymbolDeclaration
+                    && VARIABLE_DECLARATORS.contains((VariableDeclarator)
+                    ((JavaParserSymbolDeclaration)
+                            (n.resolve())).getWrappedNode());
+        }
+
+        private boolean isChange(Expression n) {
+            if (n.isIntegerLiteralExpr()) {
+                return false;
+            }
+            if (n.isMethodCallExpr()) {
+                ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                        resolve();
+                if (isMath(resolvedN)
+                        && (resolvedN.getName().equals("abs"))) {
+                    if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                            get(0))) {
+                        return isChange(n.asMethodCallExpr().getArguments().
+                                get(0));
+                    }
+                } else if (isMath(resolvedN) && (resolvedN.getName().equals("min")
+                        || resolvedN.getName().equals("max"))) {
+                    if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                            get(0)) && isOfTypeInt(n.asMethodCallExpr().
+                            getArguments().get(1))) {
+                        return isChange(n.asMethodCallExpr().getArguments().get(0))
+                                && isChange(n.asMethodCallExpr().
+                                getArguments().get(1));
+                    }
+                } else if ((resolvedN.getQualifiedName().
+                        equals("java.io.PrintWriter.print")
+                        || resolvedN.getQualifiedName().
+                        equals("java.io.PrintWriter.println")
+                        || resolvedN.getQualifiedName().
+                        equals("java.io.PrintStream.print")
+                        || resolvedN.getQualifiedName().
+                        equals("java.io.PrintStream.println"))
+                        && n.asMethodCallExpr().getArguments().size() == 1) {
+                    return isChange(n.asMethodCallExpr().getArgument(0));
+                }
+            } else if (n.isBinaryExpr()) {
+                return isChange(n.asBinaryExpr().getLeft())
+                        && isChange(n.asBinaryExpr().getRight());
+            } else if (n.isEnclosedExpr()) {
+                return isChange(n.asEnclosedExpr().getInner());
+            } else if (n.isUnaryExpr()) {
+                isChange(n.asUnaryExpr().getExpression());
+                if (n.asUnaryExpr().getOperator().equals(
+                        UnaryExpr.Operator.POSTFIX_INCREMENT)
+                        && n.asUnaryExpr().getExpression().isNameExpr()
+                        && isOfTypeInt(
+                        n.asUnaryExpr().getExpression().asNameExpr())) {
+                    return isInVariableDeclarators(n.asUnaryExpr().
+                            getExpression().asNameExpr());
+                }
+                if (n.asUnaryExpr().getOperator().equals(
+                        UnaryExpr.Operator.POSTFIX_DECREMENT)
+                        && n.asUnaryExpr().getExpression().isNameExpr()
+                        && isOfTypeInt(
+                        n.asUnaryExpr().getExpression().asNameExpr())) {
+                    return isInVariableDeclarators(n.asUnaryExpr().
+                            getExpression().asNameExpr());
+                }
+            } else if (n.isNameExpr()) {
+                return isInVariableDeclarators(n.asNameExpr());
+            }
+            return false;
+        }
+
         @Override
         public void visit(
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.getType().equals(PrimitiveType.intType())) {
+            if (n.getType().equals(PrimitiveType.intType())
+                    && VARIABLE_DECLARATORS.contains(n)) {
                 if (n.getInitializer().isPresent()) {
                     makingAfter(n.getInitializer().get());
                 }
@@ -284,7 +357,9 @@ class Replacing {
                 final IfStmt n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            makingAfter(n.getCondition());
+            if (isChange(n.getCondition())) {
+                makingAfter(n.getCondition());
+            }
         }
 
         @Override
@@ -292,7 +367,10 @@ class Replacing {
                 final AssignExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (isOfTypeInt(n.getTarget())) {
+            if (isOfTypeInt(n.getTarget())
+                    && n.getTarget().isNameExpr()
+                    && isInVariableDeclarators(n.getTarget().asNameExpr())
+                    && isChange(n.getTarget().asNameExpr())) {
                 makingAfter(n.getValue());
                 if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
@@ -310,7 +388,9 @@ class Replacing {
                 final ExpressionStmt n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            makingAfter(n.getExpression());
+            if (isChange(n.getExpression())) {
+                makingAfter(n.getExpression());
+            }
         }
 
         @Override
@@ -319,10 +399,14 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getCompare().isPresent()) {
-                makingAfter(n.getCompare().get());
+                if (isChange(n.getCompare().get())) {
+                    makingAfter(n.getCompare().get());
+                }
             }
             for (int i = 0; i < n.getUpdate().size(); i++) {
-                makingAfter(n.getUpdate().get(i));
+                if (isChange(n.getUpdate().get(i))) {
+                    makingAfter(n.getUpdate().get(i));
+                }
             }
         }
 
@@ -331,7 +415,9 @@ class Replacing {
                 final WhileStmt n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            makingAfter(n.getCondition());
+            if (isChange(n.getCondition())) {
+                makingAfter(n.getCondition());
+            }
         }
 
         @Override
@@ -343,10 +429,12 @@ class Replacing {
                     resolve();
             if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.toString")) {
-                makingAfter(n.asMethodCallExpr().getArgument(0));
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        n.asMethodCallExpr().getArgument(0),
-                        new SimpleName("toString"))));
+                if (isChange(n.asMethodCallExpr().getArgument(0))) {
+                    makingAfter(n.asMethodCallExpr().getArgument(0));
+                    changes.add(() -> n.replace(new MethodCallExpr(
+                            n.asMethodCallExpr().getArgument(0),
+                            new SimpleName("toString"))));
+                }
             }
         }
     }

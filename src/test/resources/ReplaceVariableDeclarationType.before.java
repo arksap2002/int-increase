@@ -1,6 +1,6 @@
 public class ReplaceVariableDeclarationType {
 
-    int a;
+    int a /* BigInteger */;
 
     long b = 1;
 
