@@ -20,7 +20,6 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
@@ -61,7 +60,7 @@ class Replacing {
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
-    private static final HashSet<VariableDeclarator> VARIABLE_DECLARATORS =
+    private final HashSet<VariableDeclarator> VARIABLE_DECLARATORS =
             new HashSet<>();
 
     private ClassOrInterfaceType bigIntegerType =
@@ -255,7 +254,8 @@ class Replacing {
                 throw new UnsupportedOperationException();
             }
         } else if (n.isNameExpr()) {
-            if (!isOfTypeInt(n)) {
+            if (!isOfTypeInt(n) || (isOfTypeInt(n)
+                    && (!isInVariableDeclarators(n.asNameExpr())))) {
                 throw new UnsupportedOperationException();
             }
         }
@@ -265,15 +265,15 @@ class Replacing {
         return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
     }
 
+    private boolean isInVariableDeclarators(NameExpr n) {
+        return n.resolve() instanceof JavaParserSymbolDeclaration
+                && VARIABLE_DECLARATORS.contains((VariableDeclarator)
+                ((JavaParserSymbolDeclaration)
+                        (n.resolve())).getWrappedNode());
+    }
+
     private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
-
-        private boolean isInVariableDeclarators(NameExpr n) {
-            return n.resolve() instanceof JavaParserSymbolDeclaration
-                    && VARIABLE_DECLARATORS.contains((VariableDeclarator)
-                    ((JavaParserSymbolDeclaration)
-                            (n.resolve())).getWrappedNode());
-        }
 
         private boolean isChange(Expression n) {
             if (n.isIntegerLiteralExpr()) {
@@ -289,13 +289,15 @@ class Replacing {
                         return isChange(n.asMethodCallExpr().getArguments().
                                 get(0));
                     }
-                } else if (isMath(resolvedN) && (resolvedN.getName().equals("min")
+                } else if (isMath(resolvedN) && (resolvedN.getName().
+                        equals("min")
                         || resolvedN.getName().equals("max"))) {
                     if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                             get(0)) && isOfTypeInt(n.asMethodCallExpr().
                             getArguments().get(1))) {
-                        return isChange(n.asMethodCallExpr().getArguments().get(0))
-                                && isChange(n.asMethodCallExpr().
+                        return isChange(n.asMethodCallExpr().getArguments().
+                                get(0))
+                                || isChange(n.asMethodCallExpr().
                                 getArguments().get(1));
                     }
                 } else if ((resolvedN.getQualifiedName().
@@ -311,7 +313,7 @@ class Replacing {
                 }
             } else if (n.isBinaryExpr()) {
                 return isChange(n.asBinaryExpr().getLeft())
-                        && isChange(n.asBinaryExpr().getRight());
+                        || isChange(n.asBinaryExpr().getRight());
             } else if (n.isEnclosedExpr()) {
                 return isChange(n.asEnclosedExpr().getInner());
             } else if (n.isUnaryExpr()) {
@@ -451,11 +453,11 @@ class Replacing {
                     && n.getInitializer().get().getComment().get().
                     isBlockComment()
                     && n.getInitializer().get().getComment().get().
-                    asBlockComment().getContent().equals("BigInteger")
+                    asBlockComment().getContent().equals(" BigInteger ")
                     && n.getType().equals(PrimitiveType.intType())) {
-                VARIABLE_DECLARATORS.add(n);
                 n.getInitializer().get().getComment().get().
                         remove();
+                VARIABLE_DECLARATORS.add(n);
             }
         }
 
@@ -464,19 +466,35 @@ class Replacing {
                 final VariableDeclarationExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
+            boolean flag = false;
             for (int i = 0; i < n.getVariables().size(); i++) {
-                if (n.getVariables().get(i).getType().equals(
+                if (n.getVariable(i).getType().equals(
                         PrimitiveType.intType())
-                        && n.getVariables().get(i).getComment().isPresent()
-                        && n.getVariables().get(i).getComment().get().
-                        getContent().equals("BigInteger")
-                        && n.getVariables().get(i).getType().equals(
+                        && n.getVariable(i).getComment().isPresent()
+                        && n.getVariable(i).getComment().get().
+                        getContent().equals(" BigInteger ")
+                        && n.getVariable(i).getType().equals(
                         PrimitiveType.intType())) {
-                    if (i != 0) {
-                        VARIABLE_DECLARATORS.add(n.getVariables().
-                                get(i - 1));
-                    }
-                    n.getVariables().get(i).getComment().get().remove();
+                    flag = true;
+                    n.getVariable(i).getComment().get().remove();
+                }
+                if (n.getVariable(i).getType().equals(
+                        PrimitiveType.intType())
+                        && n.getVariable(i).getInitializer().isPresent()
+                        && n.getVariable(i).getInitializer().get().
+                        getComment().isPresent()
+                        && n.getVariable(i).getInitializer().get().
+                        getComment().get().getContent().equals(" BigInteger ")
+                        && n.getVariable(i).getType().equals(
+                        PrimitiveType.intType())) {
+                    flag = true;
+                    n.getVariable(i).getInitializer().get().getComment().get().
+                            remove();
+                }
+            }
+            if (flag) {
+                for (int i = 0; i < n.getVariables().size(); i++) {
+                    VARIABLE_DECLARATORS.add(n.getVariable(i));
                 }
             }
         }

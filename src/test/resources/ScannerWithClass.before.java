@@ -4,7 +4,7 @@ public class ScannerWithClass {
         java.util.Scanner scanner = new java.util.Scanner(System.in);
         Scanner scanner1 = new Scanner();
         scanner1.printOne();
-        java.math.BigInteger a = scanner.nextBigInteger();
+        int a = scanner.nextInt();
         int b /* BigInteger */ = scanner.nextInt();
         String c = scanner.nextLine();
         double d = scanner.nextDouble();

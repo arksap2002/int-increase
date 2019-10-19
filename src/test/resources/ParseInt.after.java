@@ -4,8 +4,8 @@ public class ParseInt {
         String number = "10";
         String number1 = "11";
         java.math.BigInteger integer = new java.math.BigInteger(number);
-        java.math.BigInteger integer1 = new java.math.BigInteger(number1);
-        java.math.BigInteger a = parseInt(10);
+        int integer1 = Integer.parseInt(number1);
+        int a = parseInt(10);
     }
 
     public static int parseInt(int number) {

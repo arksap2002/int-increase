@@ -21,5 +21,8 @@ public class If {
         if (a <= Math.abs(-10)) {
             a = -1;
         }
+        if (b > a) {
+            a = b;
+        }
     }
 }

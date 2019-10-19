@@ -7,10 +7,11 @@ public class ForWhile {
             System.out.println(-1);
         }
         int i = 0;
-        while(i /* BigInteger */ < 100) {
+        while(i < 100) {
             System.out.println(-1);
             i++;
         }
+        int i /* BigInteger */ = 0;
         while(i < 100) {
             System.out.println(-1);
             i++;

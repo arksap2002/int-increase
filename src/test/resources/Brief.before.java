@@ -1,6 +1,6 @@
 public class Brief {
     public static void main(String[] args) {
-        int /* BigInteger */ a = 0;
+        int a /* BigInteger */ = 0;
         a++;
         a--;
         a += 10;
