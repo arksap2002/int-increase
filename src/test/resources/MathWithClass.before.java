@@ -1,18 +1,18 @@
 public class MathWithClass {
 
     public static void main(String[] args) {
-        java.math.BigInteger a = java.math.BigInteger.TEN.abs();
-        java.math.BigInteger b = java.math.BigInteger.valueOf(90).max(java.math.BigInteger.valueOf(98));
-        java.math.BigInteger c = java.math.BigInteger.valueOf(19).max(java.math.BigInteger.TEN).min(java.math.BigInteger.valueOf(89).max(java.math.BigInteger.TWO));
-        java.math.BigInteger d = Math.abs(15);
-        java.math.BigInteger e = Math.min(56, 67);
-        java.math.BigInteger f = a.max(b).min(c.max(d));
-        java.math.BigInteger g = c.max(d).max(e.max(f)).abs();
-        java.math.BigInteger h = a.max(c).max(e.max(g)).min(b).abs();
-        java.math.BigInteger j = java.lang.Math.getExponent(-2);
-        java.math.BigInteger k = java.lang.Math.multiplyExact(1, 2);
-        java.math.BigInteger l = java.lang.Math.addExact(10, 2);
-        System.out.println(java.math.BigInteger.TEN.abs().max(java.math.BigInteger.valueOf(90)));
+        int a = java.lang.Math.abs(10);
+        int b = java.lang.Math.max(90, 98);
+        int c = java.lang.Math.max(10, java.lang.Math.min(89, 2));
+        int d = java.lang.Math.abs(15);
+        int e = java.lang.Math.min(56, 67);
+        int f = java.lang.Math.min(java.lang.Math.max(a, b), java.lang.Math.max(c, d));
+        int g = java.lang.Math.abs(java.lang.Math.max(java.lang.Math.max(c, d), java.lang.Math.max(e, f)));
+        int h = java.lang.Math.abs(java.lang.Math.min(java.lang.Math.max(java.lang.Math.max(a, c), java.lang.Math.max(e, g)), b));
+        int j = java.lang.Math.getExponent(-2);
+        int k = java.lang.Math.multiplyExact(1, 2);
+        int l = java.lang.Math.addExact(10, 2);
+        System.out.println(java.lang.Math.max(java.lang.Math.abs(10), 90));
     }
 
     static class Math {
