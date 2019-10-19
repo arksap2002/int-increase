@@ -1,19 +1,20 @@
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -25,6 +26,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 class Replacing {
@@ -57,6 +59,9 @@ class Replacing {
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
+    private static final HashSet<VariableDeclarator> VARIABLE_DECLARATORS =
+            new HashSet<>();
+
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType("java"), "math"), "BigInteger");
@@ -69,6 +74,8 @@ class Replacing {
 
     private void mainReplace(final CompilationUnit compilationUnit,
                              final ReflectionTypeSolver reflectionTypeSolver) {
+        compilationUnit.accept(new FindingVariableDeclarators(),
+                JavaParserFacade.get(reflectionTypeSolver));
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
         for (Runnable change : changes) {
@@ -194,13 +201,13 @@ class Replacing {
             }
             if ((resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.print")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.println")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintStream.print")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintStream.println"))
-                && n.asMethodCallExpr().getArguments().size() == 1) {
+                    && n.asMethodCallExpr().getArguments().size() == 1) {
                 makingAfter(n.asMethodCallExpr().getArgument(0));
             }
         } else if (n.isBinaryExpr()) {
@@ -340,6 +347,49 @@ class Replacing {
                 changes.add(() -> n.replace(new MethodCallExpr(
                         n.asMethodCallExpr().getArgument(0),
                         new SimpleName("toString"))));
+            }
+        }
+    }
+
+    private class FindingVariableDeclarators
+            extends VoidVisitorAdapter<JavaParserFacade> {
+        @Override
+        public void visit(
+                final VariableDeclarator n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (n.getInitializer().isPresent()
+                    && n.getInitializer().get().getComment().isPresent()
+                    && n.getInitializer().get().getComment().get().
+                    isBlockComment()
+                    && n.getInitializer().get().getComment().get().
+                    asBlockComment().getContent().equals("BigInteger")
+                    && n.getType().equals(PrimitiveType.intType())) {
+                VARIABLE_DECLARATORS.add(n);
+                n.getInitializer().get().getComment().get().
+                        remove();
+            }
+        }
+
+        @Override
+        public void visit(
+                final VariableDeclarationExpr n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            for (int i = 0; i < n.getVariables().size(); i++) {
+                if (n.getVariables().get(i).getType().equals(
+                        PrimitiveType.intType())
+                        && n.getVariables().get(i).getComment().isPresent()
+                        && n.getVariables().get(i).getComment().get().
+                        getContent().equals("BigInteger")
+                        && n.getVariables().get(i).getType().equals(
+                        PrimitiveType.intType())) {
+                    if (i != 0) {
+                        VARIABLE_DECLARATORS.add(n.getVariables().
+                                get(i - 1));
+                    }
+                    n.getVariables().get(i).getComment().get().remove();
+                }
             }
         }
     }
