@@ -41,25 +41,25 @@ class Replacing {
                     new NameExpr("java"), "math"), "BigInteger");
 
     private final Map<AssignExpr.Operator, String>
-            operator_of_assign = new HashMap<>();
+            operatorOfAssign = new HashMap<>();
 
     {
-        operator_of_assign.put(AssignExpr.Operator.PLUS, "add");
-        operator_of_assign.put(AssignExpr.Operator.MINUS, "subtract");
-        operator_of_assign.put(AssignExpr.Operator.DIVIDE, "divide");
-        operator_of_assign.put(AssignExpr.Operator.MULTIPLY, "multiply");
-        operator_of_assign.put(AssignExpr.Operator.REMAINDER, "remainder");
+        operatorOfAssign.put(AssignExpr.Operator.PLUS, "add");
+        operatorOfAssign.put(AssignExpr.Operator.MINUS, "subtract");
+        operatorOfAssign.put(AssignExpr.Operator.DIVIDE, "divide");
+        operatorOfAssign.put(AssignExpr.Operator.MULTIPLY, "multiply");
+        operatorOfAssign.put(AssignExpr.Operator.REMAINDER, "remainder");
     }
 
     private final Map<BinaryExpr.Operator, String>
-            operator_of_binary = new HashMap<>();
+            operatorOfBinary = new HashMap<>();
 
     {
-        operator_of_binary.put(BinaryExpr.Operator.PLUS, "add");
-        operator_of_binary.put(BinaryExpr.Operator.MINUS, "subtract");
-        operator_of_binary.put(BinaryExpr.Operator.DIVIDE, "divide");
-        operator_of_binary.put(BinaryExpr.Operator.MULTIPLY, "multiply");
-        operator_of_binary.put(BinaryExpr.Operator.REMAINDER, "remainder");
+        operatorOfBinary.put(BinaryExpr.Operator.PLUS, "add");
+        operatorOfBinary.put(BinaryExpr.Operator.MINUS, "subtract");
+        operatorOfBinary.put(BinaryExpr.Operator.DIVIDE, "divide");
+        operatorOfBinary.put(BinaryExpr.Operator.MULTIPLY, "multiply");
+        operatorOfBinary.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
     private final HashSet<Optional<Range>> ints = new HashSet<>();
@@ -144,7 +144,7 @@ class Replacing {
         } else {
             changes.add(() -> binaryExpr.replace(new MethodCallExpr(
                     binaryExpr.asBinaryExpr().getLeft(),
-                    operator_of_binary.get(binaryExpr.getOperator()),
+                    operatorOfBinary.get(binaryExpr.getOperator()),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
         }
     }
@@ -273,7 +273,7 @@ class Replacing {
             return false;
         }
         VariableDeclarator variableDeclarator = (VariableDeclarator)
-                ((JavaParserSymbolDeclaration)(n.resolve())).getWrappedNode();
+                ((JavaParserSymbolDeclaration) (n.resolve())).getWrappedNode();
         return ints.contains(variableDeclarator.getRange());
     }
 
@@ -382,7 +382,7 @@ class Replacing {
                 if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
                             new MethodCallExpr(
-                                    n.getValue(), operator_of_assign.get(
+                                    n.getValue(), operatorOfAssign.get(
                                     n.getOperator()),
                                     new NodeList<>(n.getTarget())),
                             AssignExpr.Operator.ASSIGN)));
