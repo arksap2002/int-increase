@@ -1,3 +1,4 @@
+import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -25,10 +26,7 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 class Replacing {
 
@@ -60,8 +58,7 @@ class Replacing {
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
-    private final HashSet<VariableDeclarator> VARIABLE_DECLARATORS =
-            new HashSet<>();
+    private final HashSet<Optional<Range>> INTS = new HashSet<>();
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -268,10 +265,12 @@ class Replacing {
     }
 
     private boolean isInVariableDeclarators(NameExpr n) {
-        return n.resolve() instanceof JavaParserSymbolDeclaration
-                && VARIABLE_DECLARATORS.contains((VariableDeclarator)
-                ((JavaParserSymbolDeclaration)
-                        (n.resolve())).getWrappedNode());
+        if (!(n.resolve() instanceof JavaParserSymbolDeclaration)) {
+            return false;
+        }
+        VariableDeclarator variableDeclarator = (VariableDeclarator)((JavaParserSymbolDeclaration)
+                (n.resolve())).getWrappedNode();
+        return INTS.contains(variableDeclarator.getRange());
     }
 
     private class TransformVisitor
@@ -348,7 +347,7 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())
-                    && VARIABLE_DECLARATORS.contains(n)) {
+                    && INTS.contains(n.getRange())) {
                 if (n.getInitializer().isPresent()) {
                     makingAfter(n.getInitializer().get());
                 }
@@ -459,7 +458,7 @@ class Replacing {
                     && n.getType().equals(PrimitiveType.intType())) {
                 n.getInitializer().get().getComment().get().
                         remove();
-                VARIABLE_DECLARATORS.add(n);
+                INTS.add(n.getRange());
             }
         }
 
@@ -496,7 +495,7 @@ class Replacing {
             }
             if (flag) {
                 for (int i = 0; i < n.getVariables().size(); i++) {
-                    VARIABLE_DECLARATORS.add(n.getVariable(i));
+                    INTS.add(n.getVariable(i).getRange());
                 }
             }
         }
