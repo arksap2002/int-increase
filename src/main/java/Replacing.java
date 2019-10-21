@@ -36,10 +36,10 @@ class Replacing {
             new FieldAccessExpr(
                     new NameExpr("java"), "math"), "BigInteger");
 
-    private static final Map<AssignExpr.Operator, String>
+    private final Map<AssignExpr.Operator, String>
             OPERATOR_OF_ASSIGN = new HashMap<>();
 
-    static {
+    {
         OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.PLUS, "add");
         OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MINUS, "subtract");
         OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.DIVIDE, "divide");
@@ -47,10 +47,10 @@ class Replacing {
         OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.REMAINDER, "remainder");
     }
 
-    private static final Map<BinaryExpr.Operator, String>
+    private final Map<BinaryExpr.Operator, String>
             OPERATOR_OF_BINARY = new HashMap<>();
 
-    static {
+    {
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.PLUS, "add");
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MINUS, "subtract");
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.DIVIDE, "divide");
