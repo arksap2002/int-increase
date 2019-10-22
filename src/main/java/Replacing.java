@@ -1,3 +1,4 @@
+import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -26,9 +27,10 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Optional;
 
 class Replacing {
 
@@ -38,30 +40,29 @@ class Replacing {
             new FieldAccessExpr(
                     new NameExpr("java"), "math"), "BigInteger");
 
-    private static final Map<AssignExpr.Operator, String>
-            OPERATOR_OF_ASSIGN = new HashMap<>();
+    private final Map<AssignExpr.Operator, String>
+            operatorOfAssign = new HashMap<>();
 
-    static {
-        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.PLUS, "add");
-        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MINUS, "subtract");
-        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.DIVIDE, "divide");
-        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MULTIPLY, "multiply");
-        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.REMAINDER, "remainder");
+    {
+        operatorOfAssign.put(AssignExpr.Operator.PLUS, "add");
+        operatorOfAssign.put(AssignExpr.Operator.MINUS, "subtract");
+        operatorOfAssign.put(AssignExpr.Operator.DIVIDE, "divide");
+        operatorOfAssign.put(AssignExpr.Operator.MULTIPLY, "multiply");
+        operatorOfAssign.put(AssignExpr.Operator.REMAINDER, "remainder");
     }
 
-    private static final Map<BinaryExpr.Operator, String>
-            OPERATOR_OF_BINARY = new HashMap<>();
+    private final Map<BinaryExpr.Operator, String>
+            operatorOfBinary = new HashMap<>();
 
-    static {
-        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.PLUS, "add");
-        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MINUS, "subtract");
-        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.DIVIDE, "divide");
-        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MULTIPLY, "multiply");
-        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
+    {
+        operatorOfBinary.put(BinaryExpr.Operator.PLUS, "add");
+        operatorOfBinary.put(BinaryExpr.Operator.MINUS, "subtract");
+        operatorOfBinary.put(BinaryExpr.Operator.DIVIDE, "divide");
+        operatorOfBinary.put(BinaryExpr.Operator.MULTIPLY, "multiply");
+        operatorOfBinary.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
-    private final HashSet<VariableDeclarator> VARIABLE_DECLARATORS =
-            new HashSet<>();
+    private final HashSet<Optional<Range>> ints = new HashSet<>();
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -143,7 +144,7 @@ class Replacing {
         } else {
             changes.add(() -> binaryExpr.replace(new MethodCallExpr(
                     binaryExpr.asBinaryExpr().getLeft(),
-                    OPERATOR_OF_BINARY.get(binaryExpr.getOperator()),
+                    operatorOfBinary.get(binaryExpr.getOperator()),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
         }
     }
@@ -267,17 +268,19 @@ class Replacing {
         return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
     }
 
-    private boolean isInVariableDeclarators(NameExpr n) {
-        return n.resolve() instanceof JavaParserSymbolDeclaration
-                && VARIABLE_DECLARATORS.contains((VariableDeclarator)
-                ((JavaParserSymbolDeclaration)
-                        (n.resolve())).getWrappedNode());
+    private boolean isInVariableDeclarators(final NameExpr n) {
+        if (!(n.resolve() instanceof JavaParserSymbolDeclaration)) {
+            return false;
+        }
+        VariableDeclarator variableDeclarator = (VariableDeclarator)
+                ((JavaParserSymbolDeclaration) (n.resolve())).getWrappedNode();
+        return ints.contains(variableDeclarator.getRange());
     }
 
     private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
-        private boolean isChange(Expression n) {
+        private boolean isChange(final Expression n) {
             if (n.isIntegerLiteralExpr()) {
                 return false;
             }
@@ -348,7 +351,7 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())
-                    && VARIABLE_DECLARATORS.contains(n)) {
+                    && ints.contains(n.getRange())) {
                 if (n.getInitializer().isPresent()) {
                     makingAfter(n.getInitializer().get());
                 }
@@ -379,7 +382,7 @@ class Replacing {
                 if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
                             new MethodCallExpr(
-                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                    n.getValue(), operatorOfAssign.get(
                                     n.getOperator()),
                                     new NodeList<>(n.getTarget())),
                             AssignExpr.Operator.ASSIGN)));
@@ -459,7 +462,7 @@ class Replacing {
                     && n.getType().equals(PrimitiveType.intType())) {
                 n.getInitializer().get().getComment().get().
                         remove();
-                VARIABLE_DECLARATORS.add(n);
+                ints.add(n.getRange());
             }
         }
 
@@ -496,7 +499,7 @@ class Replacing {
             }
             if (flag) {
                 for (int i = 0; i < n.getVariables().size(); i++) {
-                    VARIABLE_DECLARATORS.add(n.getVariable(i));
+                    ints.add(n.getVariable(i).getRange());
                 }
             }
         }
