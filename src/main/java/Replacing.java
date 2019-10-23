@@ -40,26 +40,26 @@ class Replacing {
             new FieldAccessExpr(
                     new NameExpr("java"), "math"), "BigInteger");
 
-    private final Map<AssignExpr.Operator, String>
-            operatorOfAssign = new HashMap<>();
+    private static final Map<AssignExpr.Operator, String>
+            OPERATOR_OF_ASSIGN = new HashMap<>();
 
-    {
-        operatorOfAssign.put(AssignExpr.Operator.PLUS, "add");
-        operatorOfAssign.put(AssignExpr.Operator.MINUS, "subtract");
-        operatorOfAssign.put(AssignExpr.Operator.DIVIDE, "divide");
-        operatorOfAssign.put(AssignExpr.Operator.MULTIPLY, "multiply");
-        operatorOfAssign.put(AssignExpr.Operator.REMAINDER, "remainder");
+    static {
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.PLUS, "add");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MINUS, "subtract");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.DIVIDE, "divide");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.MULTIPLY, "multiply");
+        OPERATOR_OF_ASSIGN.put(AssignExpr.Operator.REMAINDER, "remainder");
     }
 
-    private final Map<BinaryExpr.Operator, String>
-            operatorOfBinary = new HashMap<>();
+    private static final Map<BinaryExpr.Operator, String>
+            OPERATOR_OF_BINARY = new HashMap<>();
 
-    {
-        operatorOfBinary.put(BinaryExpr.Operator.PLUS, "add");
-        operatorOfBinary.put(BinaryExpr.Operator.MINUS, "subtract");
-        operatorOfBinary.put(BinaryExpr.Operator.DIVIDE, "divide");
-        operatorOfBinary.put(BinaryExpr.Operator.MULTIPLY, "multiply");
-        operatorOfBinary.put(BinaryExpr.Operator.REMAINDER, "remainder");
+    static {
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.PLUS, "add");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MINUS, "subtract");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.DIVIDE, "divide");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.MULTIPLY, "multiply");
+        OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
     private final HashSet<Optional<Range>> ints = new HashSet<>();
@@ -144,7 +144,7 @@ class Replacing {
         } else {
             changes.add(() -> binaryExpr.replace(new MethodCallExpr(
                     binaryExpr.asBinaryExpr().getLeft(),
-                    operatorOfBinary.get(binaryExpr.getOperator()),
+                    OPERATOR_OF_BINARY.get(binaryExpr.getOperator()),
                     new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
         }
     }
@@ -382,7 +382,7 @@ class Replacing {
                 if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
                             new MethodCallExpr(
-                                    n.getValue(), operatorOfAssign.get(
+                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
                                     n.getOperator()),
                                     new NodeList<>(n.getTarget())),
                             AssignExpr.Operator.ASSIGN)));
