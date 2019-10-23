@@ -99,4 +99,9 @@ public class BigIntegerReplaceTest {
     public void testToString() throws IOException, ClassNotFoundException {
         runTestFromFile("ToString");
     }
+
+    @Test
+    public void testHashCode() throws IOException, ClassNotFoundException {
+        runTestFromFile("HashCode");
+    }
 }

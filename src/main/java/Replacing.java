@@ -198,13 +198,13 @@ class Replacing {
             }
             if ((resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.print")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.println")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintStream.print")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintStream.println"))
-                && n.asMethodCallExpr().getArguments().size() == 1) {
+                    && n.asMethodCallExpr().getArguments().size() == 1) {
                 makingAfter(n.asMethodCallExpr().getArgument(0));
             }
         } else if (n.isBinaryExpr()) {
@@ -344,6 +344,13 @@ class Replacing {
                 changes.add(() -> n.replace(new MethodCallExpr(
                         n.asMethodCallExpr().getArgument(0),
                         new SimpleName("toString"))));
+            }
+            if (resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.hashCode")) {
+                makingAfter(n.asMethodCallExpr().getArgument(0));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArgument(0),
+                        new SimpleName("hashCode"))));
             }
         }
     }
