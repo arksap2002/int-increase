@@ -361,9 +361,10 @@ class Replacing {
                     if (n.getInitializer().isPresent()) {
                         if (isChange(n.getInitializer().get())) {
                             makingAfter(n.getInitializer().get());
-                            changes.add(() -> n.setInitializer(new MethodCallExpr(
-                                    n.clone().getInitializer().get(),
-                                    new SimpleName("intValue"))));
+                            changes.add(() -> n.setInitializer(
+                                    new MethodCallExpr(n.clone().
+                                            getInitializer().get(),
+                                            new SimpleName("intValue"))));
                         }
                     }
                 }
@@ -390,11 +391,11 @@ class Replacing {
                 if (isInVariableDeclarators(n.getTarget().asNameExpr())) {
                     makingAfter(n.getValue());
                     if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
-                        changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
-                                new MethodCallExpr(
-                                        n.getValue(), OPERATOR_OF_ASSIGN.get(
-                                        n.getOperator()),
-                                        new NodeList<>(n.getTarget())),
+                        changes.add(() -> n.replace(new AssignExpr(
+                                n.getTarget(), new MethodCallExpr(
+                                n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                n.getOperator()),
+                                new NodeList<>(n.getTarget())),
                                 AssignExpr.Operator.ASSIGN)));
                     }
                 } else {
