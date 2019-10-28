@@ -277,7 +277,6 @@ class Replacing {
         return ints.contains(variableDeclarator.getRange());
     }
 
-
     private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
@@ -464,7 +463,6 @@ class Replacing {
             }
         }
     }
-
 
     private class FindingVariableDeclarators
             extends VoidVisitorAdapter<JavaParserFacade> {
