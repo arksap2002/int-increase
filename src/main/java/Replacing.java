@@ -277,6 +277,7 @@ class Replacing {
         return ints.contains(variableDeclarator.getRange());
     }
 
+
     private class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
@@ -350,12 +351,22 @@ class Replacing {
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.getType().equals(PrimitiveType.intType())
-                    && ints.contains(n.getRange())) {
-                if (n.getInitializer().isPresent()) {
-                    makingAfter(n.getInitializer().get());
+            if (n.getType().equals(PrimitiveType.intType())) {
+                if (ints.contains(n.getRange())) {
+                    if (n.getInitializer().isPresent()) {
+                        makingAfter(n.getInitializer().get());
+                    }
+                    changes.add(() -> n.setType(bigIntegerType));
+                } else {
+                    if (n.getInitializer().isPresent()) {
+                        if (isChange(n.getInitializer().get())) {
+                            makingAfter(n.getInitializer().get());
+                            changes.add(() -> n.setInitializer(new MethodCallExpr(
+                                    n.clone().getInitializer().get(),
+                                    new SimpleName("intValue"))));
+                        }
+                    }
                 }
-                changes.add(() -> n.setType(bigIntegerType));
             }
         }
 
@@ -375,17 +386,24 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (isOfTypeInt(n.getTarget())
-                    && n.getTarget().isNameExpr()
-                    && isInVariableDeclarators(n.getTarget().asNameExpr())
-                    && isChange(n.getTarget().asNameExpr())) {
-                makingAfter(n.getValue());
-                if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
-                    changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
-                            new MethodCallExpr(
-                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
-                                    n.getOperator()),
-                                    new NodeList<>(n.getTarget())),
-                            AssignExpr.Operator.ASSIGN)));
+                    && n.getTarget().isNameExpr()) {
+                if (isInVariableDeclarators(n.getTarget().asNameExpr())) {
+                    makingAfter(n.getValue());
+                    if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
+                        changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
+                                new MethodCallExpr(
+                                        n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                        n.getOperator()),
+                                        new NodeList<>(n.getTarget())),
+                                AssignExpr.Operator.ASSIGN)));
+                    }
+                } else {
+                    if (isChange(n.getValue())) {
+                        makingAfter(n.getValue());
+                        changes.add(() -> n.setValue(new MethodCallExpr(
+                                n.clone().getValue(),
+                                new SimpleName("intValue"))));
+                    }
                 }
             }
         }
@@ -445,6 +463,7 @@ class Replacing {
             }
         }
     }
+
 
     private class FindingVariableDeclarators
             extends VoidVisitorAdapter<JavaParserFacade> {

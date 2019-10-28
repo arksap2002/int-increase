@@ -24,5 +24,8 @@ public class If {
         if (b > a) {
             a = b;
         }
+        if (b > 0) {
+            b = 0;
+        }
     }
 }

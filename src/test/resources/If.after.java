@@ -24,5 +24,8 @@ public class If {
         if (java.math.BigInteger.valueOf(b).compareTo(a) > 0) {
             a = java.math.BigInteger.valueOf(b);
         }
+        if (b > 0) {
+            b = 0;
+        }
     }
 }
