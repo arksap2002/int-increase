@@ -376,7 +376,8 @@ class Replacing {
                         && n.getVariable(i).getInitializer().get().
                         getComment().isPresent()
                         && n.getVariable(i).getInitializer().get().
-                        getComment().get().getContent().equals(" BigInteger ")) {
+                        getComment().get().getContent().
+                        equals(" BigInteger ")) {
                     flag = true;
                     n.getVariable(i).getInitializer().get().getComment().get().
                             remove();
