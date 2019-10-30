@@ -448,23 +448,6 @@ class Replacing {
 
     private class FindingVariableDeclarators
             extends VoidVisitorAdapter<JavaParserFacade> {
-        @Override
-        public void visit(
-                final VariableDeclarator n,
-                final JavaParserFacade javaParserFacade) {
-            super.visit(n, javaParserFacade);
-            if (n.getInitializer().isPresent()
-                    && n.getInitializer().get().getComment().isPresent()
-                    && n.getInitializer().get().getComment().get().
-                    isBlockComment()
-                    && n.getInitializer().get().getComment().get().
-                    asBlockComment().getContent().equals(" BigInteger ")
-                    && n.getType().equals(PrimitiveType.intType())) {
-                n.getInitializer().get().getComment().get().
-                        remove();
-                ints.add(n.getRange());
-            }
-        }
 
         @Override
         public void visit(
@@ -477,9 +460,15 @@ class Replacing {
                         PrimitiveType.intType())
                         && n.getVariable(i).getComment().isPresent()
                         && n.getVariable(i).getComment().get().
-                        getContent().equals(" BigInteger ")
-                        && n.getVariable(i).getType().equals(
-                        PrimitiveType.intType())) {
+                        getContent().equals(" BigInteger ")) {
+                    flag = true;
+                    n.getVariable(i).getComment().get().remove();
+                }
+                if (n.getVariable(i).getType().equals(
+                        PrimitiveType.intType())
+                        && n.getVariable(i).getComment().isPresent()
+                        && n.getVariable(i).getComment().get().
+                        getContent().equals(" BigInteger ")) {
                     flag = true;
                     n.getVariable(i).getComment().get().remove();
                 }
@@ -489,9 +478,8 @@ class Replacing {
                         && n.getVariable(i).getInitializer().get().
                         getComment().isPresent()
                         && n.getVariable(i).getInitializer().get().
-                        getComment().get().getContent().equals(" BigInteger ")
-                        && n.getVariable(i).getType().equals(
-                        PrimitiveType.intType())) {
+                        getComment().get().getContent().
+                        equals(" BigInteger ")) {
                     flag = true;
                     n.getVariable(i).getInitializer().get().getComment().get().
                             remove();
