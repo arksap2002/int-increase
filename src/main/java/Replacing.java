@@ -464,22 +464,16 @@ class Replacing {
             enumerationVariables(n.getVariables());
         }
 
-        private void enumerationVariables(final NodeList<VariableDeclarator> nodeList) {
+        private void enumerationVariables(
+                final NodeList<VariableDeclarator> nodeList) {
             boolean flag = false;
             for (VariableDeclarator declarator : nodeList) {
                 if (declarator.getType().equals(
                         PrimitiveType.intType())
                         && declarator.getComment().isPresent()
                         && declarator.getComment().get().
-                        getContent().toLowerCase().trim().equals("BIGINTEGER")) {
-                    flag = true;
-                    declarator.getComment().get().remove();
-                }
-                if (declarator.getType().equals(
-                        PrimitiveType.intType())
-                        && declarator.getComment().isPresent()
-                        && declarator.getComment().get().
-                        getContent().equals("BIGINTEGER")) {
+                        getContent().toLowerCase().trim().
+                        equals("biginteger")) {
                     flag = true;
                     declarator.getComment().get().remove();
                 }
@@ -489,8 +483,8 @@ class Replacing {
                         && declarator.getInitializer().get().
                         getComment().isPresent()
                         && declarator.getInitializer().get().
-                        getComment().get().getContent().
-                        equals("BIGINTEGER")) {
+                        getComment().get().getContent().toLowerCase().trim().
+                        equals("biginteger")) {
                     flag = true;
                     declarator.getInitializer().get().getComment().get().
                             remove();
