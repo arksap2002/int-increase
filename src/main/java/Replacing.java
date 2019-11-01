@@ -492,7 +492,8 @@ class Replacing {
                 if (declarator.getType().equals(
                         PrimitiveType.intType())
                         && !declarator.getOrphanComments().isEmpty()) {
-                    System.out.println(declarator.getOrphanComments().get(0).toString());
+                    System.out.println(declarator.getOrphanComments().get(0).
+                            toString());
                 }
             }
             if (flag) {
