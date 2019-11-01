@@ -489,6 +489,11 @@ class Replacing {
                     declarator.getInitializer().get().getComment().get().
                             remove();
                 }
+                if (declarator.getType().equals(
+                        PrimitiveType.intType())
+                        && !declarator.getOrphanComments().isEmpty()) {
+                    System.out.println(declarator.getOrphanComments().get(0).toString());
+                }
             }
             if (flag) {
                 for (VariableDeclarator variableDeclarator : nodeList) {

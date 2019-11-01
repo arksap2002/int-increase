@@ -4,20 +4,20 @@ public class ScannerWithClass {
         java.util.Scanner scanner = new java.util.Scanner(System.in);
         Scanner scanner1 = new Scanner();
         scanner1.printOne();
-        int a = scanner.nextInt();
+        int a /* BigInteger */ = scanner.nextInt();
         int b /* BigInteger */ = scanner.nextInt();
         String c = scanner.nextLine();
         double d = scanner.nextDouble();
         long e = scanner.nextLong();
-        int f = scanner1.nextInt();
+        int f /* BigInteger */ = scanner1.nextInt();
     }
 
     static class Scanner {
 
         private void method() {
             java.util.Scanner scanner = new java.util.Scanner(System.in);
-            int f = scanner.nextInt();
-            int g = nextInt();
+            int f /* BigInteger */ = scanner.nextInt();
+            int g /* BigInteger */ = nextInt();
         }
 
         private void printOne() {}

@@ -11,7 +11,7 @@ public class ReplaceVariableDeclarationType {
     java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
 
     public static void main(String[] args) {
-        int f;
+        int f /* BigInteger */;
         long g = 3001;
     }
 }

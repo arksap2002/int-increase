@@ -2,7 +2,7 @@ public class ArithmeticOperations {
 
     int a /* BigInteger */ = 2 + 9 + 12 * 8 - 200 / 100;
 
-    int e = 20;
+    int e /* BigInteger */ = 20;
 
     int f /* BigInteger */ = 2 + 9 + 12 * 8 - 200 / 100;
 
@@ -12,18 +12,18 @@ public class ArithmeticOperations {
 
     double h = 2.2;
 
-    int k = 2;
+    int k /* BigInteger */ = 2;
 
     java.math.BigInteger bigInteger3 = java.math.BigInteger.valueOf(300);
 
     int j /* BigInteger */ = 2;
 
-    int getBigInteger4 = 81;
+    int getBigInteger4 /* BigInteger */ = 81;
 
-    int getBigInteger5 = 70 % 7;
+    int getBigInteger5 /* BigInteger */ = 70 % 7;
 
     public static void main(String[] args) {
-        int d = 1;
+        int d /* BigInteger */ = 1;
         long b = 100;
         String string = "One";
         double c = 1.1;
