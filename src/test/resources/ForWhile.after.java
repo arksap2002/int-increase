@@ -4,17 +4,17 @@ public class ForWhile {
         for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(java.math.BigInteger.valueOf(200)) < 0; i = java.math.BigInteger.ONE.add(i)) {
             System.out.println(-1);
         }
-        for (int i = 0; i < 200; i++) {
+        for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(java.math.BigInteger.valueOf(200)) < 0; i = java.math.BigInteger.ONE.add(i)) {
             System.out.println(-1);
         }
-        int i = 0;
-        while (i < 100) {
+        java.math.BigInteger i = java.math.BigInteger.ZERO;
+        while (i.compareTo(java.math.BigInteger.valueOf(100)) < 0) {
             System.out.println(-1);
-            i++;
+            i = java.math.BigInteger.ONE.add(i);
         }
-        while (i < 100) {
+        while (i.compareTo(java.math.BigInteger.valueOf(100)) < 0) {
             System.out.println(-1);
-            i++;
+            i = java.math.BigInteger.ONE.add(i);
         }
         while (true) {
             System.out.println(1);

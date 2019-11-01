@@ -109,4 +109,9 @@ public class BigIntegerReplaceTest {
     public void testDifferentInts() throws IOException, ClassNotFoundException {
         runTestFromFile("DifferentInts");
     }
+  
+    @Test
+    public void testComment() throws IOException, ClassNotFoundException {
+        runTestFromFile("Comment");
+    }
 }

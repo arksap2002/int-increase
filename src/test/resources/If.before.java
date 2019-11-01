@@ -2,7 +2,7 @@ public class If {
 
     public static void main(String[] args) {
         int a /* BigInteger */ = 0;
-        int b = 0;
+        int b /* BigInteger */ = 0;
         if (b > 10) {
             b = 10;
         }

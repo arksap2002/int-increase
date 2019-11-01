@@ -3,10 +3,10 @@ public class ForWhile {
         for (int i /* BigInteger */ = 0; i < 200; i++) {
             System.out.println(-1);
         }
-        for (int i = 0; i < 200; i++) {
+        for (int i /* BigInteger */ = 0; i < 200; i++) {
             System.out.println(-1);
         }
-        int i = 0;
+        int i /* BigInteger */ = 0;
         while(i < 100) {
             System.out.println(-1);
             i++;

@@ -2,9 +2,9 @@ public class If {
 
     public static void main(String[] args) {
         java.math.BigInteger a = java.math.BigInteger.ZERO;
-        int b = 0;
-        if (b > 10) {
-            b = 10;
+        java.math.BigInteger b = java.math.BigInteger.ZERO;
+        if (b.compareTo(java.math.BigInteger.TEN) > 0) {
+            b = java.math.BigInteger.TEN;
         }
         if (a.compareTo(java.math.BigInteger.valueOf(5).subtract(java.math.BigInteger.TWO).min(java.math.BigInteger.valueOf(3).negate())) > 0) {
             a = java.math.BigInteger.valueOf(3).negate();
@@ -21,8 +21,8 @@ public class If {
         if (a.compareTo(java.math.BigInteger.TEN.negate().abs()) <= 0) {
             a = java.math.BigInteger.ONE.negate();
         }
-        if (java.math.BigInteger.valueOf(b).compareTo(a) > 0) {
-            a = java.math.BigInteger.valueOf(b);
+        if (b.compareTo(a) > 0) {
+            a = b;
         }
         if (b > 0) {
             b = 0;
