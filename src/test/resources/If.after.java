@@ -24,8 +24,8 @@ public class If {
         if (b.compareTo(a) > 0) {
             a = b;
         }
-        if (b > 0) {
-            b = 0;
+        if (b.compareTo(java.math.BigInteger.ZERO) > 0) {
+            b = java.math.BigInteger.ZERO;
         }
     }
 }

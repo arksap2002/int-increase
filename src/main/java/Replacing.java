@@ -367,9 +367,6 @@ class Replacing {
                                             new SimpleName("intValue"))));
                         }
                     }
-            if (ints.contains(n.getRange())) {
-                if (n.getInitializer().isPresent()) {
-                    makingAfter(n.getInitializer().get());
                 }
             }
         }
@@ -408,17 +405,6 @@ class Replacing {
                                 n.clone().getValue(),
                                 new SimpleName("intValue"))));
                     }
-            if (n.getTarget().isNameExpr()
-                    && isInVariableDeclarators(n.getTarget().asNameExpr())
-                    && isChange(n.getTarget().asNameExpr())) {
-                makingAfter(n.getValue());
-                if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
-                    changes.add(() -> n.replace(new AssignExpr(n.getTarget(),
-                            new MethodCallExpr(
-                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
-                                    n.getOperator()),
-                                    new NodeList<>(n.getTarget())),
-                            AssignExpr.Operator.ASSIGN)));
                 }
             }
         }
