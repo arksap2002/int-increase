@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 
 class Replacing {
 
@@ -62,7 +61,7 @@ class Replacing {
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
-    private final HashSet<Optional<Range>> ints = new HashSet<>();
+    private final HashSet<Range> variableDeclsToReplace = new HashSet<>();
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -76,7 +75,7 @@ class Replacing {
 
     private void mainReplace(final CompilationUnit compilationUnit,
                              final ReflectionTypeSolver reflectionTypeSolver) {
-        compilationUnit.accept(new FindingVariableDeclarators(),
+        compilationUnit.accept(new FindAndAlterVariableDeclarators(),
                 JavaParserFacade.get(reflectionTypeSolver));
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
@@ -353,7 +352,7 @@ class Replacing {
         }
     }
 
-    public class FindingVariableDeclarators
+    public class FindAndAlterVariableDeclarators
             extends VoidVisitorAdapter<JavaParserFacade> {
 
         @Override
@@ -361,7 +360,7 @@ class Replacing {
                 final FieldDeclaration n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            enumerationVariables(n.getVariables());
+            enumerateVariables(n.getVariables());
         }
 
         @Override
@@ -369,10 +368,10 @@ class Replacing {
                 final VariableDeclarationExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            enumerationVariables(n.getVariables());
+            enumerateVariables(n.getVariables());
         }
 
-        private void enumerationVariables(
+        private void enumerateVariables(
                 final NodeList<VariableDeclarator> nodeList) {
             boolean flag = false;
             for (VariableDeclarator declarator : nodeList) {
@@ -400,7 +399,10 @@ class Replacing {
             }
             if (flag) {
                 for (VariableDeclarator variableDeclarator : nodeList) {
-                    ints.add(variableDeclarator.getRange());
+                    if (!variableDeclarator.getRange().isPresent()) {
+                        throw new IllegalArgumentException();
+                    }
+                    variableDeclsToReplace.add(variableDeclarator.getRange().get());
                 }
             }
         }
