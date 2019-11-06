@@ -100,7 +100,7 @@ public class BigIntegerReplaceTest {
         runTestFromFile("ToString");
     }
     @Test
-    public void testComment() throws IOException, ClassNotFoundException {
-        runTestFromFile("Comment");
+    public void testPartialReplace() throws IOException, ClassNotFoundException {
+        runTestFromFile("PartialReplace");
     }
 }

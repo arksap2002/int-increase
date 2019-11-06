@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Comment {
+public class PartialReplace {
     public static void main(String[] args) throws IOException {
         int /* BigInteger */ a = 2 + 9 + 12 * 8 - 200 / 100;
         int b = 2 + 9 + 12 * 8 - 200 / 100;

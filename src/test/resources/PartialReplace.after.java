@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Comment {
+public class PartialReplace {
 
     public static void main(String[] args) throws IOException {
         java.math.BigInteger a = java.math.BigInteger.TWO.add(java.math.BigInteger.valueOf(9)).add(java.math.BigInteger.valueOf(12).multiply(java.math.BigInteger.valueOf(8))).subtract(java.math.BigInteger.valueOf(200).divide(java.math.BigInteger.valueOf(100)));
