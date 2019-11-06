@@ -15,7 +15,7 @@ public class If {
         if (!a.equals(java.math.BigInteger.ZERO)) {
             a = java.math.BigInteger.TWO.negate();
         }
-        if (!(a > 0)) {
+        if (!(a.compareTo(java.math.BigInteger.ZERO) > 0)) {
             a = java.math.BigInteger.TWO.negate();
         }
         if (a.compareTo(java.math.BigInteger.TEN.negate().abs()) <= 0) {
