@@ -375,14 +375,14 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())) {
-              if (!n.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
-            if (variableDeclsToReplace.contains(n.getRange().get())) {
-                if (n.getInitializer().isPresent()) {
-                    makingAfter(n.getInitializer().get());
+                if (!n.getRange().isPresent()) {
+                    throw new IllegalArgumentException();
                 }
-                changes.add(() -> n.setType(bigIntegerType));
+                if (variableDeclsToReplace.contains(n.getRange().get())) {
+                    if (n.getInitializer().isPresent()) {
+                        makingAfter(n.getInitializer().get());
+                    }
+                    changes.add(() -> n.setType(bigIntegerType));
                 } else {
                     if (n.getInitializer().isPresent()) {
                         if (isChange(n.getInitializer().get())) {
@@ -393,7 +393,8 @@ class Replacing {
                                             new SimpleName("intValue"))));
                         }
                     }
-            
+                }
+            }
         }
 
         @Override
