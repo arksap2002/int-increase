@@ -24,6 +24,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
@@ -267,15 +268,32 @@ class Replacing {
     }
 
     private boolean isInVariableDeclarators(final NameExpr n) {
-        if (!(n.resolve() instanceof JavaParserSymbolDeclaration)) {
-            return false;
+        if (n.resolve() instanceof JavaParserFieldDeclaration) {
+            FieldDeclaration fieldDeclaration =
+                    ((JavaParserFieldDeclaration) (n.resolve())).
+                            getWrappedNode();
+            for (int i = 0; i < fieldDeclaration.getVariables().size(); i++) {
+                if (!fieldDeclaration.getVariables().get(i).getRange().
+                        isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                if (variableDeclsToReplace.contains(
+                        fieldDeclaration.getVariables().get(i).getRange().
+                                get())) {
+                    return true;
+                }
+            }
+        } else if (n.resolve() instanceof JavaParserSymbolDeclaration) {
+            VariableDeclarator variableDeclarator = (VariableDeclarator)
+                    ((JavaParserSymbolDeclaration) (n.resolve())).
+                            getWrappedNode();
+            if (!variableDeclarator.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            return variableDeclsToReplace.contains(variableDeclarator.
+                    getRange().get());
         }
-        VariableDeclarator variableDeclarator = (VariableDeclarator)
-                ((JavaParserSymbolDeclaration) (n.resolve())).getWrappedNode();
-        if (!variableDeclarator.getRange().isPresent()) {
-            throw new IllegalArgumentException();
-        }
-        return variableDeclsToReplace.contains(variableDeclarator.getRange().get());
+        return false;
     }
 
     public class TransformVisitor
