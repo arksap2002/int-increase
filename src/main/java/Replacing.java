@@ -364,9 +364,10 @@ class Replacing {
                 return isChange(n.asUnaryExpr().getExpression());
             } else if (n.isNameExpr()) {
                 return isVariableToReplace(n.asNameExpr());
+            } else {
+                return false;
             }
-//            throw new UnsupportedOperationException();
-            return false;
+            throw new UnsupportedOperationException();
         }
 
         @Override
