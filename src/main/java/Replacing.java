@@ -523,7 +523,8 @@ class Replacing {
                     if (!variableDeclarator.getRange().isPresent()) {
                         throw new IllegalArgumentException();
                     }
-                    variableDeclsToReplace.add(variableDeclarator.getRange().get());
+                    variableDeclsToReplace.add(variableDeclarator.getRange().
+                            get());
                 }
             }
         }
