@@ -5,6 +5,7 @@ public class ParseInt {
         int integer /* BigInteger */ = Integer.parseInt(number);
         int integer1 /* BigInteger */ = Integer.parseInt(number1);
         int a /* BigInteger */ = parseInt(10);
+        integer = Integer.parseInt(number) * Integer.parseInt(number);
     }
 
     public static int parseInt(int number) {

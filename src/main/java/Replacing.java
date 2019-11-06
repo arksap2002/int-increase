@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 class Replacing {
 
@@ -154,8 +153,7 @@ class Replacing {
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
                     n.asIntegerLiteralExpr().asInt())));
-        }
-        if (n.isMethodCallExpr()) {
+        } else if (n.isMethodCallExpr()) {
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                     resolve();
             if (resolvedN.getQualifiedName().
@@ -274,7 +272,10 @@ class Replacing {
         }
         VariableDeclarator variableDeclarator = (VariableDeclarator)
                 ((JavaParserSymbolDeclaration) (n.resolve())).getWrappedNode();
-        return ints.contains(variableDeclarator.getRange());
+        if (!variableDeclarator.getRange().isPresent()) {
+            throw new IllegalArgumentException();
+        }
+        return variableDeclsToReplace.contains(variableDeclarator.getRange().get());
     }
 
     public class TransformVisitor
@@ -322,7 +323,6 @@ class Replacing {
             } else if (n.isEnclosedExpr()) {
                 return isChange(n.asEnclosedExpr().getInner());
             } else if (n.isUnaryExpr()) {
-                isChange(n.asUnaryExpr().getExpression());
                 if (n.asUnaryExpr().getOperator().equals(
                         UnaryExpr.Operator.POSTFIX_INCREMENT)
                         && n.asUnaryExpr().getExpression().isNameExpr()
@@ -339,6 +339,7 @@ class Replacing {
                     return isInVariableDeclarators(n.asUnaryExpr().
                             getExpression().asNameExpr());
                 }
+                return isChange(n.asUnaryExpr().getExpression());
             } else if (n.isNameExpr()) {
                 return isInVariableDeclarators(n.asNameExpr());
             }
@@ -351,7 +352,10 @@ class Replacing {
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (ints.contains(n.getRange())) {
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            if (variableDeclsToReplace.contains(n.getRange().get())) {
                 if (n.getInitializer().isPresent()) {
                     makingAfter(n.getInitializer().get());
                 }
