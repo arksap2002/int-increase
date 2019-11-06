@@ -13,6 +13,7 @@ public class MathWithClass {
         int /* BigInteger */ k = java.lang.Math.multiplyExact(1, 2);
         int /* BigInteger */ l = java.lang.Math.addExact(10, 2);
         System.out.println(java.lang.Math.max(java.lang.Math.abs(10), 90));
+        System.out.println(java.lang.Math.max(java.lang.Math.abs(10), f));
     }
 
     static class Math {
