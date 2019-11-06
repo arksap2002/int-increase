@@ -272,32 +272,22 @@ class Replacing {
     }
 
     private boolean isVariableToReplace(final NameExpr n) {
+        VariableDeclarator variableDeclarator;
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
-            FieldDeclaration fieldDeclaration =
-                    ((JavaParserFieldDeclaration) (n.resolve())).
-                            getWrappedNode();
-            for (int i = 0; i < fieldDeclaration.getVariables().size(); i++) {
-                if (!fieldDeclaration.getVariables().get(i).getRange().
-                        isPresent()) {
-                    throw new IllegalArgumentException();
-                }
-                if (variableDeclsToReplace.contains(
-                        fieldDeclaration.getVariables().get(i).getRange().
-                                get())) {
-                    return true;
-                }
-            }
+            variableDeclarator = ((JavaParserFieldDeclaration) n.resolve()).
+                    getVariableDeclarator();
         } else if (n.resolve() instanceof JavaParserSymbolDeclaration) {
-            VariableDeclarator variableDeclarator = (VariableDeclarator)
+            variableDeclarator = (VariableDeclarator)
                     ((JavaParserSymbolDeclaration) (n.resolve())).
                             getWrappedNode();
-            if (!variableDeclarator.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
-            return variableDeclsToReplace.contains(variableDeclarator.
-                    getRange().get());
+        } else {
+            return false;
         }
-        return false;
+        if (!variableDeclarator.getRange().isPresent()) {
+            throw new IllegalArgumentException();
+        }
+        return variableDeclsToReplace.contains(variableDeclarator.
+                getRange().get());
     }
 
     public class TransformVisitor
@@ -368,7 +358,6 @@ class Replacing {
             } else {
                 return false;
             }
-//            throw new UnsupportedOperationException();
         }
 
         @Override
