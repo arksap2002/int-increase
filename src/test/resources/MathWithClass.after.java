@@ -12,7 +12,7 @@ public class MathWithClass {
         java.math.BigInteger j = java.math.BigInteger.valueOf(java.lang.Math.getExponent(-2));
         java.math.BigInteger k = java.math.BigInteger.valueOf(java.lang.Math.multiplyExact(1, 2));
         java.math.BigInteger l = java.math.BigInteger.valueOf(java.lang.Math.addExact(10, 2));
-        System.out.println(java.math.BigInteger.TEN.abs().max(java.math.BigInteger.valueOf(90)));
+        System.out.println(java.lang.Math.max(java.lang.Math.abs(10), 90));
     }
 
     static class Math {

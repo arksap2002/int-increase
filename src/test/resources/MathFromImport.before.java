@@ -20,12 +20,6 @@ public class MathFromImport {
 
     int /* BigInteger */ n = Math.abs(Math.min(Math.max(Math.max(d, e), Math.abs(Math.max(f, k))), f));
 
-    int o = Math.getExponent(-2);
-
-    int p = Math.multiplyExact(1, 2);
-
-    int q = Math.addExact(10, 2);
-
     public static void main(String[] args) {
 
         int /* BigInteger */ g = Math.abs(10);
