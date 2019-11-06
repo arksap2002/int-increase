@@ -1,19 +1,22 @@
+import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -25,6 +28,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 class Replacing {
@@ -57,6 +61,8 @@ class Replacing {
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
+    private final HashSet<Range> variableDeclsToReplace = new HashSet<>();
+
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
                     new ClassOrInterfaceType("java"), "math"), "BigInteger");
@@ -69,6 +75,8 @@ class Replacing {
 
     private void mainReplace(final CompilationUnit compilationUnit,
                              final ReflectionTypeSolver reflectionTypeSolver) {
+        compilationUnit.accept(new FindAndAlterVariableDeclarators(),
+                JavaParserFacade.get(reflectionTypeSolver));
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
         for (Runnable change : changes) {
@@ -198,13 +206,13 @@ class Replacing {
             }
             if ((resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.print")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.println")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintStream.print")
-                || resolvedN.getQualifiedName().
+                    || resolvedN.getQualifiedName().
                     equals("java.io.PrintStream.println"))
-                && n.asMethodCallExpr().getArguments().size() == 1) {
+                    && n.asMethodCallExpr().getArguments().size() == 1) {
                 makingAfter(n.asMethodCallExpr().getArgument(0));
             }
         } else if (n.isBinaryExpr()) {
@@ -344,6 +352,63 @@ class Replacing {
                 changes.add(() -> n.replace(new MethodCallExpr(
                         n.asMethodCallExpr().getArgument(0),
                         new SimpleName("toString"))));
+            }
+        }
+    }
+
+    public class FindAndAlterVariableDeclarators
+            extends VoidVisitorAdapter<JavaParserFacade> {
+
+        @Override
+        public void visit(
+                final FieldDeclaration n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            enumerateVariables(n.getVariables());
+        }
+
+        @Override
+        public void visit(
+                final VariableDeclarationExpr n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            enumerateVariables(n.getVariables());
+        }
+
+        private void enumerateVariables(
+                final NodeList<VariableDeclarator> nodeList) {
+            boolean flag = false;
+            for (VariableDeclarator declarator : nodeList) {
+                if (declarator.getType().equals(
+                        PrimitiveType.intType())
+                        && declarator.getComment().isPresent()
+                        && declarator.getComment().get().
+                        getContent().toLowerCase().trim().
+                        equals("biginteger")) {
+                    flag = true;
+                    declarator.getComment().get().remove();
+                }
+                if (declarator.getType().equals(
+                        PrimitiveType.intType())
+                        && declarator.getInitializer().isPresent()
+                        && declarator.getInitializer().get().
+                        getComment().isPresent()
+                        && declarator.getInitializer().get().
+                        getComment().get().getContent().toLowerCase().trim().
+                        equals("biginteger")) {
+                    flag = true;
+                    declarator.getInitializer().get().getComment().get().
+                            remove();
+                }
+            }
+            if (flag) {
+                for (VariableDeclarator variableDeclarator : nodeList) {
+                    if (!variableDeclarator.getRange().isPresent()) {
+                        throw new IllegalArgumentException();
+                    }
+                    variableDeclsToReplace.add(variableDeclarator.getRange().
+                            get());
+                }
             }
         }
     }
