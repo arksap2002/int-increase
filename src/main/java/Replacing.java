@@ -339,6 +339,7 @@ class Replacing {
                         && n.asMethodCallExpr().getArguments().size() == 1) {
                     return isChange(n.asMethodCallExpr().getArgument(0));
                 }
+                return false;
             } else if (n.isBinaryExpr()) {
                 return isChange(n.asBinaryExpr().getLeft())
                         || isChange(n.asBinaryExpr().getRight());
@@ -367,7 +368,7 @@ class Replacing {
             } else {
                 return false;
             }
-            throw new UnsupportedOperationException();
+//            throw new UnsupportedOperationException();
         }
 
         @Override
