@@ -259,7 +259,7 @@ class Replacing {
                 throw new UnsupportedOperationException();
             }
         } else if (n.isNameExpr()) {
-            if (!isInVariableDeclarators(n.asNameExpr())) {
+            if (!isVariableToReplace(n.asNameExpr())) {
                 changes.add(() -> n.replace(new MethodCallExpr(
                         fieldAccessExpr, "valueOf",
                         new NodeList<>(n.clone()))));
@@ -271,33 +271,23 @@ class Replacing {
         return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
     }
 
-    private boolean isInVariableDeclarators(final NameExpr n) {
+    private boolean isVariableToReplace(final NameExpr n) {
+        VariableDeclarator variableDeclarator;
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
-            FieldDeclaration fieldDeclaration =
-                    ((JavaParserFieldDeclaration) (n.resolve())).
-                            getWrappedNode();
-            for (int i = 0; i < fieldDeclaration.getVariables().size(); i++) {
-                if (!fieldDeclaration.getVariables().get(i).getRange().
-                        isPresent()) {
-                    throw new IllegalArgumentException();
-                }
-                if (variableDeclsToReplace.contains(
-                        fieldDeclaration.getVariables().get(i).getRange().
-                                get())) {
-                    return true;
-                }
-            }
+            variableDeclarator = ((JavaParserFieldDeclaration) n.resolve()).
+                    getVariableDeclarator();
         } else if (n.resolve() instanceof JavaParserSymbolDeclaration) {
-            VariableDeclarator variableDeclarator = (VariableDeclarator)
+            variableDeclarator = (VariableDeclarator)
                     ((JavaParserSymbolDeclaration) (n.resolve())).
                             getWrappedNode();
-            if (!variableDeclarator.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
-            return variableDeclsToReplace.contains(variableDeclarator.
-                    getRange().get());
+        } else {
+            return false;
         }
-        return false;
+        if (!variableDeclarator.getRange().isPresent()) {
+            throw new IllegalArgumentException();
+        }
+        return variableDeclsToReplace.contains(variableDeclarator.
+                getRange().get());
     }
 
     public class TransformVisitor
@@ -339,6 +329,7 @@ class Replacing {
                         && n.asMethodCallExpr().getArguments().size() == 1) {
                     return isChange(n.asMethodCallExpr().getArgument(0));
                 }
+                return false;
             } else if (n.isBinaryExpr()) {
                 return isChange(n.asBinaryExpr().getLeft())
                         || isChange(n.asBinaryExpr().getRight());
@@ -350,7 +341,7 @@ class Replacing {
                         && n.asUnaryExpr().getExpression().isNameExpr()
                         && isOfTypeInt(
                         n.asUnaryExpr().getExpression().asNameExpr())) {
-                    return isInVariableDeclarators(n.asUnaryExpr().
+                    return isVariableToReplace(n.asUnaryExpr().
                             getExpression().asNameExpr());
                 }
                 if (n.asUnaryExpr().getOperator().equals(
@@ -358,15 +349,15 @@ class Replacing {
                         && n.asUnaryExpr().getExpression().isNameExpr()
                         && isOfTypeInt(
                         n.asUnaryExpr().getExpression().asNameExpr())) {
-                    return isInVariableDeclarators(n.asUnaryExpr().
+                    return isVariableToReplace(n.asUnaryExpr().
                             getExpression().asNameExpr());
                 }
                 return isChange(n.asUnaryExpr().getExpression());
             } else if (n.isNameExpr()) {
-                return isInVariableDeclarators(n.asNameExpr());
+                return isVariableToReplace(n.asNameExpr());
+            } else {
+                return false;
             }
-//            throw new UnsupportedOperationException();
-            return false;
         }
 
         @Override
@@ -414,7 +405,7 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (isOfTypeInt(n.getTarget())
                     && n.getTarget().isNameExpr()) {
-                if (isInVariableDeclarators(n.getTarget().asNameExpr())) {
+                if (isVariableToReplace(n.getTarget().asNameExpr())) {
                     makingAfter(n.getValue());
                     if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                         changes.add(() -> n.replace(new AssignExpr(

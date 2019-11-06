@@ -6,7 +6,6 @@ public class ParseInt {
         java.math.BigInteger integer = new java.math.BigInteger(number);
         java.math.BigInteger integer1 = new java.math.BigInteger(number1);
         java.math.BigInteger a = parseInt(10);
-        integer = new java.math.BigInteger(number).multiply(new java.math.BigInteger(number));
     }
 
     public static int parseInt(int number) {
