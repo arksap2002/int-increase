@@ -114,6 +114,11 @@ public class BigIntegerReplaceTest {
     public void testPartialReplacePrintAndParseInt() throws IOException, ClassNotFoundException {
         runTestFromFile("PartialReplacePrintAndParseInt");
     }
+  
+    @Test
+    public void testPartialReplaceParseInt() throws IOException, ClassNotFoundException {
+        runTestFromFile("PartialReplaceParseInt");
+    }
 
     @Test
     public void testPartialReplaceIf() throws IOException, ClassNotFoundException {
@@ -128,5 +133,10 @@ public class BigIntegerReplaceTest {
     @Test
     public void testPartialReplaceArithmetic() throws IOException, ClassNotFoundException {
         runTestFromFile("PartialReplaceArithmetic");
+    }
+
+    @Test
+    public void testPartialReplacePrint() throws IOException, ClassNotFoundException {
+        runTestFromFile("PartialReplacePrint");
     }
 }
