@@ -2,9 +2,9 @@ public class ParseInt {
     public static void main(String[] args) {
         String number = "10";
         String number1 = "11";
-        int integer = Integer.parseInt(number);
-        int integer1 = Integer.parseInt(number1);
-        int a = parseInt(10);
+        int /* BigInteger */ integer = Integer.parseInt(number);
+        int /* BigInteger */ integer1 = Integer.parseInt(number1);
+        int /* BigInteger */ a = parseInt(10);
     }
 
     public static int parseInt(int number) {

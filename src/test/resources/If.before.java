@@ -1,7 +1,7 @@
 public class If {
 
     public static void main(String[] args) {
-        int a = 0;
+        int /* BigInteger */ a = 0;
         if (a > Math.min(5 - 2, -3)) {
             a = -3;
         }
