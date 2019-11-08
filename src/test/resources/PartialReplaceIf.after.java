@@ -4,8 +4,8 @@ import java.util.Scanner;
 public class PartialReplaceIf {
 
     public static void main(String[] args) throws IOException {
-        java.math.BigInteger a = java.math.BigInteger.TWO.add(java.math.BigInteger.valueOf(9)).add(java.math.BigInteger.valueOf(12).multiply(java.math.BigInteger.valueOf(8))).subtract(java.math.BigInteger.valueOf(200).divide(java.math.BigInteger.valueOf(100)));
-        int b = 2 + 9 + 12 * 8 - 200 / 100;
+        java.math.BigInteger a = java.math.BigInteger.TWO;
+        int b = 9;
         if (b > 10) {
             b = 10;
         }

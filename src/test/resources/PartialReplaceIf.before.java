@@ -3,8 +3,8 @@ import java.util.Scanner;
 
 public class PartialReplaceIf {
     public static void main(String[] args) throws IOException {
-        int /* BigInteger */ a = 2 + 9 + 12 * 8 - 200 / 100;
-        int b = 2 + 9 + 12 * 8 - 200 / 100;
+        int /* BigInteger */ a = 2;
+        int b = 9;
         if (b > 10) {
             b = 10;
         }
