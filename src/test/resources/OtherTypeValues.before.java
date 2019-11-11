@@ -1,6 +1,6 @@
 public class OtherTypeValues {
     public static void main(String[] args) {
-        int a = 0;
+        int /* BigInteger */ a = 0;
         Integer integer = 100;
         long b = Integer.valueOf(Integer.valueOf(a).intValue()).longValue();
         long b2 = integer.longValue();

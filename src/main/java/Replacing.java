@@ -328,6 +328,12 @@ class Replacing {
                         equals("java.io.PrintStream.println"))
                         && n.asMethodCallExpr().getArguments().size() == 1) {
                     return isChange(n.asMethodCallExpr().getArgument(0));
+                } else {
+                    boolean flag = false;
+                    for (int i = 0; i < n.asMethodCallExpr().getArguments().size(); i++) {
+                        flag = flag || isChange(n.asMethodCallExpr().getArgument(i));
+                    }
+                    return flag;
                 }
                 return false;
             } else if (n.isBinaryExpr()) {
@@ -482,20 +488,10 @@ class Replacing {
                     equals("java.lang.Integer.floatValue")
                     || resolvedN.getQualifiedName().
                     equals("java.lang.Integer.byteValue")) {
-                if (n.asMethodCallExpr().getScope().isPresent()) {
-                    changes.add(() -> n.setScope(
-                            new MethodCallExpr(fieldAccessExpr, "valueOf",
-                                    new NodeList<>(n.asMethodCallExpr().
-                                            getScope().get()))));
+                if (n.asMethodCallExpr().getScope().isPresent()
+                        && isChange(n.asMethodCallExpr().getScope().get())) {
+                    changes.add(() -> n.setScope(n.clone().getScope().get().asMethodCallExpr().getArgument(0)));
                 }
-//                if (n.asMethodCallExpr().getScope().isPresent()
-//                        && n.asMethodCallExpr().getScope().get().
-//                        isMethodCallExpr()
-//                        && n.asMethodCallExpr().getScope().get().
-//                        asMethodCallExpr().getScope().isPresent()) {
-//                    changes.add(() -> n.asMethodCallExpr().getScope().get().
-//                            asMethodCallExpr().setScope(fieldAccessExpr));
-//                }
             }
             if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.toString")) {
