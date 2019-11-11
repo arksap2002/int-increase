@@ -10,17 +10,5 @@ public class DifferentInts {
         c = b;
         f = ((a + b) * c + (d % e));
         f = b + b;
-        for (int i = 0; i < a; i++) {
-            System.out.println(1);
-        }
-        for (int i /* BigInteger */ = 0; i < a; i++) {
-            System.out.println(1);
-        }
-        for (int i = 0; i < b; i++) {
-            System.out.println(1);
-        }
-        for (int i /* BigInteger */ = 0; i < b; i++) {
-            System.out.println(1);
-        }
     }
 }

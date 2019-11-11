@@ -10,17 +10,5 @@ public class DifferentInts {
         c = b;
         f = ((a.add(java.math.BigInteger.valueOf(b))).multiply(java.math.BigInteger.valueOf(c)).add((d.remainder(java.math.BigInteger.valueOf(e)))));
         f = java.math.BigInteger.valueOf(b).add(java.math.BigInteger.valueOf(b));
-        for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(a) < 0; i++) {
-            System.out.println(1);
-        }
-        for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(a) < 0; i = java.math.BigInteger.ONE.add(i)) {
-            System.out.println(1);
-        }
-        for (int i = 0; i < b; i++) {
-            System.out.println(1);
-        }
-        for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(java.math.BigInteger.valueOf(b)) < 0; i = java.math.BigInteger.ONE.add(i)) {
-            System.out.println(1);
-        }
     }
 }
