@@ -101,6 +101,16 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
+    public void testVarDecExpr() throws IOException, ClassNotFoundException {
+        runTestFromFile("VarDecExprComment");
+    }
+
+    @Test
+    public void testDifferentInts() throws IOException, ClassNotFoundException {
+        runTestFromFile("DifferentInts");
+    }
+  
+    @Test
     public void testPartialReplaceParseInt() throws IOException, ClassNotFoundException {
         runTestFromFile("PartialReplaceParseInt");
     }

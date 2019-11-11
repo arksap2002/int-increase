@@ -2,7 +2,7 @@ public class If {
 
     public static void main(String[] args) {
         int /* BigInteger */ a = 0;
-        int /* BigInteger */ b = 0;
+        int b = 1;
         if (a > Math.min(5 - 2, -3)) {
             a = -3;
         }
@@ -18,7 +18,7 @@ public class If {
         if (a <= Math.abs(-10)) {
             a = -1;
         }
-        if (b > a){
+        if (b > a) {
             a = b;
         }
     }
