@@ -5,9 +5,6 @@ public class DifferentInts {
         int b = a;
         int d /* BigInteger */ = (a + b) * b;
         int e = (a + b) * b;
-        if (a > b) {
-            System.out.println(a + b);
-        }
         int c = 0;
         int f /* BigInteger */ = 8;
         c = b;

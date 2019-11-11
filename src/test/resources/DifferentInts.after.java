@@ -5,9 +5,6 @@ public class DifferentInts {
         int b = a.intValue();
         java.math.BigInteger d = (a.add(java.math.BigInteger.valueOf(b))).multiply(java.math.BigInteger.valueOf(b));
         int e = (a.add(java.math.BigInteger.valueOf(b))).multiply(java.math.BigInteger.valueOf(b)).intValue();
-        if (a.compareTo(java.math.BigInteger.valueOf(b)) > 0) {
-            System.out.println(a.add(java.math.BigInteger.valueOf(b)));
-        }
         int c = 0;
         java.math.BigInteger f = java.math.BigInteger.valueOf(8);
         c = b;
