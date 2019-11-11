@@ -104,4 +104,29 @@ public class BigIntegerReplaceTest {
     public void testHashCode() throws IOException, ClassNotFoundException {
         runTestFromFile("HashCode");
     }
+  
+    @Test
+    public void testPartialReplaceParseInt() throws IOException, ClassNotFoundException {
+        runTestFromFile("PartialReplaceParseInt");
+    }
+
+    @Test
+    public void testPartialReplaceIf() throws IOException, ClassNotFoundException {
+        runTestFromFile("PartialReplaceIf");
+    }
+
+    @Test
+    public void testPartialReplaceFor() throws IOException, ClassNotFoundException {
+        runTestFromFile("PartialReplaceFor");
+    }
+
+    @Test
+    public void testPartialReplaceArithmetic() throws IOException, ClassNotFoundException {
+        runTestFromFile("PartialReplaceArithmetic");
+    }
+
+    @Test
+    public void testPartialReplacePrint() throws IOException, ClassNotFoundException {
+        runTestFromFile("PartialReplacePrint");
+    }
 }
