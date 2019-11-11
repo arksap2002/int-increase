@@ -10,7 +10,7 @@ public class DifferentInts {
         }
         int c = 0;
         int f /* BigInteger */ = 8;
-        c = a;
+        c = b;
         f = ((a + b) * c + (d % e));
         f = b + b;
         for (int i = 0; i < a; i++) {

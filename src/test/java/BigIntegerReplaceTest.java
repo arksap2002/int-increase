@@ -111,11 +111,6 @@ public class BigIntegerReplaceTest {
     }
   
     @Test
-    public void testPartialReplacePrintAndParseInt() throws IOException, ClassNotFoundException {
-        runTestFromFile("PartialReplacePrintAndParseInt");
-    }
-  
-    @Test
     public void testPartialReplaceParseInt() throws IOException, ClassNotFoundException {
         runTestFromFile("PartialReplaceParseInt");
     }

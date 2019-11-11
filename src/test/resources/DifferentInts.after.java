@@ -10,7 +10,7 @@ public class DifferentInts {
         }
         int c = 0;
         java.math.BigInteger f = java.math.BigInteger.valueOf(8);
-        c = a.intValue();
+        c = b;
         f = ((a.add(java.math.BigInteger.valueOf(b))).multiply(java.math.BigInteger.valueOf(c)).add((d.remainder(java.math.BigInteger.valueOf(e)))));
         f = java.math.BigInteger.valueOf(b).add(java.math.BigInteger.valueOf(b));
         for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(a) < 0; i++) {
