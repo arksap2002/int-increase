@@ -216,6 +216,13 @@ class Replacing {
                     && n.asMethodCallExpr().getArguments().size() == 1) {
                 makingAfter(n.asMethodCallExpr().getArgument(0));
             }
+            if (resolvedN.getQualifiedName().
+                    equals("java.lang.Integer.hashCode")) {
+                makingAfter(n.asMethodCallExpr().getArgument(0));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArgument(0),
+                        new SimpleName("hashCode"))));
+            }
         } else if (n.isBinaryExpr()) {
             changingOfBinaryExpr(n.asBinaryExpr());
         } else if (n.isEnclosedExpr()) {
@@ -535,13 +542,6 @@ class Replacing {
                     variableDeclsToReplace.add(variableDeclarator.getRange().
                             get());
                 }
-            }
-            if (resolvedN.getQualifiedName().
-                    equals("java.lang.Integer.hashCode")) {
-                makingAfter(n.asMethodCallExpr().getArgument(0));
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        n.asMethodCallExpr().getArgument(0),
-                        new SimpleName("hashCode"))));
             }
         }
     }
