@@ -373,11 +373,6 @@ class Replacing {
                         int lengthOfChangeBefore = changes.size();
                         makingAfter(n.getInitializer().get());
                         if (changes.size() == lengthOfChangeBefore) {
-//                            changes.add(() -> n.setInitializer(
-//                                    new MethodCallExpr(
-//                                            fieldAccessExpr, "valueOf",
-//                                    new NodeList<>(n.clone().
-//                                            getInitializer().get()))));
                             changes.add(() -> n.setInitializer(
                                     new ObjectCreationExpr(null,
                                             bigIntegerType, new NodeList<>(
