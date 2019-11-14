@@ -204,8 +204,7 @@ class Replacing {
                 changes.add(() -> n.replace(new ObjectCreationExpr(
                         null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
-            }
-            if ((resolvedN.getQualifiedName().
+            } else if ((resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.print")
                     || resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.println")
@@ -371,7 +370,15 @@ class Replacing {
                 }
                 if (variableDeclsToReplace.contains(n.getRange().get())) {
                     if (n.getInitializer().isPresent()) {
+                        int lengthOfChangeBefore = changes.size();
                         makingAfter(n.getInitializer().get());
+                        if (changes.size() == lengthOfChangeBefore) {
+                            changes.add(() -> n.setInitializer(
+                                    new MethodCallExpr(
+                                            fieldAccessExpr, "valueOf",
+                                    new NodeList<>(n.clone().
+                                            getInitializer().get()))));
+                        }
                     }
                     changes.add(() -> n.setType(bigIntegerType));
                 } else {
