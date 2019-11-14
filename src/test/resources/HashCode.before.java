@@ -4,5 +4,7 @@ public class HashCode {
         int b = Integer.hashCode(a);
         int c = 10;
         int d = Integer.hashCode(c);
+        int e /* BigInteger */ = Integer.hashCode(a);
+        int f /* BigInteger */ = Integer.hashCode(c);
     }
 }
