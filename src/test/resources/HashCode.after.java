@@ -5,7 +5,7 @@ public class HashCode {
         int b = a.hashCode();
         int c = 10;
         int d = Integer.hashCode(c);
-        java.math.BigInteger e = java.math.BigInteger.valueOf(a.hashCode());
-        java.math.BigInteger f = java.math.BigInteger.valueOf(Integer.hashCode(c));
+        java.math.BigInteger e = new java.math.BigInteger(a.hashCode());
+        java.math.BigInteger f = new java.math.BigInteger(Integer.hashCode(c));
     }
 }
