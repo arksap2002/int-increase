@@ -204,8 +204,7 @@ class Replacing {
                 changes.add(() -> n.replace(new ObjectCreationExpr(
                         null, bigIntegerType,
                         n.asMethodCallExpr().getArguments())));
-            }
-            if ((resolvedN.getQualifiedName().
+            } else if ((resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.print")
                     || resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.println")
@@ -215,6 +214,10 @@ class Replacing {
                     equals("java.io.PrintStream.println"))
                     && n.asMethodCallExpr().getArguments().size() == 1) {
                 makingAfter(n.asMethodCallExpr().getArgument(0));
+            } else {
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        fieldAccessExpr, "valueOf",
+                        new NodeList<>(n.clone().asMethodCallExpr()))));
             }
         } else if (n.isBinaryExpr()) {
             changingOfBinaryExpr(n.asBinaryExpr());
@@ -264,6 +267,8 @@ class Replacing {
                         fieldAccessExpr, "valueOf",
                         new NodeList<>(n.clone()))));
             }
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 
