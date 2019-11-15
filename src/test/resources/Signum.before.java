@@ -1,9 +1,11 @@
 public class Signum {
     public static void main(String[] args) {
-        int a = Integer.signum(10 + 30);
+        int a  /* BigInteger */ = Integer.signum(10 + 30);
         int b = 55;
-        int c = Integer.signum(b);
-        int d = signum(566);
+        int c  /* BigInteger */ = Integer.signum(b);
+        int d  /* BigInteger */= signum(566);
+        int f /* BigInteger */ = Integer.signum(d);
+        int e /* BigInteger */ = Integer.signum(b + c);
     }
 
     public static int signum(int number) {
