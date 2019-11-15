@@ -101,9 +101,9 @@ class Replacing {
             return new FieldAccessExpr(
                     fieldAccessExpr, "TEN");
         } else {
-            return new MethodCallExpr(
-                    fieldAccessExpr, "valueOf",
-                    new NodeList<>(new IntegerLiteralExpr(number)));
+            return new ObjectCreationExpr(null,
+                    bigIntegerType, new NodeList<>(
+                            new IntegerLiteralExpr(number)));
         }
     }
 
@@ -260,10 +260,11 @@ class Replacing {
             }
         } else if (n.isNameExpr()) {
             if (!isVariableToReplace(n.asNameExpr())) {
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        fieldAccessExpr, "valueOf",
-                        new NodeList<>(n.clone()))));
+                changes.add(() -> n.replace(new ObjectCreationExpr(null,
+                        bigIntegerType, new NodeList<>(n.clone()))));
             }
+        } else if (!isOfTypeInt(n)) {
+            throw new UnsupportedOperationException();
         }
     }
 
