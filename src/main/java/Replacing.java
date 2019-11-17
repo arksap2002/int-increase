@@ -101,9 +101,8 @@ class Replacing {
             return new FieldAccessExpr(
                     fieldAccessExpr, "TEN");
         } else {
-            return new ObjectCreationExpr(null,
-                    bigIntegerType, new NodeList<>(
-                            new IntegerLiteralExpr(number)));
+            return newBigIntmaking(new NodeList<>(
+                    new IntegerLiteralExpr(number)));
         }
     }
 
@@ -113,8 +112,8 @@ class Replacing {
     }
 
     private void changingOfBinaryExpr(final BinaryExpr binaryExpr) {
-        makingAfter(binaryExpr.asBinaryExpr().getLeft());
-        makingAfter(binaryExpr.asBinaryExpr().getRight());
+        changeToBigInt(binaryExpr.asBinaryExpr().getLeft());
+        changeToBigInt(binaryExpr.asBinaryExpr().getRight());
         if (binaryExpr.getOperator().equals(
                 BinaryExpr.Operator.EQUALS)) {
             changes.add(() -> binaryExpr.replace(new MethodCallExpr(
@@ -150,11 +149,13 @@ class Replacing {
         }
     }
 
-    private void makingAfter(final Expression n) {
+    private void changeToBigInt(final Expression n) {
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
                     n.asIntegerLiteralExpr().asInt())));
-        } else if (n.isMethodCallExpr()) {
+            return;
+        }
+        if (n.isMethodCallExpr()) {
             ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                     resolve();
             if (resolvedN.getQualifiedName().
@@ -167,7 +168,7 @@ class Replacing {
                     && (resolvedN.getName().equals("abs"))) {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0))) {
-                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
+                    changeToBigInt(n.asMethodCallExpr().getArguments().get(0));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArguments().get(0),
                             new SimpleName("abs"))));
@@ -176,8 +177,8 @@ class Replacing {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0)) && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
-                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
-                    makingAfter(n.asMethodCallExpr().getArguments().get(1));
+                    changeToBigInt(n.asMethodCallExpr().getArguments().get(0));
+                    changeToBigInt(n.asMethodCallExpr().getArguments().get(1));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArguments().get(0),
                             "min", new NodeList<>(
@@ -187,8 +188,8 @@ class Replacing {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().get(0))
                         && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
-                    makingAfter(n.asMethodCallExpr().getArguments().get(0));
-                    makingAfter(n.asMethodCallExpr().getArguments().get(1));
+                    changeToBigInt(n.asMethodCallExpr().getArguments().get(0));
+                    changeToBigInt(n.asMethodCallExpr().getArguments().get(1));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArguments().get(0),
                             "max", new NodeList<>(
@@ -197,9 +198,8 @@ class Replacing {
             } else if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.parseInt")
                     && n.asMethodCallExpr().getArguments().size() == 1) {
-                changes.add(() -> n.replace(new ObjectCreationExpr(
-                        null, bigIntegerType,
-                        n.asMethodCallExpr().getArguments())));
+                changes.add(() -> n.replace(newBigIntmaking(n.
+                        asMethodCallExpr().getArguments())));
             } else if ((resolvedN.getQualifiedName().
                     equals("java.io.PrintWriter.print")
                     || resolvedN.getQualifiedName().
@@ -209,19 +209,23 @@ class Replacing {
                     || resolvedN.getQualifiedName().
                     equals("java.io.PrintStream.println"))
                     && n.asMethodCallExpr().getArguments().size() == 1) {
-                makingAfter(n.asMethodCallExpr().getArgument(0));
+                changeToBigInt(n.asMethodCallExpr().getArgument(0));
             } else {
-                changes.add(() -> n.replace(
-                        new ObjectCreationExpr(null,
-                                bigIntegerType, new NodeList<>(
-                                n.clone().asMethodCallExpr()))));
+                changes.add(() -> n.replace(newBigIntmaking(new NodeList<>(
+                        n.clone().asMethodCallExpr()))));
             }
-        } else if (n.isBinaryExpr()) {
+            return;
+        }
+        if (n.isBinaryExpr()) {
             changingOfBinaryExpr(n.asBinaryExpr());
-        } else if (n.isEnclosedExpr()) {
-            makingAfter(n.asEnclosedExpr().getInner());
-        } else if (n.isUnaryExpr()) {
-            makingAfter(n.asUnaryExpr().getExpression());
+            return;
+        }
+        if (n.isEnclosedExpr()) {
+            changeToBigInt(n.asEnclosedExpr().getInner());
+            return;
+        }
+        if (n.isUnaryExpr()) {
+            changeToBigInt(n.asUnaryExpr().getExpression());
             if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                     Operator.MINUS)) {
                 changes.add(() -> n.replace(new MethodCallExpr(
@@ -258,14 +262,23 @@ class Replacing {
                     Operator.LOGICAL_COMPLEMENT)) {
                 throw new UnsupportedOperationException();
             }
-        } else if (n.isNameExpr()) {
+            return;
+        }
+        if (n.isNameExpr()) {
             if (!isVariableToReplace(n.asNameExpr())) {
-                changes.add(() -> n.replace(new ObjectCreationExpr(null,
-                        bigIntegerType, new NodeList<>(n.clone()))));
+                changes.add(() -> n.replace(newBigIntmaking(
+                        new NodeList<>(n.clone()))));
             }
-        } else if (!isOfTypeInt(n)) {
+            return;
+        }
+        if (!isOfTypeInt(n)) {
             throw new UnsupportedOperationException();
         }
+    }
+
+    private ObjectCreationExpr newBigIntmaking(
+            final NodeList<Expression> expressions) {
+        return new ObjectCreationExpr(null, bigIntegerType, expressions);
     }
 
     private boolean isOfTypeInt(final Expression n) {
@@ -331,12 +344,15 @@ class Replacing {
                     return isChange(n.asMethodCallExpr().getArgument(0));
                 }
                 return false;
-            } else if (n.isBinaryExpr()) {
+            }
+            if (n.isBinaryExpr()) {
                 return isChange(n.asBinaryExpr().getLeft())
                         || isChange(n.asBinaryExpr().getRight());
-            } else if (n.isEnclosedExpr()) {
+            }
+            if (n.isEnclosedExpr()) {
                 return isChange(n.asEnclosedExpr().getInner());
-            } else if (n.isUnaryExpr()) {
+            }
+            if (n.isUnaryExpr()) {
                 if (n.asUnaryExpr().getOperator().equals(
                         UnaryExpr.Operator.POSTFIX_INCREMENT)
                         && n.asUnaryExpr().getExpression().isNameExpr()
@@ -354,11 +370,11 @@ class Replacing {
                             getExpression().asNameExpr());
                 }
                 return isChange(n.asUnaryExpr().getExpression());
-            } else if (n.isNameExpr()) {
-                return isVariableToReplace(n.asNameExpr());
-            } else {
-                return false;
             }
+            if (n.isNameExpr()) {
+                return isVariableToReplace(n.asNameExpr());
+            }
+            return false;
         }
 
         @Override
@@ -372,21 +388,13 @@ class Replacing {
                 }
                 if (variableDeclsToReplace.contains(n.getRange().get())) {
                     if (n.getInitializer().isPresent()) {
-                        int lengthOfChangeBefore = changes.size();
-                        makingAfter(n.getInitializer().get());
-                        if (changes.size() == lengthOfChangeBefore) {
-                            changes.add(() -> n.setInitializer(
-                                    new ObjectCreationExpr(null,
-                                            bigIntegerType, new NodeList<>(
-                                                    n.clone().getInitializer().
-                                                            get()))));
-                        }
+                        changeToBigInt(n.getInitializer().get());
                     }
                     changes.add(() -> n.setType(bigIntegerType));
                 } else {
                     if (n.getInitializer().isPresent()) {
                         if (isChange(n.getInitializer().get())) {
-                            makingAfter(n.getInitializer().get());
+                            changeToBigInt(n.getInitializer().get());
                             changes.add(() -> n.setInitializer(
                                     new MethodCallExpr(n.clone().
                                             getInitializer().get(),
@@ -403,7 +411,7 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (isChange(n.getCondition())) {
-                makingAfter(n.getCondition());
+                changeToBigInt(n.getCondition());
             }
         }
 
@@ -415,7 +423,7 @@ class Replacing {
             if (isOfTypeInt(n.getTarget())
                     && n.getTarget().isNameExpr()) {
                 if (isVariableToReplace(n.getTarget().asNameExpr())) {
-                    makingAfter(n.getValue());
+                    changeToBigInt(n.getValue());
                     if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                         changes.add(() -> n.replace(new AssignExpr(
                                 n.getTarget(), new MethodCallExpr(
@@ -426,7 +434,7 @@ class Replacing {
                     }
                 } else {
                     if (isChange(n.getValue())) {
-                        makingAfter(n.getValue());
+                        changeToBigInt(n.getValue());
                         changes.add(() -> n.setValue(new MethodCallExpr(
                                 n.clone().getValue(),
                                 new SimpleName("intValue"))));
@@ -441,7 +449,7 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (isChange(n.getExpression())) {
-                makingAfter(n.getExpression());
+                changeToBigInt(n.getExpression());
             }
         }
 
@@ -452,12 +460,12 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (n.getCompare().isPresent()) {
                 if (isChange(n.getCompare().get())) {
-                    makingAfter(n.getCompare().get());
+                    changeToBigInt(n.getCompare().get());
                 }
             }
             for (int i = 0; i < n.getUpdate().size(); i++) {
                 if (isChange(n.getUpdate().get(i))) {
-                    makingAfter(n.getUpdate().get(i));
+                    changeToBigInt(n.getUpdate().get(i));
                 }
             }
         }
@@ -468,7 +476,7 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (isChange(n.getCondition())) {
-                makingAfter(n.getCondition());
+                changeToBigInt(n.getCondition());
             }
         }
 
@@ -482,7 +490,7 @@ class Replacing {
             if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.toString")) {
                 if (isChange(n.asMethodCallExpr().getArgument(0))) {
-                    makingAfter(n.asMethodCallExpr().getArgument(0));
+                    changeToBigInt(n.asMethodCallExpr().getArgument(0));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArgument(0),
                             new SimpleName("toString"))));
@@ -491,7 +499,7 @@ class Replacing {
             if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.hashCode")) {
                 if (isChange(n.asMethodCallExpr().getArgument(0))) {
-                    makingAfter(n.asMethodCallExpr().getArgument(0));
+                    changeToBigInt(n.asMethodCallExpr().getArgument(0));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArgument(0),
                             new SimpleName("hashCode"))));
