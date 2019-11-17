@@ -12,5 +12,6 @@ public class OtherTypeValues {
         double e2 = integer.doubleValue();
         float f = Integer.valueOf(a).floatValue();
         float f2 = integer.floatValue();
+        int g = Integer.valueOf(a);
     }
 }
