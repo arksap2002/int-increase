@@ -150,6 +150,9 @@ class Replacing {
     }
 
     private void changeToBigInt(final Expression n) {
+        if (!isOfTypeInt(n)) {
+            throw new UnsupportedOperationException();
+        }
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
                     n.asIntegerLiteralExpr().asInt())));
@@ -270,9 +273,6 @@ class Replacing {
                         new NodeList<>(n.clone()))));
             }
             return;
-        }
-        if (!isOfTypeInt(n)) {
-            throw new UnsupportedOperationException();
         }
     }
 
