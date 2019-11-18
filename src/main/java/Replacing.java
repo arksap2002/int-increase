@@ -279,6 +279,8 @@ class Replacing {
         if (!isOfTypeInt(n)) {
             throw new UnsupportedOperationException();
         }
+        changes.add(() -> n.replace(bigIntFromInt(
+                new NodeList<>(n.clone()))));
     }
 
     private ObjectCreationExpr bigIntFromInt(
