@@ -348,7 +348,8 @@ class Replacing {
                         || resolvedN.getQualifiedName().
                         equals("java.io.PrintStream.println"))
                         && n.asMethodCallExpr().getArguments().size() == 1) {
-                    return isupdateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
+                    return isupdateIntsToBigInt(n.asMethodCallExpr().
+                            getArgument(0));
                 }
                 return false;
             }
