@@ -168,7 +168,8 @@ class Replacing {
                     && (resolvedN.getName().equals("abs"))) {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().get(0));
+                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                            get(0));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArguments().get(0),
                             new SimpleName("abs"))));
@@ -177,8 +178,10 @@ class Replacing {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                         get(0)) && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().get(0));
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().get(1));
+                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                            get(0));
+                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                            get(1));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArguments().get(0),
                             "min", new NodeList<>(
@@ -188,8 +191,10 @@ class Replacing {
                 if (isOfTypeInt(n.asMethodCallExpr().getArguments().get(0))
                         && isOfTypeInt(n.asMethodCallExpr().
                         getArguments().get(1))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().get(0));
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().get(1));
+                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                            get(0));
+                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                            get(1));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArguments().get(0),
                             "max", new NodeList<>(
@@ -318,8 +323,8 @@ class Replacing {
                         && (resolvedN.getName().equals("abs"))) {
                     if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                             get(0))) {
-                        return isupdateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                                get(0));
+                        return isupdateIntsToBigInt(n.asMethodCallExpr().
+                                getArguments().get(0));
                     }
                 } else if (isMath(resolvedN) && (resolvedN.getName().
                         equals("min")
@@ -327,8 +332,8 @@ class Replacing {
                     if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                             get(0)) && isOfTypeInt(n.asMethodCallExpr().
                             getArguments().get(1))) {
-                        return isupdateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                                get(0))
+                        return isupdateIntsToBigInt(n.asMethodCallExpr().
+                                getArguments().get(0))
                                 || isupdateIntsToBigInt(n.asMethodCallExpr().
                                 getArguments().get(1));
                     }
