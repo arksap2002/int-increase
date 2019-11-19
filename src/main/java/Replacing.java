@@ -18,6 +18,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -293,10 +294,14 @@ class Replacing {
     }
 
     private boolean isOfTypeInt(final Expression n) {
+        if (n.isNameExpr()) {
+            return makeVariableToReplace(n.asNameExpr()).getType().
+                    equals(PrimitiveType.intType());
+        }
         return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
     }
 
-    private boolean isVariableToReplace(final NameExpr n) {
+    private VariableDeclarator makeVariableToReplace(final NameExpr n) {
         VariableDeclarator variableDeclarator;
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
             variableDeclarator = ((JavaParserFieldDeclaration) n.resolve()).
@@ -306,10 +311,18 @@ class Replacing {
                     ((JavaParserSymbolDeclaration) (n.resolve())).
                             getWrappedNode();
         } else {
-            return false;
+            return new VariableDeclarator();
         }
         if (!variableDeclarator.getRange().isPresent()) {
             throw new IllegalArgumentException();
+        }
+        return variableDeclarator;
+    }
+
+    private boolean isVariableToReplace(final NameExpr n) {
+        VariableDeclarator variableDeclarator = makeVariableToReplace(n);
+        if (variableDeclarator.equals(new VariableDeclarator())) {
+            return false;
         }
         return variableDeclsToReplace.contains(variableDeclarator.
                 getRange().get());
@@ -394,8 +407,52 @@ class Replacing {
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
             if (n.getType().equals(PrimitiveType.intType())) {
                 usualVariablesMaking(n);
+            }
+//            забабахать сложную рекурсию
+            if (n.getType().isArrayType() && n.getType().asArrayType().
+                    getComponentType().equals(PrimitiveType.intType())) {
+                arrayVariablesMaking(n);
+            }
+        }
+
+        private void arrayVariablesMaking(final VariableDeclarator n) {
+            if (variableDeclsToReplace.contains(n.getRange().get())) {
+                changes.add(() -> n.setType(bigIntegerType));
+                if (n.getInitializer().isPresent()
+                        && n.getInitializer().get().isArrayCreationExpr()) {
+                    if (n.getInitializer().get().asArrayCreationExpr().
+                            getElementType().equals(PrimitiveType.intType())) {
+                        changes.add(() -> n.getInitializer().get().
+                                asArrayCreationExpr().setElementType(
+                                bigIntegerType));
+                    }
+                }
+            }
+            for (int i = 0; i < n.getInitializer().get().asArrayCreationExpr().
+                    getLevels().size(); i++) {
+                if (n.getInitializer().get().asArrayCreationExpr().
+                        getLevels().get(i).getDimension().isPresent()) {
+                    if (isupdateIntsToBigInt(n.getInitializer().get().
+                            asArrayCreationExpr().getLevels().get(i).
+                            getDimension().get())) {
+                        updateIntsToBigInt(n.getInitializer().get().
+                                asArrayCreationExpr().getLevels().get(i).
+                                getDimension().get());
+                        int finalI = i;
+                        changes.add(() -> n.getInitializer().get().
+                                asArrayCreationExpr().getLevels().get(finalI).
+                                setDimension(intValueMaking(n.clone().
+                                        getInitializer().get().
+                                        asArrayCreationExpr().
+                                        getLevels().get(finalI).
+                                        getDimension().get())));
+                    }
+                }
             }
         }
 
@@ -436,6 +493,36 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (n.getTarget().isNameExpr() && isOfTypeInt(n.getTarget())) {
                 usualAssignMaking(n);
+            }
+            if (n.getTarget().isArrayAccessExpr()
+                    && n.getTarget().asArrayAccessExpr().getName().
+                    isNameExpr()) {
+                arrayAssignMaking(n);
+            }
+        }
+
+        private void arrayAssignMaking(final AssignExpr n) {
+            if (isupdateIntsToBigInt(n.getValue())) {
+                updateIntsToBigInt(n.getValue());
+                if (!isVariableToReplace(n.getTarget().asArrayAccessExpr().
+                        getName().asNameExpr())) {
+                    changes.add(() -> n.setValue(intValueMaking(n.clone().
+                            getValue())));
+                }
+                if (isupdateIntsToBigInt(n.getTarget().asArrayAccessExpr().
+                        getIndex())) {
+                    updateIntsToBigInt(n.getTarget().asArrayAccessExpr().
+                            getIndex());
+                    changes.add(() -> n.getTarget().asArrayAccessExpr().
+                            setIndex(intValueMaking(n.clone().
+                                    getTarget().asArrayAccessExpr().
+                                    getIndex())));
+                }
+            } else {
+                if (isVariableToReplace(n.getTarget().asArrayAccessExpr().
+                        getName().asNameExpr())) {
+                    updateIntsToBigInt(n.getValue());
+                }
             }
         }
 
@@ -591,7 +678,10 @@ class Replacing {
 
         private boolean ifTypeToChange(final VariableDeclarator declarator) {
             return declarator.getType().equals(
-                    PrimitiveType.intType());
+                    PrimitiveType.intType())
+                    || (declarator.getType().isArrayType()
+                    && declarator.getType().asArrayType().getComponentType().
+                    equals(PrimitiveType.intType()));
         }
     }
 }
