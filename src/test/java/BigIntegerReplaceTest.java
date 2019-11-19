@@ -139,9 +139,4 @@ public class BigIntegerReplaceTest {
     public void testGeneralization() throws IOException, ClassNotFoundException {
         runTestFromFile("Generalization");
     }
-
-    @Test
-    public void testLists() throws IOException, ClassNotFoundException {
-        runTestFromFile("Lists");
-    }
 }
