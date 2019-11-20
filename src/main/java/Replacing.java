@@ -14,6 +14,7 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.expr.ArrayAccessExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
@@ -505,38 +506,53 @@ class Replacing {
                 final AssignExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.getTarget().isNameExpr() && isOfTypeInt(n.getTarget())) {
-                usualAssignMaking(n);
-            }
-            if (n.getTarget().isArrayAccessExpr()
-                    && n.getTarget().asArrayAccessExpr().getName().
-                    isNameExpr()) {
+            if (n.getTarget().isArrayAccessExpr()) {
                 arrayAssignMaking(n);
+            }
+            if (n.getTarget().isNameExpr()) {
+                usualAssignMaking(n);
             }
         }
 
+        private void indexesChanging(final ArrayAccessExpr n) {
+            if (isupdateIntsToBigInt(n.getIndex())) {
+                updateIntsToBigInt(n.getIndex());
+                changes.add(() -> n.setIndex(intValueMaking(
+                        n.clone().getIndex())));
+            }
+            if (n.getName().isArrayAccessExpr()) {
+                indexesChanging(n.getName().asArrayAccessExpr());
+            }
+        }
+
+        private Expression getNameOfAssign(final ArrayAccessExpr n) {
+            if (n.getName().isArrayAccessExpr()) {
+                return getNameOfAssign(n.getName().asArrayAccessExpr());
+            }
+            return n.getName();
+        }
+
         private void arrayAssignMaking(final AssignExpr n) {
-            if (isupdateIntsToBigInt(n.getValue())) {
-                updateIntsToBigInt(n.getValue());
-                if (!isVariableToReplace(n.getTarget().asArrayAccessExpr().
-                        getName().asNameExpr())) {
-                    changes.add(() -> n.setValue(intValueMaking(n.clone().
-                            getValue())));
-                }
-                if (isupdateIntsToBigInt(n.getTarget().asArrayAccessExpr().
-                        getIndex())) {
-                    updateIntsToBigInt(n.getTarget().asArrayAccessExpr().
-                            getIndex());
-                    changes.add(() -> n.getTarget().asArrayAccessExpr().
-                            setIndex(intValueMaking(n.clone().
-                                    getTarget().asArrayAccessExpr().
-                                    getIndex())));
-                }
-            } else {
-                if (isVariableToReplace(n.getTarget().asArrayAccessExpr().
-                        getName().asNameExpr())) {
+            if (n.getTarget().isArrayAccessExpr()) {
+                Expression nameN = getNameOfAssign(n.getTarget().
+                        asArrayAccessExpr());
+                if (nameN.isNameExpr() && isVariableToReplace(
+                        nameN.asNameExpr())) {
                     updateIntsToBigInt(n.getValue());
+                    if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
+                        changes.add(() -> n.replace(new AssignExpr(
+                                n.getTarget(), new MethodCallExpr(
+                                n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                n.getOperator()),
+                                new NodeList<>(n.getTarget())),
+                                AssignExpr.Operator.ASSIGN)));
+                    }
+                } else if (isupdateIntsToBigInt(n.getValue())) {
+                    updateIntsToBigInt(n.getValue());
+                    changes.add(() -> n.setValue(intValueMaking(
+                            n.clone().getValue())));
                 }
+                indexesChanging(n.getTarget().asArrayAccessExpr());
             }
         }
 
@@ -560,7 +576,8 @@ class Replacing {
                             && n.getTarget().isNameExpr()) {
                         if (isVariableToReplace(n.getTarget().asNameExpr())) {
                             updateIntsToBigInt(n.getValue());
-                            if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
+                            if (!n.getOperator().equals(
+                                    AssignExpr.Operator.ASSIGN)) {
                                 changes.add(() -> n.replace(new AssignExpr(
                                         n.getTarget(), new MethodCallExpr(
                                         n.getValue(), OPERATOR_OF_ASSIGN.get(
