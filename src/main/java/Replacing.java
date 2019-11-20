@@ -328,6 +328,13 @@ class Replacing {
                 getRange().get());
     }
 
+    private ArrayType setN(final ArrayType typeN) {
+        if (!typeN.getComponentType().isArrayType()) {
+            return typeN;
+        }
+        return typeN.getComponentType().asArrayType();
+    }
+
     public class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
@@ -413,16 +420,23 @@ class Replacing {
             if (n.getType().equals(PrimitiveType.intType())) {
                 usualVariablesMaking(n);
             }
-//            забабахать сложную рекурсию
-            if (n.getType().isArrayType() && n.getType().asArrayType().
-                    getComponentType().equals(PrimitiveType.intType())) {
-                arrayVariablesMaking(n);
+            if (n.getType().isArrayType()) {
+                ArrayType typeN = n.getType().asArrayType();
+                while (typeN.getComponentType().isArrayType()) {
+                    typeN = typeN.getComponentType().asArrayType();
+                }
+                if (typeN.getComponentType().equals(PrimitiveType.intType())) {
+                    arrayVariablesMaking(n);
+                }
             }
         }
 
         private void arrayVariablesMaking(final VariableDeclarator n) {
             if (variableDeclsToReplace.contains(n.getRange().get())) {
-                changes.add(() -> n.setType(bigIntegerType));
+                if (n.getType().isArrayType()) {
+                    changes.add(() -> setN(n.getType().asArrayType()).
+                            setComponentType(bigIntegerType));
+                }
                 if (n.getInitializer().isPresent()
                         && n.getInitializer().get().isArrayCreationExpr()) {
                     if (n.getInitializer().get().asArrayCreationExpr().
@@ -677,11 +691,15 @@ class Replacing {
         }
 
         private boolean ifTypeToChange(final VariableDeclarator declarator) {
-            return declarator.getType().equals(
-                    PrimitiveType.intType())
-                    || (declarator.getType().isArrayType()
-                    && declarator.getType().asArrayType().getComponentType().
-                    equals(PrimitiveType.intType()));
+            if (declarator.getType().equals(
+                    PrimitiveType.intType())) {
+                return true;
+            }
+            if (declarator.getType().isArrayType()) {
+                return setN(declarator.getType().asArrayType()).
+                        getComponentType().equals(PrimitiveType.intType());
+            }
+            return false;
         }
     }
 }
