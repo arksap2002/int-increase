@@ -318,7 +318,7 @@ class Replacing {
     public class TransformVisitor
             extends VoidVisitorAdapter<JavaParserFacade> {
 
-        private boolean isupdateIntsToBigInt(final Expression n) {
+        private boolean isUpdateIntsToBitInt(final Expression n) {
             if (n.isIntegerLiteralExpr()) {
                 return false;
             }
@@ -329,7 +329,7 @@ class Replacing {
                         && (resolvedN.getName().equals("abs"))) {
                     if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                             get(0))) {
-                        return isupdateIntsToBigInt(n.asMethodCallExpr().
+                        return isUpdateIntsToBitInt(n.asMethodCallExpr().
                                 getArguments().get(0));
                     }
                 } else if (isMath(resolvedN) && (resolvedN.getName().
@@ -338,9 +338,9 @@ class Replacing {
                     if (isOfTypeInt(n.asMethodCallExpr().getArguments().
                             get(0)) && isOfTypeInt(n.asMethodCallExpr().
                             getArguments().get(1))) {
-                        return isupdateIntsToBigInt(n.asMethodCallExpr().
+                        return isUpdateIntsToBitInt(n.asMethodCallExpr().
                                 getArguments().get(0))
-                                || isupdateIntsToBigInt(n.asMethodCallExpr().
+                                || isUpdateIntsToBitInt(n.asMethodCallExpr().
                                 getArguments().get(1));
                     }
                 } else if ((resolvedN.getQualifiedName().
@@ -352,17 +352,17 @@ class Replacing {
                         || resolvedN.getQualifiedName().
                         equals("java.io.PrintStream.println"))
                         && n.asMethodCallExpr().getArguments().size() == 1) {
-                    return isupdateIntsToBigInt(n.asMethodCallExpr().
+                    return isUpdateIntsToBitInt(n.asMethodCallExpr().
                             getArgument(0));
                 }
                 return false;
             }
             if (n.isBinaryExpr()) {
-                return isupdateIntsToBigInt(n.asBinaryExpr().getLeft())
-                        || isupdateIntsToBigInt(n.asBinaryExpr().getRight());
+                return isUpdateIntsToBitInt(n.asBinaryExpr().getLeft())
+                        || isUpdateIntsToBitInt(n.asBinaryExpr().getRight());
             }
             if (n.isEnclosedExpr()) {
-                return isupdateIntsToBigInt(n.asEnclosedExpr().getInner());
+                return isUpdateIntsToBitInt(n.asEnclosedExpr().getInner());
             }
             if (n.isUnaryExpr()) {
                 if (n.asUnaryExpr().getOperator().equals(
@@ -381,7 +381,7 @@ class Replacing {
                     return isVariableToReplace(n.asUnaryExpr().
                             getExpression().asNameExpr());
                 }
-                return isupdateIntsToBigInt(n.asUnaryExpr().getExpression());
+                return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
             }
             if (n.isNameExpr()) {
                 return isVariableToReplace(n.asNameExpr());
@@ -424,7 +424,7 @@ class Replacing {
                 final IfStmt n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (isupdateIntsToBigInt(n.getCondition())) {
+            if (isUpdateIntsToBitInt(n.getCondition())) {
                 updateIntsToBigInt(n.getCondition());
             }
         }
@@ -485,7 +485,7 @@ class Replacing {
                 final ExpressionStmt n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (isupdateIntsToBigInt(n.getExpression())) {
+            if (isUpdateIntsToBitInt(n.getExpression())) {
                 updateIntsToBigInt(n.getExpression());
             }
         }
@@ -496,12 +496,12 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getCompare().isPresent()) {
-                if (isupdateIntsToBigInt(n.getCompare().get())) {
+                if (isUpdateIntsToBitInt(n.getCompare().get())) {
                     updateIntsToBigInt(n.getCompare().get());
                 }
             }
             for (int i = 0; i < n.getUpdate().size(); i++) {
-                if (isupdateIntsToBigInt(n.getUpdate().get(i))) {
+                if (isUpdateIntsToBitInt(n.getUpdate().get(i))) {
                     updateIntsToBigInt(n.getUpdate().get(i));
                 }
             }
@@ -512,7 +512,7 @@ class Replacing {
                 final WhileStmt n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (isupdateIntsToBigInt(n.getCondition())) {
+            if (isUpdateIntsToBitInt(n.getCondition())) {
                 updateIntsToBigInt(n.getCondition());
             }
         }
@@ -526,7 +526,7 @@ class Replacing {
                     resolve();
             if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.toString")) {
-                if (isupdateIntsToBigInt(n.asMethodCallExpr().getArgument(0))) {
+                if (isUpdateIntsToBitInt(n.asMethodCallExpr().getArgument(0))) {
                     updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArgument(0),
