@@ -3,8 +3,8 @@ public class If {
     public static void main(String[] args) {
         java.math.BigInteger a = java.math.BigInteger.ZERO;
         int b = 1;
-        if (a.compareTo(java.math.BigInteger.valueOf(5).subtract(java.math.BigInteger.TWO).min(java.math.BigInteger.valueOf(3).negate())) > 0) {
-            a = java.math.BigInteger.valueOf(3).negate();
+        if (a.compareTo(new java.math.BigInteger(5).subtract(java.math.BigInteger.TWO).min(new java.math.BigInteger(3).negate())) > 0) {
+            a = new java.math.BigInteger(3).negate();
         }
         if (a.equals(java.math.BigInteger.ZERO)) {
             a = java.math.BigInteger.TWO.negate();
@@ -18,8 +18,8 @@ public class If {
         if (a.compareTo(java.math.BigInteger.TEN.negate().abs()) <= 0) {
             a = java.math.BigInteger.ONE.negate();
         }
-        if (java.math.BigInteger.valueOf(b).compareTo(a) > 0) {
-            a = java.math.BigInteger.valueOf(b);
+        if (new java.math.BigInteger(b).compareTo(a) > 0) {
+            a = new java.math.BigInteger(b);
         }
     }
 }

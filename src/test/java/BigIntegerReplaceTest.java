@@ -134,4 +134,9 @@ public class BigIntegerReplaceTest {
     public void testPartialReplacePrint() throws IOException, ClassNotFoundException {
         runTestFromFile("PartialReplacePrint");
     }
+
+    @Test
+    public void testGeneralization() throws IOException, ClassNotFoundException {
+        runTestFromFile("Generalization");
+    }
 }

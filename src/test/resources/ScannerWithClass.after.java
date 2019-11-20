@@ -9,7 +9,7 @@ public class ScannerWithClass {
         String c = scanner.nextLine();
         double d = scanner.nextDouble();
         long e = scanner.nextLong();
-        java.math.BigInteger f = scanner1.nextInt();
+        java.math.BigInteger f = new java.math.BigInteger(scanner1.nextInt());
     }
 
     static class Scanner {
@@ -17,7 +17,7 @@ public class ScannerWithClass {
         private void method() {
             java.util.Scanner scanner = new java.util.Scanner(System.in);
             java.math.BigInteger f = scanner.nextBigInteger();
-            java.math.BigInteger g = nextInt();
+            java.math.BigInteger g = new java.math.BigInteger(nextInt());
         }
 
         private void printOne() {

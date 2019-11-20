@@ -1,10 +1,10 @@
 public class ArithmeticOperations {
 
-    java.math.BigInteger a = java.math.BigInteger.TWO.add(java.math.BigInteger.valueOf(9)).add(java.math.BigInteger.valueOf(12).multiply(java.math.BigInteger.valueOf(8))).subtract(java.math.BigInteger.valueOf(200).divide(java.math.BigInteger.valueOf(100)));
+    java.math.BigInteger a = java.math.BigInteger.TWO.add(new java.math.BigInteger(9)).add(new java.math.BigInteger(12).multiply(new java.math.BigInteger(8))).subtract(new java.math.BigInteger(200).divide(new java.math.BigInteger(100)));
 
-    java.math.BigInteger e = java.math.BigInteger.valueOf(20);
+    java.math.BigInteger e = new java.math.BigInteger(20);
 
-    java.math.BigInteger f = java.math.BigInteger.TWO.add(java.math.BigInteger.valueOf(9)).add(java.math.BigInteger.valueOf(12).multiply(java.math.BigInteger.valueOf(8))).subtract(java.math.BigInteger.valueOf(200).divide(java.math.BigInteger.valueOf(100)));
+    java.math.BigInteger f = java.math.BigInteger.TWO.add(new java.math.BigInteger(9)).add(new java.math.BigInteger(12).multiply(new java.math.BigInteger(8))).subtract(new java.math.BigInteger(200).divide(new java.math.BigInteger(100)));
 
     long g = 200;
 
@@ -18,9 +18,9 @@ public class ArithmeticOperations {
 
     java.math.BigInteger j = java.math.BigInteger.TWO;
 
-    java.math.BigInteger getBigInteger4 = java.math.BigInteger.valueOf(81);
+    java.math.BigInteger getBigInteger4 = new java.math.BigInteger(81);
 
-    java.math.BigInteger getBigInteger5 = java.math.BigInteger.valueOf(70).remainder(java.math.BigInteger.valueOf(7));
+    java.math.BigInteger getBigInteger5 = new java.math.BigInteger(70).remainder(new java.math.BigInteger(7));
 
     public static void main(String[] args) {
         java.math.BigInteger d = java.math.BigInteger.ONE;
@@ -28,7 +28,7 @@ public class ArithmeticOperations {
         String string = "One";
         double c = 1.1;
         java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
-        java.math.BigInteger q = java.math.BigInteger.valueOf(5).remainder(d);
-        java.math.BigInteger m = java.math.BigInteger.ONE.add((java.math.BigInteger.TWO.multiply(java.math.BigInteger.valueOf(3)))).subtract(java.math.BigInteger.valueOf(100).multiply((java.math.BigInteger.valueOf(12).subtract(java.math.BigInteger.valueOf(11))))).subtract((java.math.BigInteger.valueOf(13).add((java.math.BigInteger.valueOf(12).divide(java.math.BigInteger.valueOf(3)))).add(java.math.BigInteger.ONE)).divide(java.math.BigInteger.valueOf(3)));
+        java.math.BigInteger q = new java.math.BigInteger(5).remainder(d);
+        java.math.BigInteger m = java.math.BigInteger.ONE.add((java.math.BigInteger.TWO.multiply(new java.math.BigInteger(3)))).subtract(new java.math.BigInteger(100).multiply((new java.math.BigInteger(12).subtract(new java.math.BigInteger(11))))).subtract((new java.math.BigInteger(13).add((new java.math.BigInteger(12).divide(new java.math.BigInteger(3)))).add(java.math.BigInteger.ONE)).divide(new java.math.BigInteger(3)));
     }
 }
