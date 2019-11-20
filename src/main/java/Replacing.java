@@ -452,7 +452,7 @@ class Replacing {
                     getLevels().size(); i++) {
                 if (n.getInitializer().get().asArrayCreationExpr().
                         getLevels().get(i).getDimension().isPresent()) {
-                    if (isupdateIntsToBigInt(n.getInitializer().get().
+                    if (isUpdateIntsToBitInt(n.getInitializer().get().
                             asArrayCreationExpr().getLevels().get(i).
                             getDimension().get())) {
                         updateIntsToBigInt(n.getInitializer().get().
@@ -480,13 +480,11 @@ class Replacing {
                     updateIntsToBigInt(n.getInitializer().get());
                 }
                 changes.add(() -> n.setType(bigIntegerType));
-            } else {
-                if (n.getInitializer().isPresent()) {
-                    if (isUpdateIntsToBitInt(n.getInitializer().get())) {
-                        updateIntsToBigInt(n.getInitializer().get());
-                        changes.add(() -> n.setInitializer(intValueMaking(
-                                n.clone().getInitializer().get())));
-                    }
+            } else if (n.getInitializer().isPresent()) {
+                if (isUpdateIntsToBitInt(n.getInitializer().get())) {
+                    updateIntsToBigInt(n.getInitializer().get());
+                    changes.add(() -> n.setInitializer(intValueMaking(
+                            n.clone().getInitializer().get())));
                 }
             }
         }
@@ -515,7 +513,7 @@ class Replacing {
         }
 
         private void indexesChanging(final ArrayAccessExpr n) {
-            if (isupdateIntsToBigInt(n.getIndex())) {
+            if (isUpdateIntsToBitInt(n.getIndex())) {
                 updateIntsToBigInt(n.getIndex());
                 changes.add(() -> n.setIndex(intValueMaking(
                         n.clone().getIndex())));
@@ -547,7 +545,7 @@ class Replacing {
                                 new NodeList<>(n.getTarget())),
                                 AssignExpr.Operator.ASSIGN)));
                     }
-                } else if (isupdateIntsToBigInt(n.getValue())) {
+                } else if (isUpdateIntsToBitInt(n.getValue())) {
                     updateIntsToBigInt(n.getValue());
                     changes.add(() -> n.setValue(intValueMaking(
                             n.clone().getValue())));
@@ -584,26 +582,22 @@ class Replacing {
                                     new NodeList<>(n.getTarget())),
                                     AssignExpr.Operator.ASSIGN)));
                         }
-                    } else {
-                        if (isUpdateIntsToBitInt(n.getValue())) {
-                            updateIntsToBigInt(n.getValue());
-                            if (!n.getOperator().equals(
-                                    AssignExpr.Operator.ASSIGN)) {
-                                changes.add(() -> n.replace(new AssignExpr(
-                                        n.getTarget(), new MethodCallExpr(
-                                        n.getValue(), OPERATOR_OF_ASSIGN.get(
-                                        n.getOperator()),
-                                        new NodeList<>(n.getTarget())),
-                                        AssignExpr.Operator.ASSIGN)));
-                            }
-                        } else {
-                            if (isupdateIntsToBigInt(n.getValue())) {
-                                updateIntsToBigInt(n.getValue());
-                                changes.add(() -> n.setValue(new MethodCallExpr(
-                                        n.clone().getValue(),
-                                        new SimpleName("intValue"))));
-                            }
+                    } else if (isUpdateIntsToBitInt(n.getValue())) {
+                        updateIntsToBigInt(n.getValue());
+                        if (!n.getOperator().equals(
+                                AssignExpr.Operator.ASSIGN)) {
+                            changes.add(() -> n.replace(new AssignExpr(
+                                    n.getTarget(), new MethodCallExpr(
+                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                    n.getOperator()),
+                                    new NodeList<>(n.getTarget())),
+                                    AssignExpr.Operator.ASSIGN)));
                         }
+                    } else if (isUpdateIntsToBitInt(n.getValue())) {
+                        updateIntsToBigInt(n.getValue());
+                        changes.add(() -> n.setValue(new MethodCallExpr(
+                                n.clone().getValue(),
+                                new SimpleName("intValue"))));
                     }
                 }
             }
