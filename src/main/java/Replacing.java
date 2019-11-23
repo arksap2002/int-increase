@@ -454,13 +454,6 @@ class Replacing {
                 updateIntsToBigInt(n.getValue());
                 changes.add(() -> n.setValue(intValueMaking(
                         n.clone().getValue())));
-                if (isOfTypeInt(n.getTarget())
-                        && n.getTarget().isNameExpr()) {
-                    updateIntsToBigInt(n.getValue());
-                    changes.add(() -> n.setValue(new MethodCallExpr(
-                            n.clone().getValue(),
-                            new SimpleName("intValue"))));
-                }
             }
         }
 
