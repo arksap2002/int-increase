@@ -288,6 +288,10 @@ class Replacing {
         return new ObjectCreationExpr(null, bigIntegerType, expressions);
     }
 
+    private MethodCallExpr intValueMaking(final Expression expression) {
+        return new MethodCallExpr(expression, new SimpleName("intValue"));
+    }
+
     private boolean isOfTypeInt(final Expression n) {
         return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
     }
@@ -391,23 +395,25 @@ class Replacing {
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
             if (n.getType().equals(PrimitiveType.intType())) {
-                if (!n.getRange().isPresent()) {
-                    throw new IllegalArgumentException();
+                usualVariablesMaking(n);
+            }
+        }
+
+        private void usualVariablesMaking(final VariableDeclarator n) {
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            if (variableDeclsToReplace.contains(n.getRange().get())) {
+                if (n.getInitializer().isPresent()) {
+                    updateIntsToBigInt(n.getInitializer().get());
                 }
-                if (variableDeclsToReplace.contains(n.getRange().get())) {
-                    if (n.getInitializer().isPresent()) {
+                changes.add(() -> n.setType(bigIntegerType));
+            } else {
+                if (n.getInitializer().isPresent()) {
+                    if (isUpdateIntsToBitInt(n.getInitializer().get())) {
                         updateIntsToBigInt(n.getInitializer().get());
-                    }
-                    changes.add(() -> n.setType(bigIntegerType));
-                } else {
-                    if (n.getInitializer().isPresent()) {
-                        if (isUpdateIntsToBitInt(n.getInitializer().get())) {
-                            updateIntsToBigInt(n.getInitializer().get());
-                            changes.add(() -> n.setInitializer(
-                                    new MethodCallExpr(n.clone().
-                                            getInitializer().get(),
-                                            new SimpleName("intValue"))));
-                        }
+                        changes.add(() -> n.setInitializer(intValueMaking(
+                                n.clone().getInitializer().get())));
                     }
                 }
             }
@@ -428,26 +434,26 @@ class Replacing {
                 final AssignExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (isOfTypeInt(n.getTarget())
-                    && n.getTarget().isNameExpr()) {
-                if (isVariableToReplace(n.getTarget().asNameExpr())) {
-                    updateIntsToBigInt(n.getValue());
-                    if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
-                        changes.add(() -> n.replace(new AssignExpr(
-                                n.getTarget(), new MethodCallExpr(
-                                n.getValue(), OPERATOR_OF_ASSIGN.get(
-                                n.getOperator()),
-                                new NodeList<>(n.getTarget())),
-                                AssignExpr.Operator.ASSIGN)));
-                    }
-                } else {
-                    if (isUpdateIntsToBitInt(n.getValue())) {
-                        updateIntsToBigInt(n.getValue());
-                        changes.add(() -> n.setValue(new MethodCallExpr(
-                                n.clone().getValue(),
-                                new SimpleName("intValue"))));
-                    }
+            if (n.getTarget().isNameExpr() && isOfTypeInt(n.getTarget())) {
+                usualAssignMaking(n);
+            }
+        }
+
+        private void usualAssignMaking(final AssignExpr n) {
+            if (isVariableToReplace(n.getTarget().asNameExpr())) {
+                updateIntsToBigInt(n.getValue());
+                if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
+                    changes.add(() -> n.replace(new AssignExpr(
+                            n.getTarget(), new MethodCallExpr(
+                            n.getValue(), OPERATOR_OF_ASSIGN.get(
+                            n.getOperator()),
+                            new NodeList<>(n.getTarget())),
+                            AssignExpr.Operator.ASSIGN)));
                 }
+            } else if (isUpdateIntsToBitInt(n.getValue())) {
+                updateIntsToBigInt(n.getValue());
+                changes.add(() -> n.setValue(intValueMaking(
+                        n.clone().getValue())));
             }
         }
 
@@ -530,23 +536,20 @@ class Replacing {
                 final NodeList<VariableDeclarator> nodeList) {
             boolean flag = false;
             for (VariableDeclarator declarator : nodeList) {
-                if (declarator.getType().equals(
-                        PrimitiveType.intType())
-                        && declarator.getComment().isPresent()
+                if (declarator.getComment().isPresent()
                         && declarator.getComment().get().
                         getContent().toLowerCase().trim().
-                        equals("biginteger")) {
+                        equals("biginteger")
+                        && ifTypeToChange(declarator)) {
                     flag = true;
                     declarator.getComment().get().remove();
                 }
-                if (declarator.getType().equals(
-                        PrimitiveType.intType())
-                        && declarator.getInitializer().isPresent()
+                if (declarator.getInitializer().isPresent()
                         && declarator.getInitializer().get().
                         getComment().isPresent()
                         && declarator.getInitializer().get().
                         getComment().get().getContent().toLowerCase().trim().
-                        equals("biginteger")) {
+                        equals("biginteger") && ifTypeToChange(declarator)) {
                     flag = true;
                     declarator.getInitializer().get().getComment().get().
                             remove();
@@ -561,6 +564,11 @@ class Replacing {
                             get());
                 }
             }
+        }
+
+        private boolean ifTypeToChange(final VariableDeclarator declarator) {
+            return declarator.getType().equals(
+                    PrimitiveType.intType());
         }
     }
 }
