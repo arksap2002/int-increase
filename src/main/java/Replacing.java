@@ -569,37 +569,6 @@ class Replacing {
                 updateIntsToBigInt(n.getValue());
                 changes.add(() -> n.setValue(intValueMaking(
                         n.clone().getValue())));
-                if (isOfTypeInt(n.getTarget())
-                        && n.getTarget().isNameExpr()) {
-                    if (isVariableToReplace(n.getTarget().asNameExpr())) {
-                        updateIntsToBigInt(n.getValue());
-                        if (!n.getOperator().equals(
-                                AssignExpr.Operator.ASSIGN)) {
-                            changes.add(() -> n.replace(new AssignExpr(
-                                    n.getTarget(), new MethodCallExpr(
-                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
-                                    n.getOperator()),
-                                    new NodeList<>(n.getTarget())),
-                                    AssignExpr.Operator.ASSIGN)));
-                        }
-                    } else if (isUpdateIntsToBitInt(n.getValue())) {
-                        updateIntsToBigInt(n.getValue());
-                        if (!n.getOperator().equals(
-                                AssignExpr.Operator.ASSIGN)) {
-                            changes.add(() -> n.replace(new AssignExpr(
-                                    n.getTarget(), new MethodCallExpr(
-                                    n.getValue(), OPERATOR_OF_ASSIGN.get(
-                                    n.getOperator()),
-                                    new NodeList<>(n.getTarget())),
-                                    AssignExpr.Operator.ASSIGN)));
-                        }
-                    } else if (isUpdateIntsToBitInt(n.getValue())) {
-                        updateIntsToBigInt(n.getValue());
-                        changes.add(() -> n.setValue(new MethodCallExpr(
-                                n.clone().getValue(),
-                                new SimpleName("intValue"))));
-                    }
-                }
             }
         }
 
