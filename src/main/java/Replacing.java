@@ -407,11 +407,8 @@ class Replacing {
                 usualVariablesMaking(n);
             }
             if (n.getType().isArrayType()) {
-                ArrayType typeN = n.getType().asArrayType();
-                while (typeN.getComponentType().isArrayType()) {
-                    typeN = typeN.getComponentType().asArrayType();
-                }
-                if (typeN.getComponentType().equals(PrimitiveType.intType())) {
+                if (isTypeOfArrayIsInt(n.getType().asArrayType()).
+                        getComponentType().equals(PrimitiveType.intType())) {
                     arrayVariablesMaking(n);
                 }
             }
