@@ -403,9 +403,6 @@ class Replacing {
                 final VariableDeclarator n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (!n.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
             if (n.getType().equals(PrimitiveType.intType())) {
                 usualVariablesMaking(n);
             }
@@ -421,6 +418,9 @@ class Replacing {
         }
 
         private void arrayVariablesMaking(final VariableDeclarator n) {
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
             if (variableDeclsToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> isTypeOfArrayIsInt(n.getType().
