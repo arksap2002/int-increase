@@ -295,11 +295,7 @@ class Replacing {
     }
 
     private boolean isOfTypeInt(final Expression n) {
-        if (n.isNameExpr()) {
-            return makeVariableToReplace(n.asNameExpr()).getType().
-                    equals(PrimitiveType.intType());
-        }
-        return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
+        return n.calculateResolvedType().equals(ResolvedPrimitiveType.INT);
     }
 
     private VariableDeclarator makeVariableToReplace(final NameExpr n) {
@@ -329,11 +325,11 @@ class Replacing {
                 getRange().get());
     }
 
-    private ArrayType setN(final ArrayType typeN) {
+    private ArrayType isTypeOfArrayIsInt(final ArrayType typeN) {
         if (!typeN.getComponentType().isArrayType()) {
             return typeN;
         }
-        return typeN.getComponentType().asArrayType();
+        return isTypeOfArrayIsInt(typeN.getComponentType().asArrayType());
     }
 
     public class TransformVisitor
@@ -435,8 +431,8 @@ class Replacing {
         private void arrayVariablesMaking(final VariableDeclarator n) {
             if (variableDeclsToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
-                    changes.add(() -> setN(n.getType().asArrayType()).
-                            setComponentType(bigIntegerType));
+                    changes.add(() -> isTypeOfArrayIsInt(n.getType().
+                            asArrayType()).setComponentType(bigIntegerType));
                 }
                 if (n.getInitializer().isPresent()
                         && n.getInitializer().get().isArrayCreationExpr()) {
@@ -687,8 +683,11 @@ class Replacing {
                 return true;
             }
             if (declarator.getType().isArrayType()) {
-                return setN(declarator.getType().asArrayType()).
-                        getComponentType().equals(PrimitiveType.intType());
+                return isTypeOfArrayIsInt(declarator.getType().asArrayType()).
+                        getComponentType().isPrimitiveType()
+                        && isTypeOfArrayIsInt(declarator.getType().
+                        asArrayType()).getComponentType().asPrimitiveType().
+                        equals(PrimitiveType.intType());
             }
             return false;
         }
