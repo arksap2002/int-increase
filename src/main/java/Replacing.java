@@ -298,7 +298,7 @@ class Replacing {
         return n.calculateResolvedType().equals(ResolvedPrimitiveType.INT);
     }
 
-    private VariableDeclarator makeVariableToReplace(final NameExpr n) {
+    private boolean isVariableToReplace(final NameExpr n) {
         VariableDeclarator variableDeclarator;
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
             variableDeclarator = ((JavaParserFieldDeclaration) n.resolve()).
@@ -308,18 +308,10 @@ class Replacing {
                     ((JavaParserSymbolDeclaration) (n.resolve())).
                             getWrappedNode();
         } else {
-            return new VariableDeclarator();
+            return false;
         }
         if (!variableDeclarator.getRange().isPresent()) {
             throw new IllegalArgumentException();
-        }
-        return variableDeclarator;
-    }
-
-    private boolean isVariableToReplace(final NameExpr n) {
-        VariableDeclarator variableDeclarator = makeVariableToReplace(n);
-        if (variableDeclarator.equals(new VariableDeclarator())) {
-            return false;
         }
         return variableDeclsToReplace.contains(variableDeclarator.
                 getRange().get());
