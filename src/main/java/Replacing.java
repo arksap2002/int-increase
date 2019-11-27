@@ -2,6 +2,8 @@ import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
@@ -15,18 +17,17 @@ import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.expr.ArrayAccessExpr;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.ForStmt;
-import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserParameterDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
@@ -65,7 +66,7 @@ class Replacing {
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
-    private final HashSet<Range> variableDeclsToReplace = new HashSet<>();
+    private final HashSet<Range> variablesToReplace = new HashSet<>();
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -299,22 +300,34 @@ class Replacing {
     }
 
     private boolean isVariableToReplace(final NameExpr n) {
-        VariableDeclarator variableDeclarator;
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
-            variableDeclarator = ((JavaParserFieldDeclaration) n.resolve()).
+            VariableDeclarator variableDeclarator = ((JavaParserFieldDeclaration) n.resolve()).
                     getVariableDeclarator();
+            if (!variableDeclarator.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            return variablesToReplace.contains(variableDeclarator.
+                    getRange().get());
         } else if (n.resolve() instanceof JavaParserSymbolDeclaration) {
-            variableDeclarator = (VariableDeclarator)
+            VariableDeclarator variableDeclarator = (VariableDeclarator)
                     ((JavaParserSymbolDeclaration) (n.resolve())).
                             getWrappedNode();
+            if (!variableDeclarator.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            return variablesToReplace.contains(variableDeclarator.
+                    getRange().get());
+        } else if (n.resolve() instanceof JavaParserParameterDeclaration) {
+            Parameter parameter = ((JavaParserParameterDeclaration) n.resolve()).
+                    getWrappedNode();
+            if (!parameter.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            return variablesToReplace.contains(parameter.
+                    getRange().get());
         } else {
             return false;
         }
-        if (!variableDeclarator.getRange().isPresent()) {
-            throw new IllegalArgumentException();
-        }
-        return variableDeclsToReplace.contains(variableDeclarator.
-                getRange().get());
     }
 
     private ArrayType lastTypeOfArray(final ArrayType typeN) {
@@ -418,7 +431,7 @@ class Replacing {
             if (!n.getRange().isPresent()) {
                 throw new IllegalArgumentException();
             }
-            if (variableDeclsToReplace.contains(n.getRange().get())) {
+            if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> lastTypeOfArray(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
@@ -449,7 +462,7 @@ class Replacing {
                             changes.add(() -> n.getInitializer().get().
                                     asArrayCreationExpr().getLevels().
                                     get(finalI).setDimension(intValueMaking(
-                                            n.clone().getInitializer().get().
+                                    n.clone().getInitializer().get().
                                             asArrayCreationExpr().
                                             getLevels().get(finalI).
                                             getDimension().get())));
@@ -463,7 +476,7 @@ class Replacing {
             if (!n.getRange().isPresent()) {
                 throw new IllegalArgumentException();
             }
-            if (variableDeclsToReplace.contains(n.getRange().get())) {
+            if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getInitializer().isPresent()) {
                     updateIntsToBigInt(n.getInitializer().get());
                 }
@@ -613,10 +626,86 @@ class Replacing {
                 }
             }
         }
+
+        @Override
+        public void visit(
+                final MethodDeclaration n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (n.getRange().isPresent()
+                    && variablesToReplace.contains(n.getRange().get())) {
+                changes.add(() -> n.setType(bigIntegerType));
+                if (n.getBody().isPresent()) {
+                    for (Statement statement : n.getBody().get().getStatements()) {
+                        if (statement.isReturnStmt()) {
+                            if (!statement.asReturnStmt().getExpression().isPresent()) {
+                                throw new UnsupportedOperationException();
+                            }
+                            updateIntsToBigInt(statement.asReturnStmt().getExpression().get());
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void visit(
+                final Parameter n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            if (variablesToReplace.contains(n.getRange().get())) {
+                changes.add(() -> n.setType(bigIntegerType));
+            }
+        }
     }
 
     public class FindAndAlterVariableDeclarators
             extends VoidVisitorAdapter<JavaParserFacade> {
+
+        @Override
+        public void visit(
+                final MethodDeclaration n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            boolean flag = false;
+            if (n.getType().equals(PrimitiveType.intType())
+                    && n.getName().getComment().isPresent()
+                    && n.getName().getComment().get().
+                    getContent().toLowerCase().trim().
+                    equals("biginteger")) {
+                if (!n.getRange().isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                variablesToReplace.add(n.getRange().get());
+            }
+            for (Parameter parameter : n.getParameters()) {
+                if (parameter.getComment().isPresent()
+                        && parameter.getComment().get().
+                        getContent().toLowerCase().trim().
+                        equals("biginteger")
+                        && ifTypeOfParameterToChange(parameter)) {
+                    flag = true;
+                    parameter.getComment().get().remove();
+                }
+                if (parameter.getName().getComment().isPresent()
+                        && parameter.getName().getComment().get().getContent().
+                        toLowerCase().trim().equals("biginteger")
+                        && ifTypeOfParameterToChange(parameter)) {
+                    flag = true;
+                    parameter.getName().getComment().get().remove();
+                }
+                if (flag) {
+                    if (!parameter.getRange().isPresent()) {
+                        throw new IllegalArgumentException();
+                    }
+                    variablesToReplace.add(parameter.getRange().
+                            get());
+                }
+            }
+        }
 
         @Override
         public void visit(
@@ -642,7 +731,7 @@ class Replacing {
                         && declarator.getComment().get().
                         getContent().toLowerCase().trim().
                         equals("biginteger")
-                        && ifTypeToChange(declarator)) {
+                        && ifTypeOfVarDecToChange(declarator)) {
                     flag = true;
                     declarator.getComment().get().remove();
                 }
@@ -651,7 +740,7 @@ class Replacing {
                         getComment().isPresent()
                         && declarator.getInitializer().get().
                         getComment().get().getContent().toLowerCase().trim().
-                        equals("biginteger") && ifTypeToChange(declarator)) {
+                        equals("biginteger") && ifTypeOfVarDecToChange(declarator)) {
                     flag = true;
                     declarator.getInitializer().get().getComment().get().
                             remove();
@@ -662,13 +751,25 @@ class Replacing {
                     if (!variableDeclarator.getRange().isPresent()) {
                         throw new IllegalArgumentException();
                     }
-                    variableDeclsToReplace.add(variableDeclarator.getRange().
+                    variablesToReplace.add(variableDeclarator.getRange().
                             get());
                 }
             }
         }
 
-        private boolean ifTypeToChange(final VariableDeclarator declarator) {
+        private boolean ifTypeOfVarDecToChange(final VariableDeclarator declarator) {
+            if (declarator.getType().equals(
+                    PrimitiveType.intType())) {
+                return true;
+            }
+            return lastTypeOfArray(declarator.getType().asArrayType()).
+                    getComponentType().isPrimitiveType()
+                    && lastTypeOfArray(declarator.getType().
+                    asArrayType()).getComponentType().asPrimitiveType().
+                    equals(PrimitiveType.intType());
+        }
+
+        private boolean ifTypeOfParameterToChange(final Parameter declarator) {
             if (declarator.getType().equals(
                     PrimitiveType.intType())) {
                 return true;

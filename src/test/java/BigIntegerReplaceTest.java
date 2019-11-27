@@ -144,4 +144,9 @@ public class BigIntegerReplaceTest {
     public void testArray() throws IOException, ClassNotFoundException {
         runTestFromFile("Array");
     }
+
+    @Test
+    public void testMethod() throws IOException, ClassNotFoundException {
+        runTestFromFile("Method");
+    }
 }
