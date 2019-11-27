@@ -317,11 +317,11 @@ class Replacing {
                 getRange().get());
     }
 
-    private ArrayType lastTypeOfArray(final ArrayType typeN) {
+    private ArrayType getLastArrayTypeOf(final ArrayType typeN) {
         if (!typeN.getComponentType().isArrayType()) {
             return typeN;
         }
-        return lastTypeOfArray(typeN.getComponentType().asArrayType());
+        return getLastArrayTypeOf(typeN.getComponentType().asArrayType());
     }
 
     public class TransformVisitor
@@ -407,7 +407,7 @@ class Replacing {
                 usualVariablesMaking(n);
             }
             if (n.getType().isArrayType()) {
-                if (lastTypeOfArray(n.getType().asArrayType()).
+                if (getLastArrayTypeOf(n.getType().asArrayType()).
                         getComponentType().equals(PrimitiveType.intType())) {
                     arrayVariablesMaking(n);
                 }
@@ -420,7 +420,7 @@ class Replacing {
             }
             if (variableDeclsToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
-                    changes.add(() -> lastTypeOfArray(n.getType().
+                    changes.add(() -> getLastArrayTypeOf(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
                 }
                 if (n.getInitializer().isPresent()
@@ -449,7 +449,7 @@ class Replacing {
                             changes.add(() -> n.getInitializer().get().
                                     asArrayCreationExpr().getLevels().
                                     get(finalI).setDimension(intValueMaking(
-                                            n.clone().getInitializer().get().
+                                    n.clone().getInitializer().get().
                                             asArrayCreationExpr().
                                             getLevels().get(finalI).
                                             getDimension().get())));
@@ -510,16 +510,17 @@ class Replacing {
             }
         }
 
-        private Expression getNameOfAssign(final ArrayAccessExpr n) {
+        private Expression getLastArrayAccessNameOf(final ArrayAccessExpr n) {
             if (n.getName().isArrayAccessExpr()) {
-                return getNameOfAssign(n.getName().asArrayAccessExpr());
+                return getLastArrayAccessNameOf(n.getName().
+                        asArrayAccessExpr());
             }
             return n.getName();
         }
 
         private void arrayAssignMaking(final AssignExpr n) {
             if (n.getTarget().isArrayAccessExpr()) {
-                Expression nameN = getNameOfAssign(n.getTarget().
+                Expression nameN = getLastArrayAccessNameOf(n.getTarget().
                         asArrayAccessExpr());
                 if (nameN.isNameExpr() && isVariableToReplace(
                         nameN.asNameExpr())) {
@@ -673,11 +674,12 @@ class Replacing {
                     PrimitiveType.intType())) {
                 return true;
             }
-            return lastTypeOfArray(declarator.getType().asArrayType()).
-                    getComponentType().isPrimitiveType()
-                    && lastTypeOfArray(declarator.getType().
-                    asArrayType()).getComponentType().asPrimitiveType().
-                    equals(PrimitiveType.intType());
+            if (declarator.getType().isArrayType()) {
+                return getLastArrayTypeOf(declarator.getType().
+                        asArrayType()).getComponentType().equals(
+                        PrimitiveType.intType());
+            }
+            return false;
         }
     }
 }
