@@ -317,11 +317,11 @@ class Replacing {
                 getRange().get());
     }
 
-    private ArrayType isTypeOfArrayIsInt(final ArrayType typeN) {
+    private ArrayType lastTypeOfArray(final ArrayType typeN) {
         if (!typeN.getComponentType().isArrayType()) {
             return typeN;
         }
-        return isTypeOfArrayIsInt(typeN.getComponentType().asArrayType());
+        return lastTypeOfArray(typeN.getComponentType().asArrayType());
     }
 
     public class TransformVisitor
@@ -407,7 +407,7 @@ class Replacing {
                 usualVariablesMaking(n);
             }
             if (n.getType().isArrayType()) {
-                if (isTypeOfArrayIsInt(n.getType().asArrayType()).
+                if (lastTypeOfArray(n.getType().asArrayType()).
                         getComponentType().equals(PrimitiveType.intType())) {
                     arrayVariablesMaking(n);
                 }
@@ -420,7 +420,7 @@ class Replacing {
             }
             if (variableDeclsToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
-                    changes.add(() -> isTypeOfArrayIsInt(n.getType().
+                    changes.add(() -> lastTypeOfArray(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
                 }
                 if (n.getInitializer().isPresent()
@@ -433,24 +433,27 @@ class Replacing {
                     }
                 }
             }
-            for (int i = 0; i < n.getInitializer().get().asArrayCreationExpr().
-                    getLevels().size(); i++) {
-                if (n.getInitializer().get().asArrayCreationExpr().
-                        getLevels().get(i).getDimension().isPresent()) {
-                    if (isUpdateIntsToBitInt(n.getInitializer().get().
-                            asArrayCreationExpr().getLevels().get(i).
-                            getDimension().get())) {
-                        updateIntsToBigInt(n.getInitializer().get().
+            if (n.getInitializer().isPresent()
+                    && n.getInitializer().get().isArrayCreationExpr()) {
+                for (int i = 0; i < n.getInitializer().get().asArrayCreationExpr().
+                        getLevels().size(); i++) {
+                    if (n.getInitializer().get().asArrayCreationExpr().
+                            getLevels().get(i).getDimension().isPresent()) {
+                        if (isUpdateIntsToBitInt(n.getInitializer().get().
                                 asArrayCreationExpr().getLevels().get(i).
-                                getDimension().get());
-                        int finalI = i;
-                        changes.add(() -> n.getInitializer().get().
-                                asArrayCreationExpr().getLevels().get(finalI).
-                                setDimension(intValueMaking(n.clone().
-                                        getInitializer().get().
-                                        asArrayCreationExpr().
-                                        getLevels().get(finalI).
-                                        getDimension().get())));
+                                getDimension().get())) {
+                            updateIntsToBigInt(n.getInitializer().get().
+                                    asArrayCreationExpr().getLevels().get(i).
+                                    getDimension().get());
+                            int finalI = i;
+                            changes.add(() -> n.getInitializer().get().
+                                    asArrayCreationExpr().getLevels().get(finalI).
+                                    setDimension(intValueMaking(n.clone().
+                                            getInitializer().get().
+                                            asArrayCreationExpr().
+                                            getLevels().get(finalI).
+                                            getDimension().get())));
+                        }
                     }
                 }
             }
@@ -491,8 +494,7 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (n.getTarget().isArrayAccessExpr()) {
                 arrayAssignMaking(n);
-            }
-            if (n.getTarget().isNameExpr()) {
+            } else if (n.getTarget().isNameExpr()) {
                 usualAssignMaking(n);
             }
         }
@@ -671,14 +673,11 @@ class Replacing {
                     PrimitiveType.intType())) {
                 return true;
             }
-            if (declarator.getType().isArrayType()) {
-                return isTypeOfArrayIsInt(declarator.getType().asArrayType()).
-                        getComponentType().isPrimitiveType()
-                        && isTypeOfArrayIsInt(declarator.getType().
-                        asArrayType()).getComponentType().asPrimitiveType().
-                        equals(PrimitiveType.intType());
-            }
-            return false;
+            return lastTypeOfArray(declarator.getType().asArrayType()).
+                    getComponentType().isPrimitiveType()
+                    && lastTypeOfArray(declarator.getType().
+                    asArrayType()).getComponentType().asPrimitiveType().
+                    equals(PrimitiveType.intType());
         }
     }
 }
