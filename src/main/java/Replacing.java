@@ -435,8 +435,8 @@ class Replacing {
             }
             if (n.getInitializer().isPresent()
                     && n.getInitializer().get().isArrayCreationExpr()) {
-                for (int i = 0; i < n.getInitializer().get().asArrayCreationExpr().
-                        getLevels().size(); i++) {
+                for (int i = 0; i < n.getInitializer().get().
+                        asArrayCreationExpr().getLevels().size(); i++) {
                     if (n.getInitializer().get().asArrayCreationExpr().
                             getLevels().get(i).getDimension().isPresent()) {
                         if (isUpdateIntsToBitInt(n.getInitializer().get().
@@ -447,9 +447,9 @@ class Replacing {
                                     getDimension().get());
                             int finalI = i;
                             changes.add(() -> n.getInitializer().get().
-                                    asArrayCreationExpr().getLevels().get(finalI).
-                                    setDimension(intValueMaking(n.clone().
-                                            getInitializer().get().
+                                    asArrayCreationExpr().getLevels().
+                                    get(finalI).setDimension(intValueMaking(
+                                            n.clone().getInitializer().get().
                                             asArrayCreationExpr().
                                             getLevels().get(finalI).
                                             getDimension().get())));
