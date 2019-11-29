@@ -14,10 +14,13 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.expr.ArrayAccessExpr;
+import com.github.javaparser.ast.expr.ArrayCreationExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -293,7 +296,7 @@ class Replacing {
     }
 
     private boolean isOfTypeInt(final Expression n) {
-        return (n.calculateResolvedType().equals(ResolvedPrimitiveType.INT));
+        return n.calculateResolvedType().equals(ResolvedPrimitiveType.INT);
     }
 
     private boolean isVariableToReplace(final NameExpr n) {
@@ -313,6 +316,13 @@ class Replacing {
         }
         return variableDeclsToReplace.contains(variableDeclarator.
                 getRange().get());
+    }
+
+    private ArrayType getLastArrayTypeOf(final ArrayType typeN) {
+        if (!typeN.getComponentType().isArrayType()) {
+            return typeN;
+        }
+        return getLastArrayTypeOf(typeN.getComponentType().asArrayType());
     }
 
     public class TransformVisitor
@@ -397,6 +407,98 @@ class Replacing {
             if (n.getType().equals(PrimitiveType.intType())) {
                 usualVariablesMaking(n);
             }
+            if (n.getType().isArrayType()) {
+                if (getLastArrayTypeOf(n.getType().asArrayType()).
+                        getComponentType().equals(PrimitiveType.intType())) {
+                    arrayVariablesMaking(n);
+                }
+            }
+        }
+
+        private void arrayVariablesMaking(final VariableDeclarator n) {
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            if (variableDeclsToReplace.contains(n.getRange().get())) {
+                if (n.getType().isArrayType()) {
+                    changes.add(() -> getLastArrayTypeOf(n.getType().
+                            asArrayType()).setComponentType(bigIntegerType));
+                } else {
+                    throw new IllegalArgumentException();
+                }
+                if (n.getInitializer().isPresent()
+                        && n.getInitializer().get().isArrayCreationExpr()) {
+                    if (n.getInitializer().get().asArrayCreationExpr().
+                            getElementType().equals(PrimitiveType.intType())) {
+                        changes.add(() -> n.getInitializer().get().
+                                asArrayCreationExpr().setElementType(
+                                bigIntegerType));
+                    } else {
+                        throw new IllegalArgumentException();
+                    }
+                } else if (n.getInitializer().isPresent()
+                        && n.getInitializer().get().isArrayInitializerExpr()) {
+                    arrayInitializerExprToBigIntMaking(n.getInitializer().get().
+                            asArrayInitializerExpr());
+                } else {
+                    throw new IllegalArgumentException();
+                }
+            } else if (n.getInitializer().isPresent()
+                    && n.getInitializer().get().isArrayInitializerExpr()) {
+                updateArrayInitializerExprValues(n.getInitializer().get().
+                        asArrayInitializerExpr());
+            }  // do nothing
+
+            if (n.getInitializer().isPresent()
+                    && n.getInitializer().get().isArrayCreationExpr()) {
+                updateArrayCreationExprLevels(n.getInitializer().get().
+                        asArrayCreationExpr());
+            }  // do nothing
+
+        }
+
+        private void updateArrayCreationExprLevels(final ArrayCreationExpr n) {
+            for (int i = 0; i < n.getLevels().size(); i++) {
+                if (n.getLevels().get(i).getDimension().isPresent()) {
+                    if (isUpdateIntsToBitInt(n.getLevels().get(i).
+                            getDimension().get())) {
+                        updateIntsToBigInt(n.getLevels().get(i).
+                                getDimension().get());
+                        int finalI = i;
+                        changes.add(() -> n.getLevels().
+                                get(finalI).setDimension(intValueMaking(
+                                n.clone().getLevels().get(finalI).
+                                        getDimension().get())));
+                    }
+                }
+            }
+        }
+
+        private void updateArrayInitializerExprValues(final Expression n) {
+            if (!n.isArrayInitializerExpr()) {
+                if (isUpdateIntsToBitInt(n)) {
+                    updateIntsToBigInt(n);
+                    changes.add(() -> n.replace(intValueMaking(n.clone())));
+                }
+                return;
+            }
+            for (int i = 0; i < n.asArrayInitializerExpr().
+                    getValues().size(); i++) {
+                updateArrayInitializerExprValues(n.asArrayInitializerExpr().
+                        getValues().get(i));
+            }
+        }
+
+        private void arrayInitializerExprToBigIntMaking(final Expression n) {
+            if (!n.isArrayInitializerExpr()) {
+                updateIntsToBigInt(n);
+                return;
+            }
+            for (int i = 0; i < n.asArrayInitializerExpr().
+                    getValues().size(); i++) {
+                arrayInitializerExprToBigIntMaking(n.asArrayInitializerExpr().
+                        getValues().get(i));
+            }
         }
 
         private void usualVariablesMaking(final VariableDeclarator n) {
@@ -408,13 +510,11 @@ class Replacing {
                     updateIntsToBigInt(n.getInitializer().get());
                 }
                 changes.add(() -> n.setType(bigIntegerType));
-            } else {
-                if (n.getInitializer().isPresent()) {
-                    if (isUpdateIntsToBitInt(n.getInitializer().get())) {
-                        updateIntsToBigInt(n.getInitializer().get());
-                        changes.add(() -> n.setInitializer(intValueMaking(
-                                n.clone().getInitializer().get())));
-                    }
+            } else if (n.getInitializer().isPresent()) {
+                if (isUpdateIntsToBitInt(n.getInitializer().get())) {
+                    updateIntsToBigInt(n.getInitializer().get());
+                    changes.add(() -> n.setInitializer(intValueMaking(
+                            n.clone().getInitializer().get())));
                 }
             }
         }
@@ -434,8 +534,53 @@ class Replacing {
                 final AssignExpr n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (n.getTarget().isNameExpr() && isOfTypeInt(n.getTarget())) {
+            if (n.getTarget().isArrayAccessExpr()) {
+                arrayAssignMaking(n);
+            } else if (n.getTarget().isNameExpr()) {
                 usualAssignMaking(n);
+            }
+        }
+
+        private void updateIndexes(final ArrayAccessExpr n) {
+            if (isUpdateIntsToBitInt(n.getIndex())) {
+                updateIntsToBigInt(n.getIndex());
+                changes.add(() -> n.setIndex(intValueMaking(
+                        n.clone().getIndex())));
+            }
+            if (n.getName().isArrayAccessExpr()) {
+                updateIndexes(n.getName().asArrayAccessExpr());
+            }
+        }
+
+        private Expression getLastArrayAccessNameOf(final ArrayAccessExpr n) {
+            if (n.getName().isArrayAccessExpr()) {
+                return getLastArrayAccessNameOf(n.getName().
+                        asArrayAccessExpr());
+            }
+            return n.getName();
+        }
+
+        private void arrayAssignMaking(final AssignExpr n) {
+            if (n.getTarget().isArrayAccessExpr()) {
+                Expression nameN = getLastArrayAccessNameOf(n.getTarget().
+                        asArrayAccessExpr());
+                if (nameN.isNameExpr() && isVariableToReplace(
+                        nameN.asNameExpr())) {
+                    updateIntsToBigInt(n.getValue());
+                    if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
+                        changes.add(() -> n.replace(new AssignExpr(
+                                n.getTarget(), new MethodCallExpr(
+                                n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                n.getOperator()),
+                                new NodeList<>(n.getTarget())),
+                                AssignExpr.Operator.ASSIGN)));
+                    }
+                } else if (isUpdateIntsToBitInt(n.getValue())) {
+                    updateIntsToBigInt(n.getValue());
+                    changes.add(() -> n.setValue(intValueMaking(
+                            n.clone().getValue())));
+                }
+                updateIndexes(n.getTarget().asArrayAccessExpr());
             }
         }
 
@@ -567,8 +712,16 @@ class Replacing {
         }
 
         private boolean ifTypeToChange(final VariableDeclarator declarator) {
-            return declarator.getType().equals(
-                    PrimitiveType.intType());
+            if (declarator.getType().equals(
+                    PrimitiveType.intType())) {
+                return true;
+            }
+            if (declarator.getType().isArrayType()) {
+                return getLastArrayTypeOf(declarator.getType().
+                        asArrayType()).getComponentType().equals(
+                        PrimitiveType.intType());
+            }
+            return false;
         }
     }
 }
