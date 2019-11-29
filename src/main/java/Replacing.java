@@ -15,6 +15,7 @@ import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.expr.ArrayAccessExpr;
+import com.github.javaparser.ast.expr.ArrayCreationExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
@@ -422,6 +423,8 @@ class Replacing {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> getLastArrayTypeOf(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
+                } else {
+                    throw new IllegalArgumentException();
                 }
                 if (n.getInitializer().isPresent()
                         && n.getInitializer().get().isArrayCreationExpr()) {
@@ -430,32 +433,70 @@ class Replacing {
                         changes.add(() -> n.getInitializer().get().
                                 asArrayCreationExpr().setElementType(
                                 bigIntegerType));
+                    } else {
+                        throw new IllegalArgumentException();
+                    }
+                } else if (n.getInitializer().isPresent()
+                        && n.getInitializer().get().isArrayInitializerExpr()) {
+                    arrayInitializerExprToBigIntMaking(n.getInitializer().get().
+                            asArrayInitializerExpr());
+                } else {
+                    throw new IllegalArgumentException();
+                }
+            } else if (n.getInitializer().isPresent()
+                    && n.getInitializer().get().isArrayInitializerExpr()) {
+                updateArrayInitializerExprValues(n.getInitializer().get().
+                        asArrayInitializerExpr());
+            }  // do nothing
+
+            if (n.getInitializer().isPresent()
+                    && n.getInitializer().get().isArrayCreationExpr()) {
+                updateArrayCreationExprLevels(n.getInitializer().get().
+                        asArrayCreationExpr());
+            }  // do nothing
+
+        }
+
+        private void updateArrayCreationExprLevels(final ArrayCreationExpr n) {
+            for (int i = 0; i < n.getLevels().size(); i++) {
+                if (n.getLevels().get(i).getDimension().isPresent()) {
+                    if (isUpdateIntsToBitInt(n.getLevels().get(i).
+                            getDimension().get())) {
+                        updateIntsToBigInt(n.getLevels().get(i).
+                                getDimension().get());
+                        int finalI = i;
+                        changes.add(() -> n.getLevels().
+                                get(finalI).setDimension(intValueMaking(
+                                n.clone().getLevels().get(finalI).
+                                        getDimension().get())));
                     }
                 }
             }
-            if (n.getInitializer().isPresent()
-                    && n.getInitializer().get().isArrayCreationExpr()) {
-                for (int i = 0; i < n.getInitializer().get().
-                        asArrayCreationExpr().getLevels().size(); i++) {
-                    if (n.getInitializer().get().asArrayCreationExpr().
-                            getLevels().get(i).getDimension().isPresent()) {
-                        if (isUpdateIntsToBitInt(n.getInitializer().get().
-                                asArrayCreationExpr().getLevels().get(i).
-                                getDimension().get())) {
-                            updateIntsToBigInt(n.getInitializer().get().
-                                    asArrayCreationExpr().getLevels().get(i).
-                                    getDimension().get());
-                            int finalI = i;
-                            changes.add(() -> n.getInitializer().get().
-                                    asArrayCreationExpr().getLevels().
-                                    get(finalI).setDimension(intValueMaking(
-                                    n.clone().getInitializer().get().
-                                            asArrayCreationExpr().
-                                            getLevels().get(finalI).
-                                            getDimension().get())));
-                        }
-                    }
+        }
+
+        private void updateArrayInitializerExprValues(final Expression n) {
+            if (!n.isArrayInitializerExpr()) {
+                if (isUpdateIntsToBitInt(n)) {
+                    changes.add(() -> n.replace(intValueMaking(n.clone())));
                 }
+                return;
+            }
+            for (int i = 0; i < n.asArrayInitializerExpr().
+                    getValues().size(); i++) {
+                updateArrayInitializerExprValues(n.asArrayInitializerExpr().
+                        getValues().get(i));
+            }
+        }
+
+        private void arrayInitializerExprToBigIntMaking(final Expression n) {
+            if (!n.isArrayInitializerExpr()) {
+                updateIntsToBigInt(n);
+                return;
+            }
+            for (int i = 0; i < n.asArrayInitializerExpr().
+                    getValues().size(); i++) {
+                arrayInitializerExprToBigIntMaking(n.asArrayInitializerExpr().
+                        getValues().get(i));
             }
         }
 
@@ -499,14 +540,14 @@ class Replacing {
             }
         }
 
-        private void indexesChanging(final ArrayAccessExpr n) {
+        private void updateIndexes(final ArrayAccessExpr n) {
             if (isUpdateIntsToBitInt(n.getIndex())) {
                 updateIntsToBigInt(n.getIndex());
                 changes.add(() -> n.setIndex(intValueMaking(
                         n.clone().getIndex())));
             }
             if (n.getName().isArrayAccessExpr()) {
-                indexesChanging(n.getName().asArrayAccessExpr());
+                updateIndexes(n.getName().asArrayAccessExpr());
             }
         }
 
@@ -538,7 +579,7 @@ class Replacing {
                     changes.add(() -> n.setValue(intValueMaking(
                             n.clone().getValue())));
                 }
-                indexesChanging(n.getTarget().asArrayAccessExpr());
+                updateIndexes(n.getTarget().asArrayAccessExpr());
             }
         }
 
