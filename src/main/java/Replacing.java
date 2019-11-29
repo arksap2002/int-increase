@@ -477,6 +477,7 @@ class Replacing {
         private void updateArrayInitializerExprValues(final Expression n) {
             if (!n.isArrayInitializerExpr()) {
                 if (isUpdateIntsToBitInt(n)) {
+                    updateIntsToBigInt(n);
                     changes.add(() -> n.replace(intValueMaking(n.clone())));
                 }
                 return;
