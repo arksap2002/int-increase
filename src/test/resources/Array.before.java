@@ -10,6 +10,8 @@ public class Array {
         int[][] c = new int[intNumber + 1][bigIntNumber + 1];
         int[][] /* BigInteger */ d = new int[intNumber + 1][bigIntNumber + 1];
         int[][][][][][][] /* BigInteger */ e = new int[10][10][10][10][10][10][10];
+        int[][] arr = {{1, 2, bigIntNumber}, {2, 2, intNumber}, {3, 2, 1}};
+        int[][][] /* BigInteger */ arr2 = {{{1}, {2, bigIntNumber}}, {{2}, {2, 2}}, {{intNumber}, {2}, {1}}};
         for (int /* BigInteger */ i = 0; i < Math.min(a.length, b.length); i++) {
             a[i] = i + 1;
             b[i] = i + 1;

@@ -10,6 +10,8 @@ public class Array {
         int[][] c = new int[intNumber + 1][bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
         java.math.BigInteger[][] d = new java.math.BigInteger[intNumber + 1][bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
         java.math.BigInteger[][][][][][][] e = new java.math.BigInteger[10][10][10][10][10][10][10];
+        int[][] arr = { { 1, 2, bigIntNumber.intValue() }, { 2, 2, intNumber }, { 3, 2, 1 } };
+        java.math.BigInteger[][][] arr2 = { { { java.math.BigInteger.ONE }, { java.math.BigInteger.TWO, bigIntNumber } }, { { java.math.BigInteger.TWO }, { java.math.BigInteger.TWO, java.math.BigInteger.TWO } }, { { new java.math.BigInteger(intNumber) }, { java.math.BigInteger.TWO }, { java.math.BigInteger.ONE } } };
         for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(new java.math.BigInteger(a.length).min(new java.math.BigInteger(b.length))) < 0; i = java.math.BigInteger.ONE.add(i)) {
             a[i.intValue()] = i.add(java.math.BigInteger.ONE);
             b[i.intValue()] = i.add(java.math.BigInteger.ONE).intValue();
