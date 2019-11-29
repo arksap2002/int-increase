@@ -22,6 +22,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -282,6 +283,11 @@ class Replacing {
                         new NodeList<>(n.clone()))));
             }
             return;
+        }
+        if (n.isArrayAccessExpr()) {
+            if (isVariableToReplace(n.asArrayAccessExpr().getName().asNameExpr())) {
+                // I am working here now
+            }
         }
         if (!isOfTypeInt(n)) {
             throw new UnsupportedOperationException();
@@ -683,10 +689,9 @@ class Replacing {
                 if (n.getBody().isPresent()) {
                     for (Statement statement : n.getBody().get().getStatements()) {
                         if (statement.isReturnStmt()) {
-                            if (!statement.asReturnStmt().getExpression().isPresent()) {
-                                throw new UnsupportedOperationException();
-                            }
-                            updateIntsToBigInt(statement.asReturnStmt().getExpression().get());
+                            if (statement.asReturnStmt().getExpression().isPresent()) {
+                                updateIntsToBigInt(statement.asReturnStmt().getExpression().get());
+                            } // do nothing
                         }
                     }
                 }
@@ -702,7 +707,14 @@ class Replacing {
                 throw new IllegalArgumentException();
             }
             if (variablesToReplace.contains(n.getRange().get())) {
-                changes.add(() -> n.setType(bigIntegerType));
+                if (n.getType().equals(
+                        PrimitiveType.intType())) {
+                    changes.add(() -> n.setType(bigIntegerType));
+                }
+                if (n.getType().isArrayType()) {
+                    changes.add(() -> getLastArrayTypeOf(n.clone().getType().
+                            asArrayType()).setComponentType(bigIntegerType));
+                }
             }
         }
     }
@@ -715,7 +727,6 @@ class Replacing {
                 final MethodDeclaration n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            boolean flag = false;
             if (n.getType().equals(PrimitiveType.intType())
                     && n.getName().getComment().isPresent()
                     && n.getName().getComment().get().
@@ -727,6 +738,7 @@ class Replacing {
                 variablesToReplace.add(n.getRange().get());
             }
             for (Parameter parameter : n.getParameters()) {
+                boolean flag = false;
                 if (parameter.getComment().isPresent()
                         && parameter.getComment().get().
                         getContent().toLowerCase().trim().
@@ -807,11 +819,12 @@ class Replacing {
                     PrimitiveType.intType())) {
                 return true;
             }
-            return lastTypeOfArray(declarator.getType().asArrayType()).
-                    getComponentType().isPrimitiveType()
-                    && lastTypeOfArray(declarator.getType().
-                    asArrayType()).getComponentType().asPrimitiveType().
-                    equals(PrimitiveType.intType());
+            if (declarator.getType().isArrayType()) {
+                return getLastArrayTypeOf(declarator.getType().
+                        asArrayType()).getComponentType().equals(
+                        PrimitiveType.intType());
+            }
+            return false;
         }
 
         private boolean ifTypeOfParameterToChange(final Parameter declarator) {
