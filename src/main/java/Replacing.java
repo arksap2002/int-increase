@@ -324,9 +324,13 @@ class Replacing {
         }
         if (n.isNameExpr()) {
             if (!isVariableToReplace(n.asNameExpr())) {
+                if (!isArrayType(n.asNameExpr())) {
 //                TODO is Array -> exception
-                changes.add(() -> n.replace(bigIntFromInt(
-                        new NodeList<>(n.clone()))));
+                    changes.add(() -> n.replace(bigIntFromInt(
+                            new NodeList<>(n.clone()))));
+                } else {
+                    throw new IllegalArgumentException();
+                }
             }
             return;
         }
@@ -343,6 +347,10 @@ class Replacing {
         }
         changes.add(() -> n.replace(bigIntFromInt(
                 new NodeList<>(n.clone()))));
+    }
+
+    private boolean isArrayType(NameExpr n) {
+        return n.calculateResolvedType().isArray();
     }
 
     private NameExpr getNameOfArray(Expression n) {

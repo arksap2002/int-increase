@@ -25,6 +25,13 @@ public class BigIntegerReplaceTest {
                 filePrefix + ".after.java", Charset.defaultCharset()), gotOutput);
     }
 
+    private void runOnlyBeforeTestFromFile(String filePrefix) throws IOException, ClassNotFoundException {
+        BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
+        CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
+                IOUtils.resourceToString("/" +
+                        filePrefix + ".before.java", Charset.defaultCharset()));
+    }
+
     @Test
     public void testNothingChanges() throws IOException, ClassNotFoundException {
         runTestFromFile("NothingChanges");
@@ -74,7 +81,7 @@ public class BigIntegerReplaceTest {
     public void testIf() throws IOException, ClassNotFoundException {
         runTestFromFile("If");
     }
-  
+
     @Test
     public void testAssingExpr() throws IOException, ClassNotFoundException {
         runTestFromFile("AssingExpr");
@@ -109,7 +116,7 @@ public class BigIntegerReplaceTest {
     public void testDifferentInts() throws IOException, ClassNotFoundException {
         runTestFromFile("DifferentInts");
     }
-  
+
     @Test
     public void testPartialReplaceParseInt() throws IOException, ClassNotFoundException {
         runTestFromFile("PartialReplaceParseInt");
@@ -143,6 +150,11 @@ public class BigIntegerReplaceTest {
     @Test
     public void testArray() throws IOException, ClassNotFoundException {
         runTestFromFile("Array");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMethodException() throws IOException, ClassNotFoundException {
+        runOnlyBeforeTestFromFile("MethodException");
     }
 
     @Test
