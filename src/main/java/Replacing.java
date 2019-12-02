@@ -26,12 +26,13 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
+import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserParameterDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
@@ -72,6 +73,8 @@ class Replacing {
     }
 
     private final HashSet<Range> variablesToReplace = new HashSet<>();
+
+    private final HashSet<Range> methodDeclarationInCode = new HashSet<>();
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -223,6 +226,48 @@ class Replacing {
                     equals("java.io.PrintStream.println"))
                     && n.asMethodCallExpr().getArguments().size() == 1) {
                 updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
+            } else if (resolvedN instanceof JavaParserMethodDeclaration
+                    && ((JavaParserMethodDeclaration) (resolvedN)).
+                    getWrappedNode().getRange().isPresent()
+                    && methodDeclarationInCode.contains(((
+                    JavaParserMethodDeclaration) (resolvedN)).
+                    getWrappedNode().getRange().get())) {
+                MethodDeclaration methodDeclaration = (
+                        (JavaParserMethodDeclaration) (resolvedN)).
+                        getWrappedNode();
+                if (n.asMethodCallExpr().getArguments().size()
+                        != methodDeclaration.getParameters().size()) {
+                    throw new IllegalArgumentException();
+                }
+                if (!methodDeclaration.getRange().isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                if (!variablesToReplace.contains(methodDeclaration.getRange().
+                        get())) {
+                    changes.add(() -> n.replace(bigIntFromInt(n.
+                            asMethodCallExpr().getArguments())));
+                }
+                for (int i = 0; i < methodDeclaration.getParameters().size();
+                     i++) {
+                    if (!methodDeclaration.getParameter(i).getRange().
+                            isPresent()) {
+                        throw new IllegalArgumentException();
+                    }
+                    if (variablesToReplace.contains(methodDeclaration.
+                            getParameter(i).getRange().get())) {
+                        updateIntsToBigInt(
+                                n.asMethodCallExpr().getArgument(i));
+                    } else if (isUpdateIntsToBitInt(
+                            n.asMethodCallExpr().getArgument(i))) {
+                        updateIntsToBigInt(
+                                n.asMethodCallExpr().getArgument(i));
+                        int finalI = i;
+                        changes.add(() -> n.asMethodCallExpr().
+                                getArgument(finalI).replace(intValueMaking(
+                                        n.clone().asMethodCallExpr().
+                                                getArgument(finalI))));
+                    }
+                }
             } else {
                 changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
                         n.clone().asMethodCallExpr()))));
@@ -279,21 +324,35 @@ class Replacing {
         }
         if (n.isNameExpr()) {
             if (!isVariableToReplace(n.asNameExpr())) {
+//                TODO is Array -> exception
                 changes.add(() -> n.replace(bigIntFromInt(
                         new NodeList<>(n.clone()))));
             }
             return;
         }
         if (n.isArrayAccessExpr()) {
-            if (isVariableToReplace(n.asArrayAccessExpr().getName().asNameExpr())) {
-                // I am working here now
+            if (!isVariableToReplace(getNameOfArray(
+                    n.asArrayAccessExpr().getName()))) {
+                changes.add(() -> n.replace(bigIntFromInt(
+                        new NodeList<>(n.clone()))));
             }
+            return;
         }
         if (!isOfTypeInt(n)) {
             throw new UnsupportedOperationException();
         }
         changes.add(() -> n.replace(bigIntFromInt(
                 new NodeList<>(n.clone()))));
+    }
+
+    private NameExpr getNameOfArray(Expression n) {
+        if (n.isArrayAccessExpr()) {
+            return getNameOfArray(n.asArrayAccessExpr().getName());
+        }
+        if (n.isNameExpr()) {
+            return n.asNameExpr();
+        }
+        throw new IllegalArgumentException();
     }
 
     private ObjectCreationExpr bigIntFromInt(
@@ -309,9 +368,11 @@ class Replacing {
         return n.calculateResolvedType().equals(ResolvedPrimitiveType.INT);
     }
 
+
     private boolean isVariableToReplace(final NameExpr n) {
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
-            VariableDeclarator variableDeclarator = ((JavaParserFieldDeclaration) n.resolve()).
+            VariableDeclarator variableDeclarator =
+                    ((JavaParserFieldDeclaration) n.resolve()).
                     getVariableDeclarator();
             if (!variableDeclarator.getRange().isPresent()) {
                 throw new IllegalArgumentException();
@@ -347,79 +408,119 @@ class Replacing {
         return getLastArrayTypeOf(typeN.getComponentType().asArrayType());
     }
 
-    public class TransformVisitor
-            extends VoidVisitorAdapter<JavaParserFacade> {
+    private void setLastArrayTypeOf(final ArrayType typeN) {
+        if (!typeN.getComponentType().isArrayType()) {
+            changes.add(() -> typeN.setComponentType(bigIntegerType));
+            return;
+        }
+        setLastArrayTypeOf(typeN.getComponentType().asArrayType());
+    }
 
-        private boolean isUpdateIntsToBitInt(final Expression n) {
-            if (n.isIntegerLiteralExpr()) {
-                return false;
-            }
-            if (n.isMethodCallExpr()) {
-                ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
-                        resolve();
-                if (isMath(resolvedN)
-                        && (resolvedN.getName().equals("abs"))) {
-                    if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                            get(0))) {
-                        return isUpdateIntsToBitInt(n.asMethodCallExpr().
-                                getArguments().get(0));
-                    }
-                } else if (isMath(resolvedN) && (resolvedN.getName().
-                        equals("min")
-                        || resolvedN.getName().equals("max"))) {
-                    if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                            get(0)) && isOfTypeInt(n.asMethodCallExpr().
-                            getArguments().get(1))) {
-                        return isUpdateIntsToBitInt(n.asMethodCallExpr().
-                                getArguments().get(0))
-                                || isUpdateIntsToBitInt(n.asMethodCallExpr().
-                                getArguments().get(1));
-                    }
-                } else if ((resolvedN.getQualifiedName().
-                        equals("java.io.PrintWriter.print")
-                        || resolvedN.getQualifiedName().
-                        equals("java.io.PrintWriter.println")
-                        || resolvedN.getQualifiedName().
-                        equals("java.io.PrintStream.print")
-                        || resolvedN.getQualifiedName().
-                        equals("java.io.PrintStream.println"))
-                        && n.asMethodCallExpr().getArguments().size() == 1) {
+    private boolean isUpdateIntsToBitInt(final Expression n) {
+        if (n.isIntegerLiteralExpr()) {
+            return false;
+        }
+        if (n.isMethodCallExpr()) {
+            ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                    resolve();
+            if (isMath(resolvedN)
+                    && (resolvedN.getName().equals("abs"))) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0))) {
                     return isUpdateIntsToBitInt(n.asMethodCallExpr().
-                            getArgument(0));
+                            getArguments().get(0));
                 }
-                return false;
-            }
-            if (n.isBinaryExpr()) {
-                return isUpdateIntsToBitInt(n.asBinaryExpr().getLeft())
-                        || isUpdateIntsToBitInt(n.asBinaryExpr().getRight());
-            }
-            if (n.isEnclosedExpr()) {
-                return isUpdateIntsToBitInt(n.asEnclosedExpr().getInner());
-            }
-            if (n.isUnaryExpr()) {
-                if (n.asUnaryExpr().getOperator().equals(
-                        UnaryExpr.Operator.POSTFIX_INCREMENT)
-                        && n.asUnaryExpr().getExpression().isNameExpr()
-                        && isOfTypeInt(
-                        n.asUnaryExpr().getExpression().asNameExpr())) {
-                    return isVariableToReplace(n.asUnaryExpr().
-                            getExpression().asNameExpr());
+            } else if (isMath(resolvedN) && (resolvedN.getName().
+                    equals("min")
+                    || resolvedN.getName().equals("max"))) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
+                        getArguments().get(1))) {
+                    return isUpdateIntsToBitInt(n.asMethodCallExpr().
+                            getArguments().get(0))
+                            || isUpdateIntsToBitInt(n.asMethodCallExpr().
+                            getArguments().get(1));
                 }
-                if (n.asUnaryExpr().getOperator().equals(
-                        UnaryExpr.Operator.POSTFIX_DECREMENT)
-                        && n.asUnaryExpr().getExpression().isNameExpr()
-                        && isOfTypeInt(
-                        n.asUnaryExpr().getExpression().asNameExpr())) {
-                    return isVariableToReplace(n.asUnaryExpr().
-                            getExpression().asNameExpr());
+            } else if ((resolvedN.getQualifiedName().
+                    equals("java.io.PrintWriter.print")
+                    || resolvedN.getQualifiedName().
+                    equals("java.io.PrintWriter.println")
+                    || resolvedN.getQualifiedName().
+                    equals("java.io.PrintStream.print")
+                    || resolvedN.getQualifiedName().
+                    equals("java.io.PrintStream.println"))
+                    && n.asMethodCallExpr().getArguments().size() == 1) {
+                return isUpdateIntsToBitInt(n.asMethodCallExpr().
+                        getArgument(0));
+            } else if (resolvedN instanceof JavaParserMethodDeclaration
+                    && ((JavaParserMethodDeclaration) (resolvedN)).
+                    getWrappedNode().getRange().isPresent()
+                    && methodDeclarationInCode.contains(((
+                    JavaParserMethodDeclaration) (resolvedN)).
+                    getWrappedNode().getRange().get())) {
+                MethodDeclaration methodDeclaration = (
+                        (JavaParserMethodDeclaration) (resolvedN)).
+                        getWrappedNode();
+                if (!methodDeclaration.getRange().isPresent()) {
+                    throw new IllegalArgumentException();
                 }
-                return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
-            }
-            if (n.isNameExpr()) {
-                return isVariableToReplace(n.asNameExpr());
+                if (n.asMethodCallExpr().getArguments().size()
+                        != methodDeclaration.getParameters().size()) {
+                    throw new IllegalArgumentException();
+                }
+                boolean flag = variablesToReplace.contains(
+                        methodDeclaration.getRange().get());
+                for (int i = 0; i < methodDeclaration.getParameters().size();
+                     i++) {
+                    if (!methodDeclaration.getParameter(i).getRange().
+                            isPresent()) {
+                        throw new IllegalArgumentException();
+                    }
+                    flag = flag || isUpdateIntsToBitInt(
+                            n.asMethodCallExpr().getArgument(i));
+                }
+                return flag;
             }
             return false;
         }
+        if (n.isBinaryExpr()) {
+            return isUpdateIntsToBitInt(n.asBinaryExpr().getLeft())
+                    || isUpdateIntsToBitInt(n.asBinaryExpr().getRight());
+        }
+        if (n.isEnclosedExpr()) {
+            return isUpdateIntsToBitInt(n.asEnclosedExpr().getInner());
+        }
+        if (n.isUnaryExpr()) {
+            if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_INCREMENT)
+                    && n.asUnaryExpr().getExpression().isNameExpr()
+                    && isOfTypeInt(
+                    n.asUnaryExpr().getExpression().asNameExpr())) {
+                return isVariableToReplace(n.asUnaryExpr().
+                        getExpression().asNameExpr());
+            }
+            if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_DECREMENT)
+                    && n.asUnaryExpr().getExpression().isNameExpr()
+                    && isOfTypeInt(
+                    n.asUnaryExpr().getExpression().asNameExpr())) {
+                return isVariableToReplace(n.asUnaryExpr().
+                        getExpression().asNameExpr());
+            }
+            return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
+        }
+        if (n.isNameExpr()) {
+            return isVariableToReplace(n.asNameExpr());
+        }
+        if (n.isArrayAccessExpr()) {
+            return isVariableToReplace(getNameOfArray(
+                    n.asArrayAccessExpr().getName()));
+        }
+        return false;
+    }
+
+    public class TransformVisitor
+            extends VoidVisitorAdapter<JavaParserFacade> {
 
         @Override
         public void visit(
@@ -669,7 +770,8 @@ class Replacing {
                     resolve();
             if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.toString")) {
-                if (isUpdateIntsToBitInt(n.asMethodCallExpr().getArgument(0))) {
+                if (isUpdateIntsToBitInt(n.asMethodCallExpr().
+                        getArgument(0))) {
                     updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArgument(0),
@@ -687,10 +789,14 @@ class Replacing {
                     && variablesToReplace.contains(n.getRange().get())) {
                 changes.add(() -> n.setType(bigIntegerType));
                 if (n.getBody().isPresent()) {
-                    for (Statement statement : n.getBody().get().getStatements()) {
+                    for (Statement statement : n.getBody().get().
+                            getStatements()) {
+//                      TODO Add useful code here
                         if (statement.isReturnStmt()) {
-                            if (statement.asReturnStmt().getExpression().isPresent()) {
-                                updateIntsToBigInt(statement.asReturnStmt().getExpression().get());
+                            if (statement.asReturnStmt().getExpression().
+                                    isPresent()) {
+                                updateIntsToBigInt(statement.asReturnStmt().
+                                        getExpression().get());
                             } // do nothing
                         }
                     }
@@ -712,8 +818,11 @@ class Replacing {
                     changes.add(() -> n.setType(bigIntegerType));
                 }
                 if (n.getType().isArrayType()) {
-                    changes.add(() -> getLastArrayTypeOf(n.clone().getType().
-                            asArrayType()).setComponentType(bigIntegerType));
+//                    changes.add(() -> setLastArrayTypeOf(n.clone().getType().
+//                            asArrayType()));
+//                    or
+//                    changes.add(() -> getLastArrayTypeOf(n.clone().getType().
+//                            asArrayType()).setComponentType(bigIntegerType));
                 }
             }
         }
@@ -727,14 +836,15 @@ class Replacing {
                 final MethodDeclaration n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            methodDeclarationInCode.add(n.getRange().get());
             if (n.getType().equals(PrimitiveType.intType())
                     && n.getName().getComment().isPresent()
                     && n.getName().getComment().get().
                     getContent().toLowerCase().trim().
                     equals("biginteger")) {
-                if (!n.getRange().isPresent()) {
-                    throw new IllegalArgumentException();
-                }
                 variablesToReplace.add(n.getRange().get());
             }
             for (Parameter parameter : n.getParameters()) {
@@ -743,14 +853,14 @@ class Replacing {
                         && parameter.getComment().get().
                         getContent().toLowerCase().trim().
                         equals("biginteger")
-                        && ifTypeOfParameterToChange(parameter)) {
+                        && ifTypeOfToChange(parameter.getType())) {
                     flag = true;
                     parameter.getComment().get().remove();
                 }
                 if (parameter.getName().getComment().isPresent()
                         && parameter.getName().getComment().get().getContent().
                         toLowerCase().trim().equals("biginteger")
-                        && ifTypeOfParameterToChange(parameter)) {
+                        && ifTypeOfToChange(parameter.getType())) {
                     flag = true;
                     parameter.getName().getComment().get().remove();
                 }
@@ -788,7 +898,7 @@ class Replacing {
                         && declarator.getComment().get().
                         getContent().toLowerCase().trim().
                         equals("biginteger")
-                        && ifTypeOfVarDecToChange(declarator)) {
+                        && ifTypeOfToChange(declarator.getType())) {
                     flag = true;
                     declarator.getComment().get().remove();
                 }
@@ -797,7 +907,8 @@ class Replacing {
                         getComment().isPresent()
                         && declarator.getInitializer().get().
                         getComment().get().getContent().toLowerCase().trim().
-                        equals("biginteger") && ifTypeOfVarDecToChange(declarator)) {
+                        equals("biginteger") && ifTypeOfToChange(
+                        declarator.getType())) {
                     flag = true;
                     declarator.getInitializer().get().getComment().get().
                             remove();
@@ -814,27 +925,14 @@ class Replacing {
             }
         }
 
-        private boolean ifTypeOfVarDecToChange(final VariableDeclarator declarator) {
-            if (declarator.getType().equals(
-                    PrimitiveType.intType())) {
+        private boolean ifTypeOfToChange(
+                final Type declarator) {
+            if (declarator.equals(PrimitiveType.intType())) {
                 return true;
             }
-            if (declarator.getType().isArrayType()) {
-                return getLastArrayTypeOf(declarator.getType().
-                        asArrayType()).getComponentType().equals(
-                        PrimitiveType.intType());
-            }
-            return false;
-        }
-
-        private boolean ifTypeOfParameterToChange(final Parameter declarator) {
-            if (declarator.getType().equals(
-                    PrimitiveType.intType())) {
-                return true;
-            }
-            if (declarator.getType().isArrayType()) {
-                return getLastArrayTypeOf(declarator.getType().
-                        asArrayType()).getComponentType().equals(
+            if (declarator.isArrayType()) {
+                return getLastArrayTypeOf(declarator.asArrayType()).
+                        getComponentType().equals(
                         PrimitiveType.intType());
             }
             return false;
