@@ -818,6 +818,7 @@ class Replacing {
                     changes.add(() -> n.setType(bigIntegerType));
                 }
                 if (n.getType().isArrayType()) {
+//                    TODO do something
 //                    changes.add(() -> setLastArrayTypeOf(n.clone().getType().
 //                            asArrayType()));
 //                    or
