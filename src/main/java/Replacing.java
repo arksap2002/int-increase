@@ -159,69 +159,7 @@ class Replacing {
             return;
         }
         if (n.isMethodCallExpr()) {
-            ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
-                    resolve();
-            if (resolvedN.getQualifiedName().
-                    equals("java.util.Scanner.nextInt")) {
-                if (n.asMethodCallExpr().getScope().isPresent()) {
-                    changes.add(() -> n.asMethodCallExpr().setName(
-                            new SimpleName("nextBigInteger")));
-                }
-            } else if (isMath(resolvedN)
-                    && (resolvedN.getName().equals("abs"))) {
-                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                        get(0))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(0));
-                    changes.add(() -> n.replace(new MethodCallExpr(
-                            n.asMethodCallExpr().getArguments().get(0),
-                            new SimpleName("abs"))));
-                }
-            } else if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
-                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
-                        getArguments().get(1))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(0));
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(1));
-                    changes.add(() -> n.replace(new MethodCallExpr(
-                            n.asMethodCallExpr().getArguments().get(0),
-                            "min", new NodeList<>(
-                            n.asMethodCallExpr().getArguments().get(1)))));
-                }
-            } else if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
-                if (isOfTypeInt(n.asMethodCallExpr().getArguments().get(0))
-                        && isOfTypeInt(n.asMethodCallExpr().
-                        getArguments().get(1))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(0));
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(1));
-                    changes.add(() -> n.replace(new MethodCallExpr(
-                            n.asMethodCallExpr().getArguments().get(0),
-                            "max", new NodeList<>(
-                            n.asMethodCallExpr().getArguments().get(1)))));
-                }
-            } else if (resolvedN.getQualifiedName().
-                    equals("java.lang.Integer.parseInt")
-                    && n.asMethodCallExpr().getArguments().size() == 1) {
-                changes.add(() -> n.replace(bigIntFromInt(n.
-                        asMethodCallExpr().getArguments())));
-            } else if ((resolvedN.getQualifiedName().
-                    equals("java.io.PrintWriter.print")
-                    || resolvedN.getQualifiedName().
-                    equals("java.io.PrintWriter.println")
-                    || resolvedN.getQualifiedName().
-                    equals("java.io.PrintStream.print")
-                    || resolvedN.getQualifiedName().
-                    equals("java.io.PrintStream.println"))
-                    && n.asMethodCallExpr().getArguments().size() == 1) {
-                updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
-            } else {
-                changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
-                        n.clone().asMethodCallExpr()))));
-            }
+            changingOfMethodCallExpr(n);
             return;
         }
         if (n.isBinaryExpr()) {
@@ -233,43 +171,7 @@ class Replacing {
             return;
         }
         if (n.isUnaryExpr()) {
-            updateIntsToBigInt(n.asUnaryExpr().getExpression());
-            if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
-                    Operator.MINUS)) {
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        n.asUnaryExpr().getExpression(), "negate")));
-            } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
-                    Operator.PLUS)) {
-                changes.add(() -> n.replace(
-                        n.asUnaryExpr().getExpression()));
-            } else if (n.asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.POSTFIX_INCREMENT)
-                    && n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr())) {
-                changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression().asNameExpr(),
-                        new MethodCallExpr(createIntegerLiteralExpr(1),
-                                new SimpleName("add"), new NodeList<>(
-                                n.asUnaryExpr().getExpression().
-                                        asNameExpr())),
-                        AssignExpr.Operator.ASSIGN)));
-            } else if (n.asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.POSTFIX_DECREMENT)
-                    && n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr())) {
-                changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression().asNameExpr(),
-                        new MethodCallExpr(createIntegerLiteralExpr(1),
-                                new SimpleName("subtract"), new NodeList<>(
-                                n.asUnaryExpr().getExpression().
-                                        asNameExpr())),
-                        AssignExpr.Operator.ASSIGN)));
-            } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
-                    Operator.LOGICAL_COMPLEMENT)) {
-                throw new UnsupportedOperationException();
-            }
+            changingOfUnaryExpr(n);
             return;
         }
         if (n.isNameExpr()) {
@@ -296,6 +198,112 @@ class Replacing {
         }
         changes.add(() -> n.replace(bigIntFromInt(
                 new NodeList<>(n.clone()))));
+    }
+
+    private void changingOfUnaryExpr(final Expression n) {
+        updateIntsToBigInt(n.asUnaryExpr().getExpression());
+        if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                Operator.MINUS)) {
+            changes.add(() -> n.replace(new MethodCallExpr(
+                    n.asUnaryExpr().getExpression(), "negate")));
+        } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                Operator.PLUS)) {
+            changes.add(() -> n.replace(
+                    n.asUnaryExpr().getExpression()));
+        } else if (n.asUnaryExpr().getOperator().equals(
+                UnaryExpr.Operator.POSTFIX_INCREMENT)
+                && n.asUnaryExpr().getExpression().isNameExpr()
+                && isOfTypeInt(
+                n.asUnaryExpr().getExpression().asNameExpr())) {
+            changes.add(() -> n.replace(new AssignExpr(
+                    n.asUnaryExpr().getExpression().asNameExpr(),
+                    new MethodCallExpr(createIntegerLiteralExpr(1),
+                            new SimpleName("add"), new NodeList<>(
+                            n.asUnaryExpr().getExpression().
+                                    asNameExpr())),
+                    AssignExpr.Operator.ASSIGN)));
+        } else if (n.asUnaryExpr().getOperator().equals(
+                UnaryExpr.Operator.POSTFIX_DECREMENT)
+                && n.asUnaryExpr().getExpression().isNameExpr()
+                && isOfTypeInt(
+                n.asUnaryExpr().getExpression().asNameExpr())) {
+            changes.add(() -> n.replace(new AssignExpr(
+                    n.asUnaryExpr().getExpression().asNameExpr(),
+                    new MethodCallExpr(createIntegerLiteralExpr(1),
+                            new SimpleName("subtract"), new NodeList<>(
+                            n.asUnaryExpr().getExpression().
+                                    asNameExpr())),
+                    AssignExpr.Operator.ASSIGN)));
+        } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                Operator.LOGICAL_COMPLEMENT)) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private void changingOfMethodCallExpr(final Expression n) {
+        ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                resolve();
+        if (resolvedN.getQualifiedName().
+                equals("java.util.Scanner.nextInt")) {
+            if (n.asMethodCallExpr().getScope().isPresent()) {
+                changes.add(() -> n.asMethodCallExpr().setName(
+                        new SimpleName("nextBigInteger")));
+            }
+        } else if (isMath(resolvedN)
+                && (resolvedN.getName().equals("abs"))) {
+            if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                    get(0))) {
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(0));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArguments().get(0),
+                        new SimpleName("abs"))));
+            }
+        } else if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
+            if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                    get(0)) && isOfTypeInt(n.asMethodCallExpr().
+                    getArguments().get(1))) {
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(0));
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(1));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArguments().get(0),
+                        "min", new NodeList<>(
+                        n.asMethodCallExpr().getArguments().get(1)))));
+            }
+        } else if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
+            if (isOfTypeInt(n.asMethodCallExpr().getArguments().get(0))
+                    && isOfTypeInt(n.asMethodCallExpr().
+                    getArguments().get(1))) {
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(0));
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(1));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArguments().get(0),
+                        "max", new NodeList<>(
+                        n.asMethodCallExpr().getArguments().get(1)))));
+            }
+        } else if (resolvedN.getQualifiedName().
+                equals("java.lang.Integer.parseInt")
+                && n.asMethodCallExpr().getArguments().size() == 1) {
+            changes.add(() -> n.replace(bigIntFromInt(n.
+                    asMethodCallExpr().getArguments())));
+        } else if ((resolvedN.getQualifiedName().
+                equals("java.io.PrintWriter.print")
+                || resolvedN.getQualifiedName().
+                equals("java.io.PrintWriter.println")
+                || resolvedN.getQualifiedName().
+                equals("java.io.PrintStream.print")
+                || resolvedN.getQualifiedName().
+                equals("java.io.PrintStream.println"))
+                && n.asMethodCallExpr().getArguments().size() == 1) {
+            updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
+        } else {
+            changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
+                    n.clone().asMethodCallExpr()))));
+        }
     }
 
     private boolean isArrayType(final NameExpr n) {
