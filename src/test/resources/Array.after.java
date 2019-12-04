@@ -12,6 +12,7 @@ public class Array {
         java.math.BigInteger[][][][][][][] e = new java.math.BigInteger[10][10][10][10][10][10][10];
         int[][] arr = { { 1, 2, bigIntNumber.add(java.math.BigInteger.ONE) }, { 2, 2, intNumber + 1 }, { 3, 2, 1 } };
         java.math.BigInteger[][][] arr2 = { { { java.math.BigInteger.ONE }, { java.math.BigInteger.TWO, bigIntNumber.add(java.math.BigInteger.ONE) } }, { { java.math.BigInteger.TWO }, { java.math.BigInteger.TWO, java.math.BigInteger.TWO } }, { { new java.math.BigInteger(intNumber).add(java.math.BigInteger.ONE) }, { java.math.BigInteger.TWO }, { java.math.BigInteger.ONE } } };
+        int max = new java.math.BigInteger(c[0][a[0].max(new java.math.BigInteger(b[0])).intValue()]).intValue();
         for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(new java.math.BigInteger(a.length).min(new java.math.BigInteger(b.length))) < 0; i = java.math.BigInteger.ONE.add(i)) {
             a[i.intValue()] = i.add(java.math.BigInteger.ONE);
             b[i.intValue()] = i.add(java.math.BigInteger.ONE).intValue();

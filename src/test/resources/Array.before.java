@@ -12,6 +12,7 @@ public class Array {
         int[][][][][][][] /* BigInteger */ e = new int[10][10][10][10][10][10][10];
         int[][] arr = {{1, 2, bigIntNumber + 1}, {2, 2, intNumber + 1}, {3, 2, 1}};
         int[][][] /* BigInteger */ arr2 = {{{1}, {2, bigIntNumber + 1}}, {{2}, {2, 2}}, {{intNumber + 1}, {2}, {1}}};
+        int max = c[0][Math.max(a[0], b[0])];
         for (int /* BigInteger */ i = 0; i < Math.min(a.length, b.length); i++) {
             a[i] = i + 1;
             b[i] = i + 1;

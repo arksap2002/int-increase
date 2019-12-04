@@ -122,44 +122,6 @@ class Replacing {
                 && resolvedN.getClassName().equals("Math");
     }
 
-    private void changingOfBinaryExpr(final BinaryExpr binaryExpr) {
-        updateIntsToBigInt(binaryExpr.asBinaryExpr().getLeft());
-        updateIntsToBigInt(binaryExpr.asBinaryExpr().getRight());
-        if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.EQUALS)) {
-            changes.add(() -> binaryExpr.replace(new MethodCallExpr(
-                    binaryExpr.asBinaryExpr().getLeft(),
-                    new SimpleName("equals"),
-                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
-        } else if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.NOT_EQUALS)) {
-            changes.add(() -> binaryExpr.replace(new UnaryExpr(
-                    new MethodCallExpr(binaryExpr.asBinaryExpr().getLeft(),
-                            new SimpleName("equals"),
-                            new NodeList<>(binaryExpr.asBinaryExpr().
-                                    getRight())),
-                    UnaryExpr.Operator.LOGICAL_COMPLEMENT)));
-        } else if (binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.GREATER)
-                || binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.GREATER_EQUALS)
-                || binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.LESS)
-                || binaryExpr.getOperator().equals(
-                BinaryExpr.Operator.LESS_EQUALS)) {
-            changes.add(() -> binaryExpr.setLeft(new MethodCallExpr(
-                    binaryExpr.asBinaryExpr().getLeft(),
-                    new SimpleName("compareTo"),
-                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
-            changes.add(() -> binaryExpr.setRight(new IntegerLiteralExpr(0)));
-        } else {
-            changes.add(() -> binaryExpr.replace(new MethodCallExpr(
-                    binaryExpr.asBinaryExpr().getLeft(),
-                    OPERATOR_OF_BINARY.get(binaryExpr.getOperator()),
-                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
-        }
-    }
-
     private void updateIntsToBigInt(final Expression n) {
         if (n.isIntegerLiteralExpr()) {
             changes.add(() -> n.replace(createIntegerLiteralExpr(
@@ -194,11 +156,15 @@ class Replacing {
             return;
         }
         if (n.isArrayAccessExpr()) {
+            updateIndexes(n.asArrayAccessExpr());
             if (!isVariableToReplace(getNameOfArray(
                     n.asArrayAccessExpr().getName()))) {
                 changes.add(() -> n.replace(bigIntFromInt(
                         new NodeList<>(n.clone()))));
             }
+            return;
+        }
+        if (n.isStringLiteralExpr()) {
             return;
         }
         if (!isOfTypeInt(n)) {
@@ -354,6 +320,69 @@ class Replacing {
             changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
                     n.clone().asMethodCallExpr()))));
         }
+    }
+
+    private void changingOfBinaryExpr(final BinaryExpr n) {
+        updateIntsToBigInt(n.asBinaryExpr().getLeft());
+        updateIntsToBigInt(n.asBinaryExpr().getRight());
+        if (n.asBinaryExpr().getLeft().isStringLiteralExpr()
+                || n.asBinaryExpr().getRight().
+                isStringLiteralExpr()
+                || (n.asBinaryExpr().getLeft().isBinaryExpr()
+                && isRightIsString(n.asBinaryExpr().getLeft().
+                asBinaryExpr()))
+                || (n.asBinaryExpr().getRight().isBinaryExpr()
+                && isLeftIsString(n.asBinaryExpr().getRight().
+                asBinaryExpr()))) {
+            return;
+        }
+        if (n.getOperator().equals(
+                BinaryExpr.Operator.EQUALS)) {
+            changes.add(() -> n.replace(new MethodCallExpr(
+                    n.asBinaryExpr().getLeft(),
+                    new SimpleName("equals"),
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
+        } else if (n.getOperator().equals(
+                BinaryExpr.Operator.NOT_EQUALS)) {
+            changes.add(() -> n.replace(new UnaryExpr(
+                    new MethodCallExpr(n.asBinaryExpr().getLeft(),
+                            new SimpleName("equals"),
+                            new NodeList<>(n.asBinaryExpr().
+                                    getRight())),
+                    UnaryExpr.Operator.LOGICAL_COMPLEMENT)));
+        } else if (n.getOperator().equals(
+                BinaryExpr.Operator.GREATER)
+                || n.getOperator().equals(
+                BinaryExpr.Operator.GREATER_EQUALS)
+                || n.getOperator().equals(
+                BinaryExpr.Operator.LESS)
+                || n.getOperator().equals(
+                BinaryExpr.Operator.LESS_EQUALS)) {
+            changes.add(() -> n.setLeft(new MethodCallExpr(
+                    n.asBinaryExpr().getLeft(),
+                    new SimpleName("compareTo"),
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
+            changes.add(() -> n.setRight(new IntegerLiteralExpr(0)));
+        } else {
+            changes.add(() -> n.replace(new MethodCallExpr(
+                    n.asBinaryExpr().getLeft(),
+                    OPERATOR_OF_BINARY.get(n.getOperator()),
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
+        }
+    }
+
+    private boolean isLeftIsString(final BinaryExpr n) {
+        if (n.getLeft().isBinaryExpr()) {
+            return isRightIsString(n.getLeft().asBinaryExpr());
+        }
+        return n.getLeft().isStringLiteralExpr();
+    }
+
+    private boolean isRightIsString(final BinaryExpr n) {
+        if (n.getRight().isBinaryExpr()) {
+            return isRightIsString(n.getRight().asBinaryExpr());
+        }
+        return n.getRight().isStringLiteralExpr();
     }
 
     private boolean isArrayType(final NameExpr n) {
@@ -521,9 +550,29 @@ class Replacing {
         }
         if (n.isArrayAccessExpr()) {
             return isVariableToReplace(getNameOfArray(
-                    n.asArrayAccessExpr().getName()));
+                    n.asArrayAccessExpr().getName()))
+                    || findInIndexes(n.asArrayAccessExpr());
         }
         return false;
+    }
+
+    private void updateIndexes(final ArrayAccessExpr n) {
+        if (isUpdateIntsToBitInt(n.getIndex())) {
+            updateIntsToBigInt(n.getIndex());
+            changes.add(() -> n.setIndex(intValueMaking(
+                    n.clone().getIndex())));
+        }
+        if (n.getName().isArrayAccessExpr()) {
+            updateIndexes(n.getName().asArrayAccessExpr());
+        }
+    }
+
+    private boolean findInIndexes(final ArrayAccessExpr n) {
+        if (n.getName().isArrayAccessExpr()) {
+            return findInIndexes(n.getName().asArrayAccessExpr())
+                    || isUpdateIntsToBitInt(n.getIndex());
+        }
+        return isUpdateIntsToBitInt(n.getIndex());
     }
 
     public class TransformVisitor
@@ -668,17 +717,6 @@ class Replacing {
                 arrayAssignMaking(n);
             } else if (n.getTarget().isNameExpr()) {
                 usualAssignMaking(n);
-            }
-        }
-
-        private void updateIndexes(final ArrayAccessExpr n) {
-            if (isUpdateIntsToBitInt(n.getIndex())) {
-                updateIntsToBigInt(n.getIndex());
-                changes.add(() -> n.setIndex(intValueMaking(
-                        n.clone().getIndex())));
-            }
-            if (n.getName().isArrayAccessExpr()) {
-                updateIndexes(n.getName().asArrayAccessExpr());
             }
         }
 
