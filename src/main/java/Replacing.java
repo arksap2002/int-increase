@@ -201,6 +201,9 @@ class Replacing {
             }
             return;
         }
+        if (n.isStringLiteralExpr()) {
+            return;
+        }
         if (!isOfTypeInt(n)) {
             throw new UnsupportedOperationException();
         }
