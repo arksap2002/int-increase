@@ -399,9 +399,10 @@ class Replacing {
         throw new IllegalArgumentException();
     }
 
-    private ObjectCreationExpr bigIntFromInt(
+    private MethodCallExpr bigIntFromInt(
             final NodeList<Expression> expressions) {
-        return new ObjectCreationExpr(null, bigIntegerType, expressions);
+        return new MethodCallExpr(
+                fieldAccessExpr, "valueOf", expressions);
     }
 
     private MethodCallExpr intValueMaking(final Expression expression) {
