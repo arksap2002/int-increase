@@ -308,6 +308,48 @@ class Replacing {
                 equals("java.io.PrintStream.println"))
                 && n.asMethodCallExpr().getArguments().size() == 1) {
             updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
+        } else if (resolvedN instanceof JavaParserMethodDeclaration
+                && ((JavaParserMethodDeclaration) (resolvedN)).
+                getWrappedNode().getRange().isPresent()
+                && methodDeclarationInCode.contains(((
+                JavaParserMethodDeclaration) (resolvedN)).
+                getWrappedNode().getRange().get())) {
+            MethodDeclaration methodDeclaration = (
+                    (JavaParserMethodDeclaration) (resolvedN)).
+                    getWrappedNode();
+            if (n.asMethodCallExpr().getArguments().size()
+                    != methodDeclaration.getParameters().size()) {
+                throw new IllegalArgumentException();
+            }
+            if (!methodDeclaration.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            if (!variablesToReplace.contains(methodDeclaration.getRange().
+                    get())) {
+                changes.add(() -> n.replace(bigIntFromInt(n.
+                        asMethodCallExpr().getArguments())));
+            }
+            for (int i = 0; i < methodDeclaration.getParameters().size();
+                 i++) {
+                if (!methodDeclaration.getParameter(i).getRange().
+                        isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                if (variablesToReplace.contains(methodDeclaration.
+                        getParameter(i).getRange().get())) {
+                    updateIntsToBigInt(
+                            n.asMethodCallExpr().getArgument(i));
+                } else if (isUpdateIntsToBitInt(
+                        n.asMethodCallExpr().getArgument(i))) {
+                    updateIntsToBigInt(
+                            n.asMethodCallExpr().getArgument(i));
+                    int finalI = i;
+                    changes.add(() -> n.asMethodCallExpr().
+                            getArgument(finalI).replace(intValueMaking(
+                            n.clone().asMethodCallExpr().
+                                    getArgument(finalI))));
+                }
+            }
         } else {
             changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
                     n.clone().asMethodCallExpr()))));
@@ -803,12 +845,12 @@ class Replacing {
             if (!n.getRange().isPresent()) {
                 throw new IllegalArgumentException();
             }
-            methodDeclarationInCode.add(n.getRange().get());
             if (n.getType().equals(PrimitiveType.intType())
                     && n.getName().getComment().isPresent()
                     && n.getName().getComment().get().
                     getContent().toLowerCase().trim().
                     equals("biginteger")) {
+                methodDeclarationInCode.add(n.getRange().get());
                 variablesToReplace.add(n.getRange().get());
             }
             for (Parameter parameter : n.getParameters()) {
