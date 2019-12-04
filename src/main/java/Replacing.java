@@ -404,8 +404,8 @@ class Replacing {
             return variablesToReplace.contains(variableDeclarator.
                     getRange().get());
         } else if (n.resolve() instanceof JavaParserParameterDeclaration) {
-            Parameter parameter = ((JavaParserParameterDeclaration) n.resolve()).
-                    getWrappedNode();
+            Parameter parameter = ((JavaParserParameterDeclaration)
+                    n.resolve()).getWrappedNode();
             if (!parameter.getRange().isPresent()) {
                 throw new IllegalArgumentException();
             }
