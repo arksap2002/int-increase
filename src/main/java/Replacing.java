@@ -347,12 +347,12 @@ class Replacing {
         changes.add(() -> n.replace(bigIntFromInt(
                 new NodeList<>(n.clone()))));
     }
-
-    private boolean isArrayType(NameExpr n) {
+  
+    private boolean isArrayType(final NameExpr n) {
         return n.calculateResolvedType().isArray();
     }
 
-    private NameExpr getNameOfArray(Expression n) {
+    private NameExpr getNameOfArray(final Expression n) {
         if (n.isArrayAccessExpr()) {
             return getNameOfArray(n.asArrayAccessExpr().getName());
         }
@@ -599,6 +599,7 @@ class Replacing {
         private void updateArrayInitializerExprValues(final Expression n) {
             if (!n.isArrayInitializerExpr()) {
                 if (isUpdateIntsToBitInt(n)) {
+                    updateIntsToBigInt(n);
                     changes.add(() -> n.replace(intValueMaking(n.clone())));
                 }
                 return;
