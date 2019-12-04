@@ -325,7 +325,6 @@ class Replacing {
         if (n.isNameExpr()) {
             if (!isVariableToReplace(n.asNameExpr())) {
                 if (!isArrayType(n.asNameExpr())) {
-//                TODO is Array -> exception
                     changes.add(() -> n.replace(bigIntFromInt(
                             new NodeList<>(n.clone()))));
                 } else {
@@ -414,14 +413,6 @@ class Replacing {
             return typeN;
         }
         return getLastArrayTypeOf(typeN.getComponentType().asArrayType());
-    }
-
-    private void setLastArrayTypeOf(final ArrayType typeN) {
-        if (!typeN.getComponentType().isArrayType()) {
-            changes.add(() -> typeN.setComponentType(bigIntegerType));
-            return;
-        }
-        setLastArrayTypeOf(typeN.getComponentType().asArrayType());
     }
 
     private boolean isUpdateIntsToBitInt(final Expression n) {
@@ -795,6 +786,7 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (n.getRange().isPresent()
                     && variablesToReplace.contains(n.getRange().get())) {
+//              TODO change array type
                 changes.add(() -> n.setType(bigIntegerType));
                 if (n.getBody().isPresent()) {
                     for (Statement statement : n.getBody().get().
@@ -826,12 +818,8 @@ class Replacing {
                     changes.add(() -> n.setType(bigIntegerType));
                 }
                 if (n.getType().isArrayType()) {
-//                    TODO do something
-//                    changes.add(() -> setLastArrayTypeOf(n.clone().getType().
-//                            asArrayType()));
-//                    or
-//                    changes.add(() -> getLastArrayTypeOf(n.clone().getType().
-//                            asArrayType()).setComponentType(bigIntegerType));
+//                  TODO change it
+                    throw new IllegalArgumentException();
                 }
             }
         }
