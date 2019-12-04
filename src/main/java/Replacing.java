@@ -159,69 +159,7 @@ class Replacing {
             return;
         }
         if (n.isMethodCallExpr()) {
-            ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
-                    resolve();
-            if (resolvedN.getQualifiedName().
-                    equals("java.util.Scanner.nextInt")) {
-                if (n.asMethodCallExpr().getScope().isPresent()) {
-                    changes.add(() -> n.asMethodCallExpr().setName(
-                            new SimpleName("nextBigInteger")));
-                }
-            } else if (isMath(resolvedN)
-                    && (resolvedN.getName().equals("abs"))) {
-                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                        get(0))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(0));
-                    changes.add(() -> n.replace(new MethodCallExpr(
-                            n.asMethodCallExpr().getArguments().get(0),
-                            new SimpleName("abs"))));
-                }
-            } else if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
-                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
-                        getArguments().get(1))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(0));
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(1));
-                    changes.add(() -> n.replace(new MethodCallExpr(
-                            n.asMethodCallExpr().getArguments().get(0),
-                            "min", new NodeList<>(
-                            n.asMethodCallExpr().getArguments().get(1)))));
-                }
-            } else if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
-                if (isOfTypeInt(n.asMethodCallExpr().getArguments().get(0))
-                        && isOfTypeInt(n.asMethodCallExpr().
-                        getArguments().get(1))) {
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(0));
-                    updateIntsToBigInt(n.asMethodCallExpr().getArguments().
-                            get(1));
-                    changes.add(() -> n.replace(new MethodCallExpr(
-                            n.asMethodCallExpr().getArguments().get(0),
-                            "max", new NodeList<>(
-                            n.asMethodCallExpr().getArguments().get(1)))));
-                }
-            } else if (resolvedN.getQualifiedName().
-                    equals("java.lang.Integer.parseInt")
-                    && n.asMethodCallExpr().getArguments().size() == 1) {
-                changes.add(() -> n.replace(bigIntFromInt(n.
-                        asMethodCallExpr().getArguments())));
-            } else if ((resolvedN.getQualifiedName().
-                    equals("java.io.PrintWriter.print")
-                    || resolvedN.getQualifiedName().
-                    equals("java.io.PrintWriter.println")
-                    || resolvedN.getQualifiedName().
-                    equals("java.io.PrintStream.print")
-                    || resolvedN.getQualifiedName().
-                    equals("java.io.PrintStream.println"))
-                    && n.asMethodCallExpr().getArguments().size() == 1) {
-                updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
-            } else {
-                changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
-                        n.clone().asMethodCallExpr()))));
-            }
+            changingOfMethodCallExpr(n);
             return;
         }
         if (n.isBinaryExpr()) {
@@ -233,47 +171,23 @@ class Replacing {
             return;
         }
         if (n.isUnaryExpr()) {
-            updateIntsToBigInt(n.asUnaryExpr().getExpression());
-            if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
-                    Operator.MINUS)) {
-                changes.add(() -> n.replace(new MethodCallExpr(
-                        n.asUnaryExpr().getExpression(), "negate")));
-            } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
-                    Operator.PLUS)) {
-                changes.add(() -> n.replace(
-                        n.asUnaryExpr().getExpression()));
-            } else if (n.asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.POSTFIX_INCREMENT)
-                    && n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr())) {
-                changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression().asNameExpr(),
-                        new MethodCallExpr(createIntegerLiteralExpr(1),
-                                new SimpleName("add"), new NodeList<>(
-                                n.asUnaryExpr().getExpression().
-                                        asNameExpr())),
-                        AssignExpr.Operator.ASSIGN)));
-            } else if (n.asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.POSTFIX_DECREMENT)
-                    && n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr())) {
-                changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression().asNameExpr(),
-                        new MethodCallExpr(createIntegerLiteralExpr(1),
-                                new SimpleName("subtract"), new NodeList<>(
-                                n.asUnaryExpr().getExpression().
-                                        asNameExpr())),
-                        AssignExpr.Operator.ASSIGN)));
-            } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
-                    Operator.LOGICAL_COMPLEMENT)) {
-                throw new UnsupportedOperationException();
-            }
+            changingOfUnaryExpr(n);
             return;
         }
         if (n.isNameExpr()) {
             if (!isVariableToReplace(n.asNameExpr())) {
+                if (!isArrayType(n.asNameExpr())) {
+                    changes.add(() -> n.replace(bigIntFromInt(
+                            new NodeList<>(n.clone()))));
+                } else {
+                    throw new IllegalArgumentException();
+                }
+            }
+            return;
+        }
+        if (n.isArrayAccessExpr()) {
+            if (!isVariableToReplace(getNameOfArray(
+                    n.asArrayAccessExpr().getName()))) {
                 changes.add(() -> n.replace(bigIntFromInt(
                         new NodeList<>(n.clone()))));
             }
@@ -284,6 +198,126 @@ class Replacing {
         }
         changes.add(() -> n.replace(bigIntFromInt(
                 new NodeList<>(n.clone()))));
+    }
+
+    private void changingOfUnaryExpr(final Expression n) {
+        updateIntsToBigInt(n.asUnaryExpr().getExpression());
+        if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                Operator.MINUS)) {
+            changes.add(() -> n.replace(new MethodCallExpr(
+                    n.asUnaryExpr().getExpression(), "negate")));
+        } else if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                Operator.PLUS)) {
+            changes.add(() -> n.replace(
+                    n.asUnaryExpr().getExpression()));
+        } else if (n.asUnaryExpr().getOperator().equals(
+                UnaryExpr.Operator.POSTFIX_INCREMENT)
+                && n.asUnaryExpr().getExpression().isNameExpr()
+                && isOfTypeInt(
+                n.asUnaryExpr().getExpression().asNameExpr())) {
+            changes.add(() -> n.replace(new AssignExpr(
+                    n.asUnaryExpr().getExpression().asNameExpr(),
+                    new MethodCallExpr(createIntegerLiteralExpr(1),
+                            new SimpleName("add"), new NodeList<>(
+                            n.asUnaryExpr().getExpression().
+                                    asNameExpr())),
+                    AssignExpr.Operator.ASSIGN)));
+        } else if (n.asUnaryExpr().getOperator().equals(
+                UnaryExpr.Operator.POSTFIX_DECREMENT)
+                && n.asUnaryExpr().getExpression().isNameExpr()
+                && isOfTypeInt(
+                n.asUnaryExpr().getExpression().asNameExpr())) {
+            changes.add(() -> n.replace(new AssignExpr(
+                    n.asUnaryExpr().getExpression().asNameExpr(),
+                    new MethodCallExpr(createIntegerLiteralExpr(1),
+                            new SimpleName("subtract"), new NodeList<>(
+                            n.asUnaryExpr().getExpression().
+                                    asNameExpr())),
+                    AssignExpr.Operator.ASSIGN)));
+        } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
+                Operator.LOGICAL_COMPLEMENT)) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private void changingOfMethodCallExpr(final Expression n) {
+        ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                resolve();
+        if (resolvedN.getQualifiedName().
+                equals("java.util.Scanner.nextInt")) {
+            if (n.asMethodCallExpr().getScope().isPresent()) {
+                changes.add(() -> n.asMethodCallExpr().setName(
+                        new SimpleName("nextBigInteger")));
+            }
+        } else if (isMath(resolvedN)
+                && (resolvedN.getName().equals("abs"))) {
+            if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                    get(0))) {
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(0));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArguments().get(0),
+                        new SimpleName("abs"))));
+            }
+        } else if (isMath(resolvedN) && resolvedN.getName().equals("min")) {
+            if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                    get(0)) && isOfTypeInt(n.asMethodCallExpr().
+                    getArguments().get(1))) {
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(0));
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(1));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArguments().get(0),
+                        "min", new NodeList<>(
+                        n.asMethodCallExpr().getArguments().get(1)))));
+            }
+        } else if (isMath(resolvedN) && resolvedN.getName().equals("max")) {
+            if (isOfTypeInt(n.asMethodCallExpr().getArguments().get(0))
+                    && isOfTypeInt(n.asMethodCallExpr().
+                    getArguments().get(1))) {
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(0));
+                updateIntsToBigInt(n.asMethodCallExpr().getArguments().
+                        get(1));
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asMethodCallExpr().getArguments().get(0),
+                        "max", new NodeList<>(
+                        n.asMethodCallExpr().getArguments().get(1)))));
+            }
+        } else if (resolvedN.getQualifiedName().
+                equals("java.lang.Integer.parseInt")
+                && n.asMethodCallExpr().getArguments().size() == 1) {
+            changes.add(() -> n.replace(bigIntFromInt(n.
+                    asMethodCallExpr().getArguments())));
+        } else if ((resolvedN.getQualifiedName().
+                equals("java.io.PrintWriter.print")
+                || resolvedN.getQualifiedName().
+                equals("java.io.PrintWriter.println")
+                || resolvedN.getQualifiedName().
+                equals("java.io.PrintStream.print")
+                || resolvedN.getQualifiedName().
+                equals("java.io.PrintStream.println"))
+                && n.asMethodCallExpr().getArguments().size() == 1) {
+            updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
+        } else {
+            changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
+                    n.clone().asMethodCallExpr()))));
+        }
+    }
+
+    private boolean isArrayType(final NameExpr n) {
+        return n.calculateResolvedType().isArray();
+    }
+
+    private NameExpr getNameOfArray(final Expression n) {
+        if (n.isArrayAccessExpr()) {
+            return getNameOfArray(n.asArrayAccessExpr().getName());
+        }
+        if (n.isNameExpr()) {
+            return n.asNameExpr();
+        }
+        throw new IllegalArgumentException();
     }
 
     private ObjectCreationExpr bigIntFromInt(
@@ -325,79 +359,83 @@ class Replacing {
         return getLastArrayTypeOf(typeN.getComponentType().asArrayType());
     }
 
-    public class TransformVisitor
-            extends VoidVisitorAdapter<JavaParserFacade> {
-
-        private boolean isUpdateIntsToBitInt(final Expression n) {
-            if (n.isIntegerLiteralExpr()) {
-                return false;
-            }
-            if (n.isMethodCallExpr()) {
-                ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
-                        resolve();
-                if (isMath(resolvedN)
-                        && (resolvedN.getName().equals("abs"))) {
-                    if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                            get(0))) {
-                        return isUpdateIntsToBitInt(n.asMethodCallExpr().
-                                getArguments().get(0));
-                    }
-                } else if (isMath(resolvedN) && (resolvedN.getName().
-                        equals("min")
-                        || resolvedN.getName().equals("max"))) {
-                    if (isOfTypeInt(n.asMethodCallExpr().getArguments().
-                            get(0)) && isOfTypeInt(n.asMethodCallExpr().
-                            getArguments().get(1))) {
-                        return isUpdateIntsToBitInt(n.asMethodCallExpr().
-                                getArguments().get(0))
-                                || isUpdateIntsToBitInt(n.asMethodCallExpr().
-                                getArguments().get(1));
-                    }
-                } else if ((resolvedN.getQualifiedName().
-                        equals("java.io.PrintWriter.print")
-                        || resolvedN.getQualifiedName().
-                        equals("java.io.PrintWriter.println")
-                        || resolvedN.getQualifiedName().
-                        equals("java.io.PrintStream.print")
-                        || resolvedN.getQualifiedName().
-                        equals("java.io.PrintStream.println"))
-                        && n.asMethodCallExpr().getArguments().size() == 1) {
+    private boolean isUpdateIntsToBitInt(final Expression n) {
+        if (n.isIntegerLiteralExpr()) {
+            return false;
+        }
+        if (n.isMethodCallExpr()) {
+            ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
+                    resolve();
+            if (isMath(resolvedN)
+                    && (resolvedN.getName().equals("abs"))) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0))) {
                     return isUpdateIntsToBitInt(n.asMethodCallExpr().
-                            getArgument(0));
+                            getArguments().get(0));
                 }
-                return false;
-            }
-            if (n.isBinaryExpr()) {
-                return isUpdateIntsToBitInt(n.asBinaryExpr().getLeft())
-                        || isUpdateIntsToBitInt(n.asBinaryExpr().getRight());
-            }
-            if (n.isEnclosedExpr()) {
-                return isUpdateIntsToBitInt(n.asEnclosedExpr().getInner());
-            }
-            if (n.isUnaryExpr()) {
-                if (n.asUnaryExpr().getOperator().equals(
-                        UnaryExpr.Operator.POSTFIX_INCREMENT)
-                        && n.asUnaryExpr().getExpression().isNameExpr()
-                        && isOfTypeInt(
-                        n.asUnaryExpr().getExpression().asNameExpr())) {
-                    return isVariableToReplace(n.asUnaryExpr().
-                            getExpression().asNameExpr());
+            } else if (isMath(resolvedN) && (resolvedN.getName().
+                    equals("min")
+                    || resolvedN.getName().equals("max"))) {
+                if (isOfTypeInt(n.asMethodCallExpr().getArguments().
+                        get(0)) && isOfTypeInt(n.asMethodCallExpr().
+                        getArguments().get(1))) {
+                    return isUpdateIntsToBitInt(n.asMethodCallExpr().
+                            getArguments().get(0))
+                            || isUpdateIntsToBitInt(n.asMethodCallExpr().
+                            getArguments().get(1));
                 }
-                if (n.asUnaryExpr().getOperator().equals(
-                        UnaryExpr.Operator.POSTFIX_DECREMENT)
-                        && n.asUnaryExpr().getExpression().isNameExpr()
-                        && isOfTypeInt(
-                        n.asUnaryExpr().getExpression().asNameExpr())) {
-                    return isVariableToReplace(n.asUnaryExpr().
-                            getExpression().asNameExpr());
-                }
-                return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
-            }
-            if (n.isNameExpr()) {
-                return isVariableToReplace(n.asNameExpr());
+            } else if ((resolvedN.getQualifiedName().
+                    equals("java.io.PrintWriter.print")
+                    || resolvedN.getQualifiedName().
+                    equals("java.io.PrintWriter.println")
+                    || resolvedN.getQualifiedName().
+                    equals("java.io.PrintStream.print")
+                    || resolvedN.getQualifiedName().
+                    equals("java.io.PrintStream.println"))
+                    && n.asMethodCallExpr().getArguments().size() == 1) {
+                return isUpdateIntsToBitInt(n.asMethodCallExpr().
+                        getArgument(0));
             }
             return false;
         }
+        if (n.isBinaryExpr()) {
+            return isUpdateIntsToBitInt(n.asBinaryExpr().getLeft())
+                    || isUpdateIntsToBitInt(n.asBinaryExpr().getRight());
+        }
+        if (n.isEnclosedExpr()) {
+            return isUpdateIntsToBitInt(n.asEnclosedExpr().getInner());
+        }
+        if (n.isUnaryExpr()) {
+            if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_INCREMENT)
+                    && n.asUnaryExpr().getExpression().isNameExpr()
+                    && isOfTypeInt(
+                    n.asUnaryExpr().getExpression().asNameExpr())) {
+                return isVariableToReplace(n.asUnaryExpr().
+                        getExpression().asNameExpr());
+            }
+            if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_DECREMENT)
+                    && n.asUnaryExpr().getExpression().isNameExpr()
+                    && isOfTypeInt(
+                    n.asUnaryExpr().getExpression().asNameExpr())) {
+                return isVariableToReplace(n.asUnaryExpr().
+                        getExpression().asNameExpr());
+            }
+            return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
+        }
+        if (n.isNameExpr()) {
+            return isVariableToReplace(n.asNameExpr());
+        }
+        if (n.isArrayAccessExpr()) {
+            return isVariableToReplace(getNameOfArray(
+                    n.asArrayAccessExpr().getName()));
+        }
+        return false;
+    }
+
+    public class TransformVisitor
+            extends VoidVisitorAdapter<JavaParserFacade> {
 
         @Override
         public void visit(
