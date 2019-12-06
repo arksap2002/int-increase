@@ -3,12 +3,12 @@ public class DifferentInts {
     public static void main(String[] args) {
         java.math.BigInteger a = java.math.BigInteger.TEN;
         int b = a.intValue();
-        java.math.BigInteger d = (a.add(new java.math.BigInteger(b))).multiply(new java.math.BigInteger(b));
-        int e = (a.add(new java.math.BigInteger(b))).multiply(new java.math.BigInteger(b)).intValue();
+        java.math.BigInteger d = (a.add(java.math.BigInteger.valueOf(b))).multiply(java.math.BigInteger.valueOf(b));
+        int e = (a.add(java.math.BigInteger.valueOf(b))).multiply(java.math.BigInteger.valueOf(b)).intValue();
         int c = 0;
-        java.math.BigInteger f = new java.math.BigInteger(8);
+        java.math.BigInteger f = java.math.BigInteger.valueOf(8);
         c = b;
-        f = ((a.add(new java.math.BigInteger(b))).multiply(new java.math.BigInteger(c)).add((d.remainder(new java.math.BigInteger(e)))));
-        f = new java.math.BigInteger(b).add(new java.math.BigInteger(b));
+        f = ((a.add(java.math.BigInteger.valueOf(b))).multiply(java.math.BigInteger.valueOf(c)).add((d.remainder(java.math.BigInteger.valueOf(e)))));
+        f = java.math.BigInteger.valueOf(b).add(java.math.BigInteger.valueOf(b));
     }
 }

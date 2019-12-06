@@ -7,7 +7,7 @@ public class Brief {
         a = java.math.BigInteger.TEN.add(a);
         a = java.math.BigInteger.ONE.negate().subtract(a);
         a = java.math.BigInteger.TWO.divide(a);
-        a = new java.math.BigInteger(3).remainder(a);
-        a = new java.math.BigInteger(100);
+        a = java.math.BigInteger.valueOf(3).remainder(a);
+        a = java.math.BigInteger.valueOf(100);
     }
 }
