@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Code1 {
+public class Test {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -11,6 +11,11 @@ public class Code1 {
         java.math.BigInteger[] x = new java.math.BigInteger[500000];
         java.math.BigInteger[] y = new java.math.BigInteger[500000];
         java.math.BigInteger[] ans = new java.math.BigInteger[500000];
+        for (int i = 0; i < 500000; i++) {
+            x[i] = java.math.BigInteger.ZERO;
+            y[i] = java.math.BigInteger.ZERO;
+            ans[i] = java.math.BigInteger.ZERO;
+        }
         for (int i = 1; java.math.BigInteger.valueOf(i).compareTo(k) <= 0; i++) {
             a = scanner.nextBigInteger();
             b = scanner.nextBigInteger();
