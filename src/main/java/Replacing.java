@@ -213,41 +213,48 @@ class Replacing {
         }
     }
 
-    private void changingOfBinaryExpr(final BinaryExpr binaryExpr) {
-        updateIntsToBigInt(binaryExpr.asBinaryExpr().getLeft());
-        updateIntsToBigInt(binaryExpr.asBinaryExpr().getRight());
-        if (binaryExpr.getOperator().equals(
+    private void changingOfBinaryExpr(final BinaryExpr n) {
+        updateIntsToBigInt(n.asBinaryExpr().getLeft());
+        updateIntsToBigInt(n.asBinaryExpr().getRight());
+        if ((n.asBinaryExpr().getLeft().isStringLiteralExpr()
+                || n.asBinaryExpr().getRight().
+                isStringLiteralExpr())
+                || !n.asBinaryExpr().getRight().calculateResolvedType().
+                equals(n.asBinaryExpr().getLeft().calculateResolvedType())) {
+            return;
+        }
+        if (n.getOperator().equals(
                 BinaryExpr.Operator.EQUALS)) {
-            changes.add(() -> binaryExpr.replace(new MethodCallExpr(
-                    binaryExpr.asBinaryExpr().getLeft(),
+            changes.add(() -> n.replace(new MethodCallExpr(
+                    n.asBinaryExpr().getLeft(),
                     new SimpleName("equals"),
-                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
-        } else if (binaryExpr.getOperator().equals(
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
+        } else if (n.getOperator().equals(
                 BinaryExpr.Operator.NOT_EQUALS)) {
-            changes.add(() -> binaryExpr.replace(new UnaryExpr(
-                    new MethodCallExpr(binaryExpr.asBinaryExpr().getLeft(),
+            changes.add(() -> n.replace(new UnaryExpr(
+                    new MethodCallExpr(n.asBinaryExpr().getLeft(),
                             new SimpleName("equals"),
-                            new NodeList<>(binaryExpr.asBinaryExpr().
+                            new NodeList<>(n.asBinaryExpr().
                                     getRight())),
                     UnaryExpr.Operator.LOGICAL_COMPLEMENT)));
-        } else if (binaryExpr.getOperator().equals(
+        } else if (n.getOperator().equals(
                 BinaryExpr.Operator.GREATER)
-                || binaryExpr.getOperator().equals(
+                || n.getOperator().equals(
                 BinaryExpr.Operator.GREATER_EQUALS)
-                || binaryExpr.getOperator().equals(
+                || n.getOperator().equals(
                 BinaryExpr.Operator.LESS)
-                || binaryExpr.getOperator().equals(
+                || n.getOperator().equals(
                 BinaryExpr.Operator.LESS_EQUALS)) {
-            changes.add(() -> binaryExpr.setLeft(new MethodCallExpr(
-                    binaryExpr.asBinaryExpr().getLeft(),
+            changes.add(() -> n.setLeft(new MethodCallExpr(
+                    n.asBinaryExpr().getLeft(),
                     new SimpleName("compareTo"),
-                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
-            changes.add(() -> binaryExpr.setRight(new IntegerLiteralExpr(0)));
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
+            changes.add(() -> n.setRight(new IntegerLiteralExpr(0)));
         } else {
-            changes.add(() -> binaryExpr.replace(new MethodCallExpr(
-                    binaryExpr.asBinaryExpr().getLeft(),
-                    OPERATOR_OF_BINARY.get(binaryExpr.getOperator()),
-                    new NodeList<>(binaryExpr.asBinaryExpr().getRight()))));
+            changes.add(() -> n.replace(new MethodCallExpr(
+                    n.asBinaryExpr().getLeft(),
+                    OPERATOR_OF_BINARY.get(n.getOperator()),
+                    new NodeList<>(n.asBinaryExpr().getRight()))));
         }
     }
 
@@ -392,7 +399,7 @@ class Replacing {
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
             VariableDeclarator variableDeclarator =
                     ((JavaParserFieldDeclaration) n.resolve()).
-                    getVariableDeclarator();
+                            getVariableDeclarator();
             if (!variableDeclarator.getRange().isPresent()) {
                 throw new IllegalArgumentException();
             }
