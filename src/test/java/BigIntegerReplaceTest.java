@@ -33,133 +33,52 @@ public class BigIntegerReplaceTest {
     }
 
     @Test
-    public void testNothingChanges() throws IOException, ClassNotFoundException {
-        runTestFromFile("NothingChanges");
+    public void testCf1() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code1");
     }
 
     @Test
-    public void testReplaceVariableDeclarationType() throws IOException, ClassNotFoundException {
-        runTestFromFile("ReplaceVariableDeclarationType");
+    public void testCf2() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code2");
     }
 
     @Test
-    public void testScannerWithClass() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerWithClass");
+    public void testCf3() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code3");
     }
 
     @Test
-    public void testScannerFromImport() throws IOException, ClassNotFoundException {
-        runTestFromFile("ScannerFromImport");
+    public void testCf4() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code4");
     }
 
     @Test
-    public void testMathWithClass() throws IOException, ClassNotFoundException {
-        runTestFromFile("MathWithClass");
+    public void testCf5() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code5");
     }
 
     @Test
-    public void testMathFromImport() throws IOException, ClassNotFoundException {
-        runTestFromFile("MathFromImport");
+    public void testCf6() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code6");
     }
 
     @Test
-    public void testParseInt() throws IOException, ClassNotFoundException {
-        runTestFromFile("ParseInt");
+    public void testCf7() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code7");
     }
 
     @Test
-    public void testArithmeticOperations() throws IOException, ClassNotFoundException {
-        runTestFromFile("ArithmeticOperations");
+    public void testCf8() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code8");
     }
 
     @Test
-    public void testUnary() throws IOException, ClassNotFoundException {
-        runTestFromFile("Unary");
+    public void testCf9() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code9");
     }
 
     @Test
-    public void testIf() throws IOException, ClassNotFoundException {
-        runTestFromFile("If");
-    }
-
-    @Test
-    public void testAssingExpr() throws IOException, ClassNotFoundException {
-        runTestFromFile("AssingExpr");
-    }
-
-    @Test
-    public void testBrief() throws IOException, ClassNotFoundException {
-        runTestFromFile("Brief");
-    }
-
-    @Test
-    public void testPrint() throws IOException, ClassNotFoundException {
-        runTestFromFile("Print");
-    }
-
-    @Test
-    public void testForWhile() throws IOException, ClassNotFoundException {
-        runTestFromFile("ForWhile");
-    }
-
-    @Test
-    public void testToString() throws IOException, ClassNotFoundException {
-        runTestFromFile("ToString");
-    }
-
-    @Test
-    public void testVarDecExpr() throws IOException, ClassNotFoundException {
-        runTestFromFile("VarDecExprComment");
-    }
-
-    @Test
-    public void testDifferentInts() throws IOException, ClassNotFoundException {
-        runTestFromFile("DifferentInts");
-    }
-
-    @Test
-    public void testPartialReplaceParseInt() throws IOException, ClassNotFoundException {
-        runTestFromFile("PartialReplaceParseInt");
-    }
-
-    @Test
-    public void testPartialReplaceIf() throws IOException, ClassNotFoundException {
-        runTestFromFile("PartialReplaceIf");
-    }
-
-    @Test
-    public void testPartialReplaceFor() throws IOException, ClassNotFoundException {
-        runTestFromFile("PartialReplaceFor");
-    }
-
-    @Test
-    public void testPartialReplaceArithmetic() throws IOException, ClassNotFoundException {
-        runTestFromFile("PartialReplaceArithmetic");
-    }
-
-    @Test
-    public void testPartialReplacePrint() throws IOException, ClassNotFoundException {
-        runTestFromFile("PartialReplacePrint");
-    }
-
-    @Test
-    public void testGeneralization() throws IOException, ClassNotFoundException {
-        runTestFromFile("Generalization");
-    }
-
-    @Test
-    public void testArray() throws IOException, ClassNotFoundException {
-        runTestFromFile("Array");
-    }
-
-    // TODO fix it
-//    @Test(expected = IllegalArgumentException.class)
-//    public void testMethodException() throws IOException, ClassNotFoundException {
-//        runOnlyBeforeTestFromFile("MethodException");
-//    }
-
-    @Test
-    public void testMethod() throws IOException, ClassNotFoundException {
-        runTestFromFile("Method");
+    public void testCf10() throws IOException, ClassNotFoundException {
+        runTestFromFile("Code10");
     }
 }
