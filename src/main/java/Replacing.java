@@ -216,10 +216,7 @@ class Replacing {
     private void changingOfBinaryExpr(final BinaryExpr n) {
         updateIntsToBigInt(n.asBinaryExpr().getLeft());
         updateIntsToBigInt(n.asBinaryExpr().getRight());
-        if ((n.asBinaryExpr().getLeft().isStringLiteralExpr()
-                || n.asBinaryExpr().getRight().
-                isStringLiteralExpr())
-                || !n.asBinaryExpr().getRight().calculateResolvedType().
+        if (!n.asBinaryExpr().getRight().calculateResolvedType().
                 equals(n.asBinaryExpr().getLeft().calculateResolvedType())) {
             return;
         }
