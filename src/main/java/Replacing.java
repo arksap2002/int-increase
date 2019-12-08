@@ -610,46 +610,54 @@ class Replacing {
                     getLevels().size();
             ForStmt forStmt = new ForStmt();
             for (int i = 0; i < number; i++) {
+                if (!n.getInitializer().isPresent() || !n.getInitializer().
+                        get().asArrayCreationExpr().getLevels().
+                        get(number).getDimension().isPresent()) {
+                    return;
+                }
                 String name = n.getName().asString() + "Filling" + (i + 1);
                 if (i == number - 1) {
                     AssignExpr assignExpr = new AssignExpr();
                     assignExpr.setValue(new FieldAccessExpr(fieldAccessExpr, "ONE"));
                     assignExpr.setOperator(AssignExpr.Operator.ASSIGN);
-//                    assignExpr.setTarget(arrayAccessCreating(n, number, number));
+                    assignExpr.setTarget(arrayAccessCreating(n, number - 1));
                     forStmt.setBody((new ExpressionStmt(assignExpr)));
                 } else {
                     ForStmt tmp = new ForStmt();
                     tmp.setBody(forStmt);
                     forStmt = tmp;
                 }
-                    forStmt.setUpdate(new NodeList<>(new UnaryExpr(new NameExpr(name),
-                            UnaryExpr.Operator.POSTFIX_INCREMENT)));
-                    forStmt.setInitialization(new NodeList<>(
-                            new VariableDeclarationExpr(new VariableDeclarator(
-                                    PrimitiveType.intType(), name,
-                                    new IntegerLiteralExpr(0)))));
-                    if (!n.getInitializer().get().asArrayCreationExpr().
-                            getLevels().get(i).getDimension().isPresent()) {
-                        return;
-                    }
-                    forStmt.setCompare(new BinaryExpr(new NameExpr(name), n.
-                            getInitializer().get().asArrayCreationExpr().
-                            getLevels().get(i).getDimension().get(),
-                            BinaryExpr.Operator.LESS));
+                forStmt.setUpdate(new NodeList<>(new UnaryExpr(new NameExpr(name),
+                        UnaryExpr.Operator.POSTFIX_INCREMENT)));
+                forStmt.setInitialization(new NodeList<>(
+                        new VariableDeclarationExpr(new VariableDeclarator(
+                                PrimitiveType.intType(), name,
+                                new IntegerLiteralExpr(0)))));
+                if (!n.getInitializer().get().asArrayCreationExpr().
+                        getLevels().get(i).getDimension().isPresent()) {
+                    return;
+                }
+                forStmt.setCompare(new BinaryExpr(new NameExpr(name), n.
+                        getInitializer().get().asArrayCreationExpr().
+                        getLevels().get(i).getDimension().get(),
+                        BinaryExpr.Operator.LESS));
             }
 //            TODO add forStmt to newN
         }
 
-//        private ArrayAccessExpr arrayAccessCreating(
-//                final VariableDeclarator n, int number, int numberNow) {
-//            if (numberNow == 0) {
-//                return new ArrayAccessExpr(new NameExpr(n.getName().
-//                        asString()), n.getInitializer().get().
-//                        asArrayCreationExpr().getLevels().get(number - 1).
-//                        getDimension().get());
-//            }
-//
-//        }
+        private ArrayAccessExpr arrayAccessCreating(
+                final VariableDeclarator n, int number) {
+            if (number == 0) {
+                return new ArrayAccessExpr(new NameExpr(n.getName().
+                        asString()), n.getInitializer().get().
+                        asArrayCreationExpr().getLevels().get(number).
+                        getDimension().get());
+            }
+            return new ArrayAccessExpr(arrayAccessCreating(n,
+                    number - 1), n.getInitializer().get().
+                    asArrayCreationExpr().getLevels().get(number).
+                    getDimension().get());
+        }
 
         private void updateArrayCreationExprLevels(final ArrayCreationExpr n) {
             for (int i = 0; i < n.getLevels().size(); i++) {
