@@ -558,8 +558,7 @@ class Replacing {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> getLastArrayTypeOf(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
-//                    TODO fillingArray adding
-//                    fillingArray(n);
+                    fillingArray(n);
                 } else {
                     throw new IllegalArgumentException();
                 }
@@ -599,10 +598,12 @@ class Replacing {
                 throw new IllegalArgumentException();
             }
             Node newN = n.getParentNode().get();
-//            TODO wait, while statements is not present
-//            while (newN.) {
-//
-//          }
+            while (!(newN instanceof BlockStmt)) {
+                if (!newN.getParentNode().isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                newN = newN.getParentNode().get();
+            }
             if (!n.getInitializer().isPresent()
                     || !n.getInitializer().get().isArrayCreationExpr()) {
                 return;
@@ -610,10 +611,10 @@ class Replacing {
             int number = n.getInitializer().get().asArrayCreationExpr().
                     getLevels().size();
             ForStmt forStmt = new ForStmt();
-            for (int i = 0; i < number; i++) {
+            for (int i = number - 1; i >= 0; i--) {
                 if (!n.getInitializer().isPresent() || !n.getInitializer().
                         get().asArrayCreationExpr().getLevels().
-                        get(number).getDimension().isPresent()) {
+                        get(i).getDimension().isPresent()) {
                     return;
                 }
                 String name = n.getName().asString() + "Filling" + (i + 1);
@@ -621,12 +622,10 @@ class Replacing {
                     AssignExpr assignExpr = new AssignExpr();
                     assignExpr.setValue(new FieldAccessExpr(fieldAccessExpr, "ONE"));
                     assignExpr.setOperator(AssignExpr.Operator.ASSIGN);
-                    assignExpr.setTarget(arrayAccessCreating(n, number - 1));
-                    forStmt.setBody((new ExpressionStmt(assignExpr)));
+                    assignExpr.setTarget(arrayAccessCreating(n, i));
+                    forStmt.setBody(new BlockStmt(new NodeList<>(new ExpressionStmt(assignExpr))));
                 } else {
-                    ForStmt tmp = new ForStmt();
-                    tmp.setBody(forStmt);
-                    forStmt = tmp;
+                    forStmt.setBody(new BlockStmt(new NodeList<>(forStmt.clone())));
                 }
                 forStmt.setUpdate(new NodeList<>(new UnaryExpr(new NameExpr(name),
                         UnaryExpr.Operator.POSTFIX_INCREMENT)));
@@ -639,25 +638,25 @@ class Replacing {
                     return;
                 }
                 forStmt.setCompare(new BinaryExpr(new NameExpr(name), n.
-                        getInitializer().get().asArrayCreationExpr().
-                        getLevels().get(i).getDimension().get(),
-                        BinaryExpr.Operator.LESS));
+                        clone().getInitializer().get().
+                        asArrayCreationExpr().getLevels().get(i).
+                        getDimension().get(), BinaryExpr.Operator.LESS));
             }
-//            TODO add forStmt to newN
+            Node finalNewN = newN;
+            ForStmt finalForStmt = forStmt;
+            changes.add(() -> ((BlockStmt) finalNewN).addStatement(finalForStmt));
         }
 
         private ArrayAccessExpr arrayAccessCreating(
                 final VariableDeclarator n, int number) {
             if (number == 0) {
                 return new ArrayAccessExpr(new NameExpr(n.getName().
-                        asString()), n.getInitializer().get().
-                        asArrayCreationExpr().getLevels().get(number).
-                        getDimension().get());
+                        asString()), new NameExpr(n.getName().asString()
+                        + "Filling" + (number + 1)));
             }
-            return new ArrayAccessExpr(arrayAccessCreating(n,
-                    number - 1), n.getInitializer().get().
-                    asArrayCreationExpr().getLevels().get(number).
-                    getDimension().get());
+            return new ArrayAccessExpr(arrayAccessCreating(n, number - 1),
+                    new NameExpr(n.getName().asString() + "Filling"
+                            + (number + 1)));
         }
 
         private void updateArrayCreationExprLevels(final ArrayCreationExpr n) {
