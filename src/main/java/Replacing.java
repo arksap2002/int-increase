@@ -18,11 +18,7 @@ import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.expr.ArrayAccessExpr;
 import com.github.javaparser.ast.expr.ArrayCreationExpr;
-import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.ForStmt;
-import com.github.javaparser.ast.stmt.WhileStmt;
-import com.github.javaparser.ast.stmt.ReturnStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -562,6 +558,7 @@ class Replacing {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> getLastArrayTypeOf(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
+                    fillingArray(n);
                 } else {
                     throw new IllegalArgumentException();
                 }
@@ -595,6 +592,64 @@ class Replacing {
             }  // do nothing
 
         }
+
+        private void fillingArray(final VariableDeclarator n) {
+            if (!n.getParentNode().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            Node newN = n.getParentNode().get();
+//            TODO wait, while statements is not present
+//            while (newN.) {
+//
+//          }
+            if (!n.getInitializer().isPresent()
+                    || !n.getInitializer().get().isArrayCreationExpr()) {
+                return;
+            }
+            int number = n.getInitializer().get().asArrayCreationExpr().
+                    getLevels().size();
+            ForStmt forStmt = new ForStmt();
+            for (int i = 0; i < number; i++) {
+                String name = n.getName().asString() + "Filling" + (i + 1);
+                if (i == number - 1) {
+                    AssignExpr assignExpr = new AssignExpr();
+                    assignExpr.setValue(new FieldAccessExpr(fieldAccessExpr, "ONE"));
+                    assignExpr.setOperator(AssignExpr.Operator.ASSIGN);
+//                    assignExpr.setTarget(arrayAccessCreating(n, number, number));
+                    forStmt.setBody((new ExpressionStmt(assignExpr)));
+                } else {
+                    ForStmt tmp = new ForStmt();
+                    tmp.setBody(forStmt);
+                    forStmt = tmp;
+                }
+                    forStmt.setUpdate(new NodeList<>(new UnaryExpr(new NameExpr(name),
+                            UnaryExpr.Operator.POSTFIX_INCREMENT)));
+                    forStmt.setInitialization(new NodeList<>(
+                            new VariableDeclarationExpr(new VariableDeclarator(
+                                    PrimitiveType.intType(), name,
+                                    new IntegerLiteralExpr(0)))));
+                    if (!n.getInitializer().get().asArrayCreationExpr().
+                            getLevels().get(i).getDimension().isPresent()) {
+                        return;
+                    }
+                    forStmt.setCompare(new BinaryExpr(new NameExpr(name), n.
+                            getInitializer().get().asArrayCreationExpr().
+                            getLevels().get(i).getDimension().get(),
+                            BinaryExpr.Operator.LESS));
+            }
+//            TODO add forStmt to newN
+        }
+
+//        private ArrayAccessExpr arrayAccessCreating(
+//                final VariableDeclarator n, int number, int numberNow) {
+//            if (numberNow == 0) {
+//                return new ArrayAccessExpr(new NameExpr(n.getName().
+//                        asString()), n.getInitializer().get().
+//                        asArrayCreationExpr().getLevels().get(number - 1).
+//                        getDimension().get());
+//            }
+//
+//        }
 
         private void updateArrayCreationExprLevels(final ArrayCreationExpr n) {
             for (int i = 0; i < n.getLevels().size(); i++) {
