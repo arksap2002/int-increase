@@ -322,10 +322,7 @@ class Replacing {
             updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
         } else if (resolvedN instanceof JavaParserMethodDeclaration
                 && ((JavaParserMethodDeclaration) (resolvedN)).
-                getWrappedNode().getRange().isPresent()
-                && methodDeclarationsOfIntType.contains(((
-                JavaParserMethodDeclaration) (resolvedN)).
-                getWrappedNode().getRange().get())) {
+                getWrappedNode().getRange().isPresent()) {
             MethodDeclaration methodDeclaration = (
                     (JavaParserMethodDeclaration) (resolvedN)).
                     getWrappedNode();
@@ -333,20 +330,11 @@ class Replacing {
                     != methodDeclaration.getParameters().size()) {
                 throw new IllegalArgumentException();
             }
-            if (!methodDeclaration.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
-            if (!variablesToReplace.contains(methodDeclaration.getRange().
-                    get())) {
-                changes.add(() -> n.replace(bigIntFromInt(n.
-                        asMethodCallExpr().getArguments())));
-            }
+            checkingRangeForException(methodDeclaration.getRange());
             for (int i = 0; i < methodDeclaration.getParameters().size();
                  i++) {
-                if (!methodDeclaration.getParameter(i).getRange().
-                        isPresent()) {
-                    throw new IllegalArgumentException();
-                }
+                checkingRangeForException(methodDeclaration.
+                        getParameter(i).getRange());
                 if (variablesToReplace.contains(methodDeclaration.
                         getParameter(i).getRange().get())) {
                     updateIntsToBigInt(
@@ -356,14 +344,17 @@ class Replacing {
                     updateIntsToBigInt(
                             n.asMethodCallExpr().getArgument(i));
                     int finalI = i;
-                    changes.add(() -> n.asMethodCallExpr().
-                            getArgument(finalI).replace(intFromBigInt(
-                            n.clone().asMethodCallExpr().
+                    changes.add(() -> n.asMethodCallExpr().setArgument(finalI,
+                            intFromBigInt(n.clone().asMethodCallExpr().
                                     getArgument(finalI))));
                 }
             }
+            if (!variablesToReplace.contains(methodDeclaration.getRange().
+                    get())) {
+                changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
+                        n.clone().asMethodCallExpr()))));
+            }
         } else {
-//            TODO fix in the next PR
             changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
                     n.clone().asMethodCallExpr()))));
         }
@@ -396,7 +387,6 @@ class Replacing {
     private boolean isOfTypeInt(final Expression n) {
         return n.calculateResolvedType().equals(ResolvedPrimitiveType.INT);
     }
-
 
     private boolean isVariableToReplace(final NameExpr n) {
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
@@ -469,10 +459,7 @@ class Replacing {
                         getArgument(0));
             } else if (resolvedN instanceof JavaParserMethodDeclaration
                     && ((JavaParserMethodDeclaration) (resolvedN)).
-                    getWrappedNode().getRange().isPresent()
-                    && methodDeclarationsOfIntType.contains(((
-                    JavaParserMethodDeclaration) (resolvedN)).
-                    getWrappedNode().getRange().get())) {
+                    getWrappedNode().getRange().isPresent()) {
                 MethodDeclaration methodDeclaration = (
                         (JavaParserMethodDeclaration) (resolvedN)).
                         getWrappedNode();

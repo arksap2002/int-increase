@@ -7,8 +7,8 @@ public class Method {
         java.math.BigInteger[][] f = new java.math.BigInteger[10][a.intValue()];
         java.math.BigInteger d = foo(a.intValue(), java.math.BigInteger.valueOf(b), c);
         int e = foo(foo(foo(java.math.BigInteger.valueOf(c[0][0][0]).multiply(f[0][0]).intValue(), java.math.BigInteger.valueOf(b), c).add(java.math.BigInteger.TEN).subtract(a).intValue(), java.math.BigInteger.valueOf(b).add(a), c).intValue(), a.add(java.math.BigInteger.valueOf(b)), c).intValue();
-        java.math.BigInteger g = java.math.BigInteger.valueOf(foo2(a, b, c));
-        int h = foo2(a, b, c);
+        java.math.BigInteger g = java.math.BigInteger.valueOf(foo2(a.intValue(), java.math.BigInteger.valueOf(b), c));
+        int h = java.math.BigInteger.valueOf(foo2(a.intValue(), java.math.BigInteger.valueOf(b), c)).intValue();
     }
 
     private static java.math.BigInteger foo(int a, java.math.BigInteger b, int[][][] c) {
