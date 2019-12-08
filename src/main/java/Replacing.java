@@ -128,7 +128,7 @@ class Replacing {
             return;
         }
         if (n.isMethodCallExpr()) {
-            changingOfMethodCallExpr(n);
+            changingOfMethodCallExpr(n.asMethodCallExpr());
             return;
         }
         if (n.isBinaryExpr()) {
@@ -140,7 +140,7 @@ class Replacing {
             return;
         }
         if (n.isUnaryExpr()) {
-            changingOfUnaryExpr(n);
+            changingOfUnaryExpr(n.asUnaryExpr());
             return;
         }
         if (n.isNameExpr()) {
@@ -173,7 +173,7 @@ class Replacing {
                 new NodeList<>(n.clone()))));
     }
 
-    private void changingOfUnaryExpr(final Expression n) {
+    private void changingOfUnaryExpr(final UnaryExpr n) {
         updateIntsToBigInt(n.asUnaryExpr().getExpression());
         if (n.asUnaryExpr().getOperator().equals(UnaryExpr.
                 Operator.MINUS)) {
@@ -214,12 +214,13 @@ class Replacing {
     }
 
     private void changingOfBinaryExpr(final BinaryExpr n) {
-        updateIntsToBigInt(n.asBinaryExpr().getLeft());
-        updateIntsToBigInt(n.asBinaryExpr().getRight());
-        if (!n.asBinaryExpr().getRight().calculateResolvedType().
-                equals(n.asBinaryExpr().getLeft().calculateResolvedType())) {
+        updateIntsToBigInt(n.getLeft());
+        updateIntsToBigInt(n.getRight());
+        if (!n.getRight().calculateResolvedType().
+                equals(n.getLeft().calculateResolvedType())) {
             return;
         }
+//        TODO make previous lines shorter
         if (n.getOperator().equals(
                 BinaryExpr.Operator.EQUALS)) {
             changes.add(() -> n.replace(new MethodCallExpr(
@@ -255,7 +256,7 @@ class Replacing {
         }
     }
 
-    private void changingOfMethodCallExpr(final Expression n) {
+    private void changingOfMethodCallExpr(final MethodCallExpr n) {
         ResolvedMethodDeclaration resolvedN = n.asMethodCallExpr().
                 resolve();
         if (resolvedN.getQualifiedName().
