@@ -558,7 +558,8 @@ class Replacing {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> getLastArrayTypeOf(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
-                    fillingArray(n);
+//                    TODO fillingArray adding
+//                    fillingArray(n);
                 } else {
                     throw new IllegalArgumentException();
                 }
