@@ -641,6 +641,7 @@ class Replacing {
                         asArrayCreationExpr().getLevels().get(i).
                         getDimension().get())) {
 //                  TODO something
+                    throw new IllegalArgumentException();
                 }
                 forStmt.setUpdate(new NodeList<>(new UnaryExpr(new NameExpr(name),
                         UnaryExpr.Operator.POSTFIX_INCREMENT)));
