@@ -6,10 +6,33 @@ public class Array {
         int intNumber = 8;
         java.math.BigInteger bigIntNumber = java.math.BigInteger.valueOf(8);
         java.math.BigInteger[] a = new java.math.BigInteger[intNumber + 1];
+        for (int aFilling1 = 0; aFilling1 < intNumber + 1; aFilling1++) {
+            a[aFilling1] = java.math.BigInteger.ONE;
+        }
         int[] b = new int[bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
         int[][] c = new int[intNumber + 1][bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
         java.math.BigInteger[][] d = new java.math.BigInteger[intNumber + 1][bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
+        for (int dFilling1 = 0; dFilling1 < intNumber + 1; dFilling1++) {
+            for (int dFilling2 = 0; dFilling2 < bigIntNumber + 1; dFilling2++) {
+                d[dFilling1][dFilling2] = java.math.BigInteger.ONE;
+            }
+        }
         java.math.BigInteger[][][][][][][] e = new java.math.BigInteger[10][10][10][10][10][10][10];
+        for (int eFilling1 = 0; eFilling1 < 10; eFilling1++) {
+            for (int eFilling2 = 0; eFilling2 < 10; eFilling2++) {
+                for (int eFilling3 = 0; eFilling3 < 10; eFilling3++) {
+                    for (int eFilling4 = 0; eFilling4 < 10; eFilling4++) {
+                        for (int eFilling5 = 0; eFilling5 < 10; eFilling5++) {
+                            for (int eFilling6 = 0; eFilling6 < 10; eFilling6++) {
+                                for (int eFilling7 = 0; eFilling7 < 10; eFilling7++) {
+                                    e[eFilling1][eFilling2][eFilling3][eFilling4][eFilling5][eFilling6][eFilling7] = java.math.BigInteger.ONE;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         int[][] arr = { { 1, 2, bigIntNumber.add(java.math.BigInteger.ONE) }, { 2, 2, intNumber + 1 }, { 3, 2, 1 } };
         java.math.BigInteger[][][] arr2 = { { { java.math.BigInteger.ONE }, { java.math.BigInteger.TWO, bigIntNumber.add(java.math.BigInteger.ONE) } }, { { java.math.BigInteger.TWO }, { java.math.BigInteger.TWO, java.math.BigInteger.TWO } }, { { java.math.BigInteger.valueOf(intNumber).add(java.math.BigInteger.ONE) }, { java.math.BigInteger.TWO }, { java.math.BigInteger.ONE } } };
         int max = java.math.BigInteger.valueOf(c[0][a[0].max(java.math.BigInteger.valueOf(b[0])).intValue()]).intValue();
