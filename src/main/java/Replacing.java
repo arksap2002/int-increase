@@ -2,6 +2,8 @@ import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
@@ -20,14 +22,18 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
+import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserParameterDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
@@ -66,7 +72,9 @@ class Replacing {
         OPERATOR_OF_BINARY.put(BinaryExpr.Operator.REMAINDER, "remainder");
     }
 
-    private final HashSet<Range> variableDeclsToReplace = new HashSet<>();
+    private final HashSet<Range> variablesToReplace = new HashSet<>();
+
+    private final HashSet<Range> methodDeclarationInCode = new HashSet<>();
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -300,6 +308,47 @@ class Replacing {
                 equals("java.io.PrintStream.println"))
                 && n.asMethodCallExpr().getArguments().size() == 1) {
             updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
+        } else if (resolvedN instanceof JavaParserMethodDeclaration
+                && ((JavaParserMethodDeclaration) (resolvedN)).
+                getWrappedNode().getRange().isPresent()
+                && methodDeclarationInCode.contains(((
+                JavaParserMethodDeclaration) (resolvedN)).
+                getWrappedNode().getRange().get())) {
+            MethodDeclaration methodDeclaration = (
+                    (JavaParserMethodDeclaration) (resolvedN)).
+                    getWrappedNode();
+            if (n.asMethodCallExpr().getArguments().size()
+                    != methodDeclaration.getParameters().size()) {
+                throw new IllegalArgumentException();
+            }
+            if (!methodDeclaration.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            for (int i = 0; i < methodDeclaration.getParameters().size();
+                 i++) {
+                if (!methodDeclaration.getParameter(i).getRange().
+                        isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                if (variablesToReplace.contains(methodDeclaration.
+                        getParameter(i).getRange().get())) {
+                    if (methodDeclaration.getParameter(i).getType().
+                            isArrayType()) {
+                        throw new IllegalArgumentException();
+                    }
+                    updateIntsToBigInt(
+                            n.asMethodCallExpr().getArgument(i));
+                } else if (isUpdateIntsToBitInt(
+                        n.asMethodCallExpr().getArgument(i))) {
+                    updateIntsToBigInt(
+                            n.asMethodCallExpr().getArgument(i));
+                    int finalI = i;
+                    changes.add(() -> n.asMethodCallExpr().
+                            getArgument(finalI).replace(intValueMaking(
+                            n.clone().asMethodCallExpr().
+                                    getArgument(finalI))));
+                }
+            }
         } else {
             changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
                     n.clone().asMethodCallExpr()))));
@@ -333,23 +382,37 @@ class Replacing {
         return n.calculateResolvedType().equals(ResolvedPrimitiveType.INT);
     }
 
+
     private boolean isVariableToReplace(final NameExpr n) {
-        VariableDeclarator variableDeclarator;
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
-            variableDeclarator = ((JavaParserFieldDeclaration) n.resolve()).
+            VariableDeclarator variableDeclarator =
+                    ((JavaParserFieldDeclaration) n.resolve()).
                     getVariableDeclarator();
+            if (!variableDeclarator.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            return variablesToReplace.contains(variableDeclarator.
+                    getRange().get());
         } else if (n.resolve() instanceof JavaParserSymbolDeclaration) {
-            variableDeclarator = (VariableDeclarator)
+            VariableDeclarator variableDeclarator = (VariableDeclarator)
                     ((JavaParserSymbolDeclaration) (n.resolve())).
                             getWrappedNode();
+            if (!variableDeclarator.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            return variablesToReplace.contains(variableDeclarator.
+                    getRange().get());
+        } else if (n.resolve() instanceof JavaParserParameterDeclaration) {
+            Parameter parameter = ((JavaParserParameterDeclaration)
+                    n.resolve()).getWrappedNode();
+            if (!parameter.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            return variablesToReplace.contains(parameter.
+                    getRange().get());
         } else {
             return false;
         }
-        if (!variableDeclarator.getRange().isPresent()) {
-            throw new IllegalArgumentException();
-        }
-        return variableDeclsToReplace.contains(variableDeclarator.
-                getRange().get());
     }
 
     private ArrayType getLastArrayTypeOf(final ArrayType typeN) {
@@ -395,6 +458,34 @@ class Replacing {
                     && n.asMethodCallExpr().getArguments().size() == 1) {
                 return isUpdateIntsToBitInt(n.asMethodCallExpr().
                         getArgument(0));
+            } else if (resolvedN instanceof JavaParserMethodDeclaration
+                    && ((JavaParserMethodDeclaration) (resolvedN)).
+                    getWrappedNode().getRange().isPresent()
+                    && methodDeclarationInCode.contains(((
+                    JavaParserMethodDeclaration) (resolvedN)).
+                    getWrappedNode().getRange().get())) {
+                MethodDeclaration methodDeclaration = (
+                        (JavaParserMethodDeclaration) (resolvedN)).
+                        getWrappedNode();
+                if (!methodDeclaration.getRange().isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                if (n.asMethodCallExpr().getArguments().size()
+                        != methodDeclaration.getParameters().size()) {
+                    throw new IllegalArgumentException();
+                }
+                boolean flag = variablesToReplace.contains(
+                        methodDeclaration.getRange().get());
+                for (int i = 0; i < methodDeclaration.getParameters().size();
+                     i++) {
+                    if (!methodDeclaration.getParameter(i).getRange().
+                            isPresent()) {
+                        throw new IllegalArgumentException();
+                    }
+                    flag = flag || isUpdateIntsToBitInt(
+                            n.asMethodCallExpr().getArgument(i));
+                }
+                return flag;
             }
             return false;
         }
@@ -457,7 +548,7 @@ class Replacing {
             if (!n.getRange().isPresent()) {
                 throw new IllegalArgumentException();
             }
-            if (variableDeclsToReplace.contains(n.getRange().get())) {
+            if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> getLastArrayTypeOf(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
@@ -543,7 +634,7 @@ class Replacing {
             if (!n.getRange().isPresent()) {
                 throw new IllegalArgumentException();
             }
-            if (variableDeclsToReplace.contains(n.getRange().get())) {
+            if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getInitializer().isPresent()) {
                     updateIntsToBigInt(n.getInitializer().get());
                 }
@@ -686,7 +777,8 @@ class Replacing {
                     resolve();
             if (resolvedN.getQualifiedName().
                     equals("java.lang.Integer.toString")) {
-                if (isUpdateIntsToBitInt(n.asMethodCallExpr().getArgument(0))) {
+                if (isUpdateIntsToBitInt(n.asMethodCallExpr().
+                        getArgument(0))) {
                     updateIntsToBigInt(n.asMethodCallExpr().getArgument(0));
                     changes.add(() -> n.replace(new MethodCallExpr(
                             n.asMethodCallExpr().getArgument(0),
@@ -694,10 +786,98 @@ class Replacing {
                 }
             }
         }
+
+        @Override
+        public void visit(
+                final MethodDeclaration n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (n.getRange().isPresent()
+                    && variablesToReplace.contains(n.getRange().get())) {
+//              TODO change array type
+                changes.add(() -> n.setType(bigIntegerType));
+                if (n.getBody().isPresent()) {
+                    for (Statement statement : n.getBody().get().
+                            getStatements()) {
+//                      TODO Add useful code here
+                        if (statement.isReturnStmt()) {
+                            if (statement.asReturnStmt().getExpression().
+                                    isPresent()) {
+                                updateIntsToBigInt(statement.asReturnStmt().
+                                        getExpression().get());
+                            } // do nothing
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void visit(
+                final Parameter n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            if (variablesToReplace.contains(n.getRange().get())) {
+                if (n.getType().equals(
+                        PrimitiveType.intType())) {
+                    changes.add(() -> n.setType(bigIntegerType));
+                }
+                if (n.getType().isArrayType()) {
+//                  TODO change it
+                    throw new IllegalArgumentException();
+                }
+            }
+        }
     }
 
     public class FindAndAlterVariableDeclarators
             extends VoidVisitorAdapter<JavaParserFacade> {
+
+        @Override
+        public void visit(
+                final MethodDeclaration n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (!n.getRange().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            if (n.getType().equals(PrimitiveType.intType())
+                    && n.getName().getComment().isPresent()
+                    && n.getName().getComment().get().
+                    getContent().toLowerCase().trim().
+                    equals("biginteger")) {
+                methodDeclarationInCode.add(n.getRange().get());
+                variablesToReplace.add(n.getRange().get());
+            }
+            for (Parameter parameter : n.getParameters()) {
+                boolean flag = false;
+                if (parameter.getComment().isPresent()
+                        && parameter.getComment().get().
+                        getContent().toLowerCase().trim().
+                        equals("biginteger")
+                        && ifTypeOfToChange(parameter.getType())) {
+                    flag = true;
+                    parameter.getComment().get().remove();
+                }
+                if (parameter.getName().getComment().isPresent()
+                        && parameter.getName().getComment().get().getContent().
+                        toLowerCase().trim().equals("biginteger")
+                        && ifTypeOfToChange(parameter.getType())) {
+                    flag = true;
+                    parameter.getName().getComment().get().remove();
+                }
+                if (flag) {
+                    if (!parameter.getRange().isPresent()) {
+                        throw new IllegalArgumentException();
+                    }
+                    variablesToReplace.add(parameter.getRange().
+                            get());
+                }
+            }
+        }
 
         @Override
         public void visit(
@@ -723,7 +903,7 @@ class Replacing {
                         && declarator.getComment().get().
                         getContent().toLowerCase().trim().
                         equals("biginteger")
-                        && ifTypeToChange(declarator)) {
+                        && ifTypeOfToChange(declarator.getType())) {
                     flag = true;
                     declarator.getComment().get().remove();
                 }
@@ -732,7 +912,8 @@ class Replacing {
                         getComment().isPresent()
                         && declarator.getInitializer().get().
                         getComment().get().getContent().toLowerCase().trim().
-                        equals("biginteger") && ifTypeToChange(declarator)) {
+                        equals("biginteger") && ifTypeOfToChange(
+                        declarator.getType())) {
                     flag = true;
                     declarator.getInitializer().get().getComment().get().
                             remove();
@@ -743,20 +924,20 @@ class Replacing {
                     if (!variableDeclarator.getRange().isPresent()) {
                         throw new IllegalArgumentException();
                     }
-                    variableDeclsToReplace.add(variableDeclarator.getRange().
+                    variablesToReplace.add(variableDeclarator.getRange().
                             get());
                 }
             }
         }
 
-        private boolean ifTypeToChange(final VariableDeclarator declarator) {
-            if (declarator.getType().equals(
-                    PrimitiveType.intType())) {
+        private boolean ifTypeOfToChange(
+                final Type declarator) {
+            if (declarator.equals(PrimitiveType.intType())) {
                 return true;
             }
-            if (declarator.getType().isArrayType()) {
-                return getLastArrayTypeOf(declarator.getType().
-                        asArrayType()).getComponentType().equals(
+            if (declarator.isArrayType()) {
+                return getLastArrayTypeOf(declarator.asArrayType()).
+                        getComponentType().equals(
                         PrimitiveType.intType());
             }
             return false;
