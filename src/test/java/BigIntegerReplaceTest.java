@@ -30,6 +30,9 @@ public class BigIntegerReplaceTest {
         CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
                 IOUtils.resourceToString("/" +
                         filePrefix + ".before.java", Charset.defaultCharset()));
+        String gotOutput = bigIntegerReplace.transform(
+                IOUtils.resourceToString("/" +
+                        filePrefix + ".before.java", Charset.defaultCharset()));
     }
 
     @Test
@@ -152,11 +155,10 @@ public class BigIntegerReplaceTest {
         runTestFromFile("Array");
     }
 
-    // TODO fix it
-//    @Test(expected = IllegalArgumentException.class)
-//    public void testMethodException() throws IOException, ClassNotFoundException {
-//        runOnlyBeforeTestFromFile("MethodException");
-//    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testMethodException() throws IOException, ClassNotFoundException {
+        runOnlyBeforeTestFromFile("MethodException");
+    }
 
     @Test
     public void testMethod() throws IOException, ClassNotFoundException {
