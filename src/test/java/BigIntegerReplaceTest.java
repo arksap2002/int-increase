@@ -156,8 +156,8 @@ public class BigIntegerReplaceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testMethodException() throws IOException, ClassNotFoundException {
-        runOnlyBeforeTestFromFile("MethodException");
+    public void testMethodNoBigIntegerArrayParameters() throws IOException, ClassNotFoundException {
+        runOnlyBeforeTestFromFile("MethodNoBigIntegerArrayParameters");
     }
 
     @Test

@@ -332,7 +332,8 @@ class Replacing {
                 }
                 if (variablesToReplace.contains(methodDeclaration.
                         getParameter(i).getRange().get())) {
-                    if (methodDeclaration.getParameter(i).getType().isArrayType()) {
+                    if (methodDeclaration.getParameter(i).getType().
+                            isArrayType()) {
                         throw new IllegalArgumentException();
                     }
                     updateIntsToBigInt(
