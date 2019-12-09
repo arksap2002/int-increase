@@ -33,15 +33,15 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 class Replacing {
 
     private ArrayList<Runnable> changes = new ArrayList<>();
+
+    private ArrayList<Runnable> changeStatements = new ArrayList<>();
+
+    private ArrayList<StatementChange> statementChanges = new ArrayList<>();
 
     private FieldAccessExpr fieldAccessExpr = new FieldAccessExpr(
             new FieldAccessExpr(
@@ -91,6 +91,23 @@ class Replacing {
                 JavaParserFacade.get(reflectionTypeSolver));
         compilationUnit.accept(new TransformVisitor(),
                 JavaParserFacade.get(reflectionTypeSolver));
+        Collections.reverse(changeStatements);
+        for (Runnable change : changeStatements) {
+            change.run();
+        }
+//        for (StatementChange statementChange : statementChanges) {
+//            NodeList<Statement> nodeList = new NodeList<>();
+//            for (int i = 0; i < statementChange.nodeList.size(); i++) {
+//                nodeList.add(statementChange.nodeList.get(i));
+//                for (int j = 0; j < statementChange.before.size(); j++) {
+//                    if (statementChange.nodeList.get(i).equals(statementChange.before.get(j))) {
+//                        nodeList.add(statementChange.add.get(j));
+//                    }
+//                }
+//            }
+//            statementChange.nodeList.clear();
+//            statementChange.nodeList.;
+//        }
         for (Runnable change : changes) {
             change.run();
         }
@@ -598,9 +615,13 @@ class Replacing {
                 throw new IllegalArgumentException();
             }
             Node newN = n.getParentNode().get();
+            Node prevN = n;
             while (!(newN instanceof BlockStmt)) {
                 if (!newN.getParentNode().isPresent()) {
                     throw new IllegalArgumentException();
+                }
+                if (newN.getParentNode().get() instanceof BlockStmt) {
+                    prevN = newN;
                 }
                 newN = newN.getParentNode().get();
             }
@@ -643,8 +664,45 @@ class Replacing {
                         getDimension().get(), BinaryExpr.Operator.LESS));
             }
             Node finalNewN = newN;
-            ForStmt finalForStmt = forStmt;
-            changes.add(() -> ((BlockStmt) finalNewN).addStatement(finalForStmt));
+//            changeStatements.add(() -> ((BlockStmt) finalNewN).addStatement(forStmt));
+//            boolean flag = false;
+//            for (StatementChange statementChange : statementChanges) {
+//                if (statementChange.nodeList.equals(((BlockStmt) finalNewN).getStatements())) {
+//                    assert prevN instanceof Statement;
+//                    statementChange.before.add((Statement) prevN);
+//                    statementChange.add.add(forStmt);
+//                    flag = true;
+//                }
+//            }
+//            if (!flag) {
+//                StatementChange statementChange = new StatementChange();
+//                statementChange.nodeList = ((BlockStmt) finalNewN).getStatements();
+//                statementChange.before = new ArrayList<>();
+//                statementChange.add = new ArrayList<>();
+//                assert prevN instanceof Statement;
+//                statementChange.before.add((Statement) prevN);
+//                statementChange.add.add(forStmt);
+//                statementChanges.add(statementChange);
+//            }
+//            NodeList<Statement> nodeList = new NodeList<>();
+            if (((BlockStmt) finalNewN).getStatements().isEmpty()) {
+                changeStatements.add(() -> ((BlockStmt) finalNewN).addStatement(forStmt));
+                return;
+            }
+            int index = 0;
+            for (int i = 0; i < ((BlockStmt) finalNewN).getStatements().size(); i++) {
+//                int finalI = i;
+//                nodeList.add(((BlockStmt) finalNewN.clone()).getStatements().get(i));
+                if (((BlockStmt) finalNewN).getStatements().get(i).equals(prevN)) {
+//                    nodeList.add(forStmt);
+                    index = i + 1;
+                    break;
+                }
+            }
+            int finalIndex = index;
+            changeStatements.add(() -> ((BlockStmt) finalNewN).addStatement(finalIndex, forStmt));
+//            changeStatements.add(() -> ((BlockStmt) finalNewN).getStatements().clear());
+//            changeStatements.add(() -> ((BlockStmt) finalNewN).setStatements(nodeList));
         }
 
         private ArrayAccessExpr arrayAccessCreating(
@@ -1006,5 +1064,11 @@ class Replacing {
             }
             return false;
         }
+    }
+
+    public class StatementChange {
+        NodeList<Statement> nodeList;
+        ArrayList<Statement> before;
+        ArrayList<Statement> add;
     }
 }
