@@ -549,18 +549,18 @@ class Replacing {
             if (n.getType().isArrayType()) {
                 if (getLastArrayTypeOf(n.getType().asArrayType()).
                         getComponentType().equals(PrimitiveType.intType())) {
-                    arrayVariablesMaking(n);
+                    arrayVariablesMaking(n, javaParserFacade);
                 }
             }
         }
 
-        private void arrayVariablesMaking(final VariableDeclarator n) {
+        private void arrayVariablesMaking(final VariableDeclarator n, final JavaParserFacade javaParserFacade) {
             checkingRangeForException(n.getRange());
             if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> getLastArrayTypeOf(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
-                    fillingArray(n);
+                    fillingArray(n, javaParserFacade);
                 } else {
                     throw new IllegalArgumentException();
                 }
@@ -595,7 +595,7 @@ class Replacing {
 
         }
 
-        private void fillingArray(final VariableDeclarator n) {
+        private void fillingArray(final VariableDeclarator n, final JavaParserFacade javaParserFacade) {
             if (!n.getParentNode().isPresent()) {
                 throw new IllegalArgumentException();
             }
@@ -633,6 +633,15 @@ class Replacing {
                 } else {
                     forStmt.setBody(new BlockStmt(new NodeList<>(forStmt.clone())));
                 }
+                BinaryExpr compare = new BinaryExpr(new NameExpr(name), n.
+                        clone().getInitializer().get().
+                        asArrayCreationExpr().getLevels().get(i).
+                        getDimension().get(), BinaryExpr.Operator.LESS);
+                if (isUpdateIntsToBitInt(n.getInitializer().get().
+                        asArrayCreationExpr().getLevels().get(i).
+                        getDimension().get())) {
+//                  TODO something
+                }
                 forStmt.setUpdate(new NodeList<>(new UnaryExpr(new NameExpr(name),
                         UnaryExpr.Operator.POSTFIX_INCREMENT)));
                 forStmt.setInitialization(new NodeList<>(
@@ -643,10 +652,7 @@ class Replacing {
                         getLevels().get(i).getDimension().isPresent()) {
                     return;
                 }
-                forStmt.setCompare(new BinaryExpr(new NameExpr(name), n.
-                        clone().getInitializer().get().
-                        asArrayCreationExpr().getLevels().get(i).
-                        getDimension().get(), BinaryExpr.Operator.LESS));
+                forStmt.setCompare(compare);
             }
             Node finalNewN = newN;
             if (((BlockStmt) finalNewN).getStatements().isEmpty()) {
