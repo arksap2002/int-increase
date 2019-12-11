@@ -10,6 +10,14 @@ public class Method {
     }
 
     private static int /* BigInteger */ foo(int a, int /* BigInteger */ b, int[][][] c) {
+        if (a < 0) {
             return a + b * c[0][0][0] - foo(a + b, a + b, c);
+        } else {
+            return a;
+        }
+    }
+
+    private static void fooVoid() {
+        return;
     }
 }

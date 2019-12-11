@@ -10,6 +10,14 @@ public class Method {
     }
 
     private static java.math.BigInteger foo(int a, java.math.BigInteger b, int[][][] c) {
-        return java.math.BigInteger.valueOf(a).add(b.multiply(java.math.BigInteger.valueOf(c[0][0][0]))).subtract(foo(java.math.BigInteger.valueOf(a).add(b).intValue(), java.math.BigInteger.valueOf(a).add(b), c));
+        if (a < 0) {
+            return java.math.BigInteger.valueOf(a).add(b.multiply(java.math.BigInteger.valueOf(c[0][0][0]))).subtract(foo(java.math.BigInteger.valueOf(a).add(b).intValue(), java.math.BigInteger.valueOf(a).add(b), c));
+        } else {
+            return java.math.BigInteger.valueOf(a);
+        }
+    }
+
+    private static void fooVoid() {
+        return;
     }
 }

@@ -1,5 +1,6 @@
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -17,11 +18,11 @@ import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.expr.ArrayAccessExpr;
 import com.github.javaparser.ast.expr.ArrayCreationExpr;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
-import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -38,8 +39,9 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Optional;
 
 class Replacing {
 
@@ -73,7 +75,9 @@ class Replacing {
 
     private final HashSet<Range> variablesToReplace = new HashSet<>();
 
-    private final HashSet<Range> methodDeclarationInCode = new HashSet<>();
+    private final HashSet<Range> methodDeclarationsOfIntType = new HashSet<>();
+
+    private final HashSet<Range> allMethodDeclarations = new HashSet<>();
 
     private ClassOrInterfaceType bigIntegerType =
             new ClassOrInterfaceType(new ClassOrInterfaceType(
@@ -322,7 +326,7 @@ class Replacing {
         } else if (resolvedN instanceof JavaParserMethodDeclaration
                 && ((JavaParserMethodDeclaration) (resolvedN)).
                 getWrappedNode().getRange().isPresent()
-                && methodDeclarationInCode.contains(((
+                && methodDeclarationsOfIntType.contains(((
                 JavaParserMethodDeclaration) (resolvedN)).
                 getWrappedNode().getRange().get())) {
             MethodDeclaration methodDeclaration = (
@@ -355,12 +359,13 @@ class Replacing {
                             n.asMethodCallExpr().getArgument(i));
                     int finalI = i;
                     changes.add(() -> n.asMethodCallExpr().
-                            getArgument(finalI).replace(intValueMaking(
+                            getArgument(finalI).replace(intFromBigInt(
                             n.clone().asMethodCallExpr().
                                     getArgument(finalI))));
                 }
             }
         } else {
+//            TODO fix in the next PR
             changes.add(() -> n.replace(bigIntFromInt(new NodeList<>(
                     n.clone().asMethodCallExpr()))));
         }
@@ -386,7 +391,7 @@ class Replacing {
                 fieldAccessExpr, "valueOf", expressions);
     }
 
-    private MethodCallExpr intValueMaking(final Expression expression) {
+    private MethodCallExpr intFromBigInt(final Expression expression) {
         return new MethodCallExpr(expression, new SimpleName("intValue"));
     }
 
@@ -400,26 +405,20 @@ class Replacing {
             VariableDeclarator variableDeclarator =
                     ((JavaParserFieldDeclaration) n.resolve()).
                             getVariableDeclarator();
-            if (!variableDeclarator.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
+            checkingRangeForException(variableDeclarator.getRange());
             return variablesToReplace.contains(variableDeclarator.
                     getRange().get());
         } else if (n.resolve() instanceof JavaParserSymbolDeclaration) {
             VariableDeclarator variableDeclarator = (VariableDeclarator)
                     ((JavaParserSymbolDeclaration) (n.resolve())).
                             getWrappedNode();
-            if (!variableDeclarator.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
+            checkingRangeForException(variableDeclarator.getRange());
             return variablesToReplace.contains(variableDeclarator.
                     getRange().get());
         } else if (n.resolve() instanceof JavaParserParameterDeclaration) {
             Parameter parameter = ((JavaParserParameterDeclaration)
                     n.resolve()).getWrappedNode();
-            if (!parameter.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
+            checkingRangeForException(parameter.getRange());
             return variablesToReplace.contains(parameter.
                     getRange().get());
         } else {
@@ -473,15 +472,13 @@ class Replacing {
             } else if (resolvedN instanceof JavaParserMethodDeclaration
                     && ((JavaParserMethodDeclaration) (resolvedN)).
                     getWrappedNode().getRange().isPresent()
-                    && methodDeclarationInCode.contains(((
+                    && methodDeclarationsOfIntType.contains(((
                     JavaParserMethodDeclaration) (resolvedN)).
                     getWrappedNode().getRange().get())) {
                 MethodDeclaration methodDeclaration = (
                         (JavaParserMethodDeclaration) (resolvedN)).
                         getWrappedNode();
-                if (!methodDeclaration.getRange().isPresent()) {
-                    throw new IllegalArgumentException();
-                }
+                checkingRangeForException(methodDeclaration.getRange());
                 if (n.asMethodCallExpr().getArguments().size()
                         != methodDeclaration.getParameters().size()) {
                     throw new IllegalArgumentException();
@@ -490,10 +487,8 @@ class Replacing {
                         methodDeclaration.getRange().get());
                 for (int i = 0; i < methodDeclaration.getParameters().size();
                      i++) {
-                    if (!methodDeclaration.getParameter(i).getRange().
-                            isPresent()) {
-                        throw new IllegalArgumentException();
-                    }
+                    checkingRangeForException(methodDeclaration.
+                            getParameter(i).getRange());
                     flag = flag || isUpdateIntsToBitInt(
                             n.asMethodCallExpr().getArgument(i));
                 }
@@ -541,7 +536,7 @@ class Replacing {
     private void updateIndexes(final ArrayAccessExpr n) {
         if (isUpdateIntsToBitInt(n.getIndex())) {
             updateIntsToBigInt(n.getIndex());
-            changes.add(() -> n.setIndex(intValueMaking(
+            changes.add(() -> n.setIndex(intFromBigInt(
                     n.clone().getIndex())));
         }
         if (n.getName().isArrayAccessExpr()) {
@@ -577,9 +572,7 @@ class Replacing {
         }
 
         private void arrayVariablesMaking(final VariableDeclarator n) {
-            if (!n.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
+            checkingRangeForException(n.getRange());
             if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> getLastArrayTypeOf(n.getType().
@@ -627,7 +620,7 @@ class Replacing {
                                 getDimension().get());
                         int finalI = i;
                         changes.add(() -> n.getLevels().
-                                get(finalI).setDimension(intValueMaking(
+                                get(finalI).setDimension(intFromBigInt(
                                 n.clone().getLevels().get(finalI).
                                         getDimension().get())));
                     }
@@ -639,7 +632,7 @@ class Replacing {
             if (!n.isArrayInitializerExpr()) {
                 if (isUpdateIntsToBitInt(n)) {
                     updateIntsToBigInt(n);
-                    changes.add(() -> n.replace(intValueMaking(n.clone())));
+                    changes.add(() -> n.replace(intFromBigInt(n.clone())));
                 }
                 return;
             }
@@ -663,9 +656,7 @@ class Replacing {
         }
 
         private void usualVariablesMaking(final VariableDeclarator n) {
-            if (!n.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
+            checkingRangeForException(n.getRange());
             if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getInitializer().isPresent()) {
                     updateIntsToBigInt(n.getInitializer().get());
@@ -674,7 +665,7 @@ class Replacing {
             } else if (n.getInitializer().isPresent()) {
                 if (isUpdateIntsToBitInt(n.getInitializer().get())) {
                     updateIntsToBigInt(n.getInitializer().get());
-                    changes.add(() -> n.setInitializer(intValueMaking(
+                    changes.add(() -> n.setInitializer(intFromBigInt(
                             n.clone().getInitializer().get())));
                 }
             }
@@ -727,7 +718,7 @@ class Replacing {
                     }
                 } else if (isUpdateIntsToBitInt(n.getValue())) {
                     updateIntsToBigInt(n.getValue());
-                    changes.add(() -> n.setValue(intValueMaking(
+                    changes.add(() -> n.setValue(intFromBigInt(
                             n.clone().getValue())));
                 }
                 updateIndexes(n.getTarget().asArrayAccessExpr());
@@ -747,7 +738,7 @@ class Replacing {
                 }
             } else if (isUpdateIntsToBitInt(n.getValue())) {
                 updateIntsToBigInt(n.getValue());
-                changes.add(() -> n.setValue(intValueMaking(
+                changes.add(() -> n.setValue(intFromBigInt(
                         n.clone().getValue())));
             }
         }
@@ -759,6 +750,38 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (isUpdateIntsToBitInt(n.getExpression())) {
                 updateIntsToBigInt(n.getExpression());
+            }
+        }
+
+        @Override
+        public void visit(
+                final ReturnStmt n,
+                final JavaParserFacade javaParserFacade) {
+            super.visit(n, javaParserFacade);
+            if (!n.getParentNode().isPresent()) {
+                throw new IllegalArgumentException();
+            }
+            if (!n.getExpression().isPresent()) {
+                return;
+            }
+            Node newN = n.getParentNode().get();
+            checkingRangeForException(newN.getRange());
+            while (!allMethodDeclarations.contains(newN.getRange().get())) {
+                if (!newN.getParentNode().isPresent()) {
+                    throw new IllegalArgumentException();
+                }
+                newN = newN.getParentNode().get();
+                checkingRangeForException(newN.getRange());
+            }
+            if (methodDeclarationsOfIntType.contains(
+                    newN.getRange().get())) {
+                updateIntsToBigInt(n.getExpression().get());
+            } else {
+                if (isUpdateIntsToBitInt(n.getExpression().get())) {
+                    updateIntsToBigInt(n.getExpression().get());
+                    changes.add(() -> n.setExpression(intFromBigInt(
+                            n.clone().getExpression().get())));
+                }
             }
         }
 
@@ -815,21 +838,7 @@ class Replacing {
             super.visit(n, javaParserFacade);
             if (n.getRange().isPresent()
                     && variablesToReplace.contains(n.getRange().get())) {
-//              TODO change array type
                 changes.add(() -> n.setType(bigIntegerType));
-                if (n.getBody().isPresent()) {
-                    for (Statement statement : n.getBody().get().
-                            getStatements()) {
-//                      TODO Add useful code here
-                        if (statement.isReturnStmt()) {
-                            if (statement.asReturnStmt().getExpression().
-                                    isPresent()) {
-                                updateIntsToBigInt(statement.asReturnStmt().
-                                        getExpression().get());
-                            } // do nothing
-                        }
-                    }
-                }
             }
         }
 
@@ -838,19 +847,22 @@ class Replacing {
                 final Parameter n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (!n.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
+            checkingRangeForException(n.getRange());
             if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getType().equals(
                         PrimitiveType.intType())) {
                     changes.add(() -> n.setType(bigIntegerType));
                 }
                 if (n.getType().isArrayType()) {
-//                  TODO change it
                     throw new IllegalArgumentException();
                 }
             }
+        }
+    }
+
+    private void checkingRangeForException(final Optional<Range> n) {
+        if (!n.isPresent()) {
+            throw new IllegalArgumentException();
         }
     }
 
@@ -862,40 +874,25 @@ class Replacing {
                 final MethodDeclaration n,
                 final JavaParserFacade javaParserFacade) {
             super.visit(n, javaParserFacade);
-            if (!n.getRange().isPresent()) {
-                throw new IllegalArgumentException();
-            }
+            checkingRangeForException(n.getRange());
+            allMethodDeclarations.add(n.getRange().get());
             if (n.getType().equals(PrimitiveType.intType())
                     && n.getName().getComment().isPresent()
                     && n.getName().getComment().get().
                     getContent().toLowerCase().trim().
                     equals("biginteger")) {
-                methodDeclarationInCode.add(n.getRange().get());
+                methodDeclarationsOfIntType.add(n.getRange().get());
                 variablesToReplace.add(n.getRange().get());
             }
             for (Parameter parameter : n.getParameters()) {
-                boolean flag = false;
-                if (parameter.getComment().isPresent()
-                        && parameter.getComment().get().
-                        getContent().toLowerCase().trim().
-                        equals("biginteger")
-                        && ifTypeOfToChange(parameter.getType())) {
-                    flag = true;
-                    parameter.getComment().get().remove();
-                }
                 if (parameter.getName().getComment().isPresent()
                         && parameter.getName().getComment().get().getContent().
                         toLowerCase().trim().equals("biginteger")
                         && ifTypeOfToChange(parameter.getType())) {
-                    flag = true;
-                    parameter.getName().getComment().get().remove();
-                }
-                if (flag) {
-                    if (!parameter.getRange().isPresent()) {
-                        throw new IllegalArgumentException();
-                    }
+                    checkingRangeForException(parameter.getRange());
                     variablesToReplace.add(parameter.getRange().
                             get());
+                    parameter.getName().getComment().get().remove();
                 }
             }
         }
@@ -942,9 +939,7 @@ class Replacing {
             }
             if (flag) {
                 for (VariableDeclarator variableDeclarator : nodeList) {
-                    if (!variableDeclarator.getRange().isPresent()) {
-                        throw new IllegalArgumentException();
-                    }
+                    checkingRangeForException(variableDeclarator.getRange());
                     variablesToReplace.add(variableDeclarator.getRange().
                             get());
                 }
