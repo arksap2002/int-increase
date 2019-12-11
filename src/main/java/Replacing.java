@@ -18,7 +18,12 @@ import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.expr.ArrayAccessExpr;
 import com.github.javaparser.ast.expr.ArrayCreationExpr;
-import com.github.javaparser.ast.stmt.*;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ForStmt;
+import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -33,7 +38,12 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Collections;
+import java.util.Optional;
 
 class Replacing {
 
@@ -549,18 +559,18 @@ class Replacing {
             if (n.getType().isArrayType()) {
                 if (getLastArrayTypeOf(n.getType().asArrayType()).
                         getComponentType().equals(PrimitiveType.intType())) {
-                    arrayVariablesMaking(n, javaParserFacade);
+                    arrayVariablesMaking(n);
                 }
             }
         }
 
-        private void arrayVariablesMaking(final VariableDeclarator n, final JavaParserFacade javaParserFacade) {
+        private void arrayVariablesMaking(final VariableDeclarator n) {
             checkingRangeForException(n.getRange());
             if (variablesToReplace.contains(n.getRange().get())) {
                 if (n.getType().isArrayType()) {
                     changes.add(() -> getLastArrayTypeOf(n.getType().
                             asArrayType()).setComponentType(bigIntegerType));
-                    fillingArray(n, javaParserFacade);
+                    fillingArray(n);
                 } else {
                     throw new IllegalArgumentException();
                 }
@@ -576,8 +586,8 @@ class Replacing {
                     }
                 } else if (n.getInitializer().isPresent()
                         && n.getInitializer().get().isArrayInitializerExpr()) {
-                    arrayInitializerExprToBigIntMaking(n.getInitializer().get().
-                            asArrayInitializerExpr());
+                    arrayInitializerExprToBigIntMaking(n.getInitializer().
+                            get().asArrayInitializerExpr());
                 } else {
                     throw new IllegalArgumentException();
                 }
@@ -595,7 +605,7 @@ class Replacing {
 
         }
 
-        private void fillingArray(final VariableDeclarator n, final JavaParserFacade javaParserFacade) {
+        private void fillingArray(final VariableDeclarator n) {
             if (!n.getParentNode().isPresent()) {
                 throw new IllegalArgumentException();
             }
@@ -626,12 +636,15 @@ class Replacing {
                 String name = n.getName().asString() + "Filling" + (i + 1);
                 if (i == number - 1) {
                     AssignExpr assignExpr = new AssignExpr();
-                    assignExpr.setValue(new FieldAccessExpr(fieldAccessExpr, "ONE"));
+                    assignExpr.setValue(
+                            new FieldAccessExpr(fieldAccessExpr, "ONE"));
                     assignExpr.setOperator(AssignExpr.Operator.ASSIGN);
                     assignExpr.setTarget(arrayAccessCreating(n, i));
-                    forStmt.setBody(new BlockStmt(new NodeList<>(new ExpressionStmt(assignExpr))));
+                    forStmt.setBody(new BlockStmt(new NodeList<>(
+                            new ExpressionStmt(assignExpr))));
                 } else {
-                    forStmt.setBody(new BlockStmt(new NodeList<>(forStmt.clone())));
+                    forStmt.setBody(new BlockStmt(new NodeList<>(
+                            forStmt.clone())));
                 }
                 BinaryExpr compare = new BinaryExpr(new NameExpr(name), n.
                         clone().getInitializer().get().
@@ -643,7 +656,8 @@ class Replacing {
 //                  TODO something
                     throw new IllegalArgumentException();
                 }
-                forStmt.setUpdate(new NodeList<>(new UnaryExpr(new NameExpr(name),
+                forStmt.setUpdate(new NodeList<>(new UnaryExpr(
+                        new NameExpr(name),
                         UnaryExpr.Operator.POSTFIX_INCREMENT)));
                 forStmt.setInitialization(new NodeList<>(
                         new VariableDeclarationExpr(new VariableDeclarator(
@@ -657,22 +671,26 @@ class Replacing {
             }
             Node finalNewN = newN;
             if (((BlockStmt) finalNewN).getStatements().isEmpty()) {
-                changeStatements.add(() -> ((BlockStmt) finalNewN).addStatement(forStmt));
+                changeStatements.add(() -> ((BlockStmt) finalNewN).
+                        addStatement(forStmt));
                 return;
             }
             int index = 0;
-            for (int i = 0; i < ((BlockStmt) finalNewN).getStatements().size(); i++) {
-                if (((BlockStmt) finalNewN).getStatements().get(i).equals(prevN)) {
+            for (int i = 0; i < ((BlockStmt) finalNewN).
+                    getStatements().size(); i++) {
+                if (((BlockStmt) finalNewN).getStatements().get(i).
+                        equals(prevN)) {
                     index = i + 1;
                     break;
                 }
             }
             int finalIndex = index;
-            changeStatements.add(() -> ((BlockStmt) finalNewN).addStatement(finalIndex, forStmt));
+            changeStatements.add(() -> ((BlockStmt) finalNewN).
+                    addStatement(finalIndex, forStmt));
         }
 
         private ArrayAccessExpr arrayAccessCreating(
-                final VariableDeclarator n, int number) {
+                final VariableDeclarator n, final int number) {
             if (number == 0) {
                 return new ArrayAccessExpr(new NameExpr(n.getName().
                         asString()), new NameExpr(n.getName().asString()

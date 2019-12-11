@@ -11,9 +11,9 @@ public class Array {
         }
         int[] b = new int[bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
         int[][] c = new int[intNumber + 1][bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
-        java.math.BigInteger[][] d = new java.math.BigInteger[intNumber + 1][bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
+        java.math.BigInteger[][] d = new java.math.BigInteger[intNumber + 1][intNumber];
         for (int dFilling1 = 0; dFilling1 < intNumber + 1; dFilling1++) {
-            for (int dFilling2 = 0; dFilling2 < bigIntNumber + 1; dFilling2++) {
+            for (int dFilling2 = 0; dFilling2 < intNumber; dFilling2++) {
                 d[dFilling1][dFilling2] = java.math.BigInteger.ONE;
             }
         }
@@ -34,7 +34,7 @@ public class Array {
             }
         }
         int[][] arr = { { 1, 2, bigIntNumber.add(java.math.BigInteger.ONE) }, { 2, 2, intNumber + 1 }, { 3, 2, 1 } };
-        java.math.BigInteger[][][] arr2 = { { { java.math.BigInteger.ONE }, { java.math.BigInteger.TWO, bigIntNumber.add(java.math.BigInteger.ONE) } }, { { java.math.BigInteger.TWO }, { java.math.BigInteger.TWO, java.math.BigInteger.TWO } }, { { java.math.BigInteger.valueOf(intNumber).add(java.math.BigInteger.ONE) }, { java.math.BigInteger.TWO }, { java.math.BigInteger.ONE } } };
+        java.math.BigInteger[][][] arr2 = { { { java.math.BigInteger.ONE }, { java.math.BigInteger.TWO, java.math.BigInteger.valueOf(intNumber) } }, { { java.math.BigInteger.TWO }, { java.math.BigInteger.TWO, java.math.BigInteger.TWO } }, { { java.math.BigInteger.valueOf(intNumber).add(java.math.BigInteger.ONE) }, { java.math.BigInteger.TWO }, { java.math.BigInteger.ONE } } };
         int max = java.math.BigInteger.valueOf(c[0][a[0].max(java.math.BigInteger.valueOf(b[0])).intValue()]).intValue();
         for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(java.math.BigInteger.valueOf(a.length).min(java.math.BigInteger.valueOf(b.length))) < 0; i = java.math.BigInteger.ONE.add(i)) {
             a[i.intValue()] = i.add(java.math.BigInteger.ONE);
