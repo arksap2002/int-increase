@@ -340,11 +340,6 @@ class Replacing {
             if (!methodDeclaration.getRange().isPresent()) {
                 throw new IllegalArgumentException();
             }
-            if (!variablesToReplace.contains(methodDeclaration.getRange().
-                    get())) {
-                changes.add(() -> n.replace(bigIntFromInt(n.
-                        asMethodCallExpr().getArguments())));
-            }
             for (int i = 0; i < methodDeclaration.getParameters().size();
                  i++) {
                 if (!methodDeclaration.getParameter(i).getRange().
@@ -353,6 +348,10 @@ class Replacing {
                 }
                 if (variablesToReplace.contains(methodDeclaration.
                         getParameter(i).getRange().get())) {
+                    if (methodDeclaration.getParameter(i).getType().
+                            isArrayType()) {
+                        throw new IllegalArgumentException();
+                    }
                     updateIntsToBigInt(
                             n.asMethodCallExpr().getArgument(i));
                 } else if (isUpdateIntsToBitInt(
