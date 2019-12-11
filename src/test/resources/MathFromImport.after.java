@@ -4,15 +4,15 @@ public class MathFromImport {
 
     java.math.BigInteger a = java.math.BigInteger.ONE.abs();
 
-    java.math.BigInteger c = new java.math.BigInteger(9).min(java.math.BigInteger.TEN);
+    java.math.BigInteger c = java.math.BigInteger.valueOf(9).min(java.math.BigInteger.TEN);
 
-    java.math.BigInteger d = new java.math.BigInteger(98).abs().abs();
+    java.math.BigInteger d = java.math.BigInteger.valueOf(98).abs().abs();
 
-    java.math.BigInteger e = new java.math.BigInteger(90).min(java.math.BigInteger.TEN).abs();
+    java.math.BigInteger e = java.math.BigInteger.valueOf(90).min(java.math.BigInteger.TEN).abs();
 
-    java.math.BigInteger h = new java.math.BigInteger(100).max(new java.math.BigInteger(9)).min(java.math.BigInteger.ONE.max(java.math.BigInteger.TWO));
+    java.math.BigInteger h = java.math.BigInteger.valueOf(100).max(java.math.BigInteger.valueOf(9)).min(java.math.BigInteger.ONE.max(java.math.BigInteger.TWO));
 
-    java.math.BigInteger f = new java.math.BigInteger(100).max(new java.math.BigInteger(9)).min(java.math.BigInteger.ONE.max(java.math.BigInteger.TWO).abs()).abs();
+    java.math.BigInteger f = java.math.BigInteger.valueOf(100).max(java.math.BigInteger.valueOf(9)).min(java.math.BigInteger.ONE.max(java.math.BigInteger.TWO).abs()).abs();
 
     java.math.BigInteger k = a.max(c).min(c.max(d).abs()).abs();
 

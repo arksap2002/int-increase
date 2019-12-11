@@ -4,8 +4,8 @@ public class Generalization {
         java.math.BigInteger a = java.math.BigInteger.TEN;
         int b = 9;
         int c = 8;
-        java.math.BigInteger d = new java.math.BigInteger(Integer.hashCode(a)).add(new java.math.BigInteger(b)).add(new java.math.BigInteger(Integer.hashCode(c)));
-        java.math.BigInteger e = new java.math.BigInteger("100").multiply(new java.math.BigInteger(Integer.MAX_VALUE)).add(new java.math.BigInteger(c));
-        java.math.BigInteger f = new java.math.BigInteger(Integer.hashCode(a + c));
+        java.math.BigInteger d = java.math.BigInteger.valueOf(Integer.hashCode(a)).add(java.math.BigInteger.valueOf(b)).add(java.math.BigInteger.valueOf(Integer.hashCode(c)));
+        java.math.BigInteger e = java.math.BigInteger.valueOf("100").multiply(java.math.BigInteger.valueOf(Integer.MAX_VALUE)).add(java.math.BigInteger.valueOf(c));
+        java.math.BigInteger f = java.math.BigInteger.valueOf(Integer.hashCode(a + c));
     }
 }

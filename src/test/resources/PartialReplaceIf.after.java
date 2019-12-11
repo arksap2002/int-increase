@@ -9,11 +9,11 @@ public class PartialReplaceIf {
         if (b > 10) {
             b = 10;
         }
-        if (a.compareTo(new java.math.BigInteger(5).subtract(java.math.BigInteger.TWO).min(new java.math.BigInteger(3).negate())) > 0) {
-            a = new java.math.BigInteger(3).negate();
+        if (a.compareTo(java.math.BigInteger.valueOf(5).subtract(java.math.BigInteger.TWO).min(java.math.BigInteger.valueOf(3).negate())) > 0) {
+            a = java.math.BigInteger.valueOf(3).negate();
         }
-        if (new java.math.BigInteger(b).compareTo(a) > 0) {
-            a = new java.math.BigInteger(b);
+        if (java.math.BigInteger.valueOf(b).compareTo(a) > 0) {
+            a = java.math.BigInteger.valueOf(b);
         }
     }
 }

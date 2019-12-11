@@ -5,11 +5,11 @@ public class Method {
         int b = 10;
         int[][][] c = new int[a.intValue()][b][a.intValue()];
         java.math.BigInteger[][] f = new java.math.BigInteger[10][a.intValue()];
-        java.math.BigInteger d = foo(a.intValue(), new java.math.BigInteger(b), c);
-        int e = foo(foo(foo(new java.math.BigInteger(c[0][0][0]).multiply(f[0][0]).intValue(), new java.math.BigInteger(b), c).add(java.math.BigInteger.TEN).subtract(a).intValue(), new java.math.BigInteger(b).add(a), c).intValue(), a.add(new java.math.BigInteger(b)), c).intValue();
+        java.math.BigInteger d = foo(a.intValue(), java.math.BigInteger.valueOf(b), c);
+        int e = foo(foo(foo(java.math.BigInteger.valueOf(c[0][0][0]).multiply(f[0][0]).intValue(), java.math.BigInteger.valueOf(b), c).add(java.math.BigInteger.TEN).subtract(a).intValue(), java.math.BigInteger.valueOf(b).add(a), c).intValue(), a.add(java.math.BigInteger.valueOf(b)), c).intValue();
     }
 
     private static java.math.BigInteger foo(int a, java.math.BigInteger b, int[][][] c) {
-        return new java.math.BigInteger(a).add(b.multiply(new java.math.BigInteger(c[0][0][0]))).subtract(foo(new java.math.BigInteger(a).add(b).intValue(), new java.math.BigInteger(a).add(b), c));
+        return java.math.BigInteger.valueOf(a).add(b.multiply(java.math.BigInteger.valueOf(c[0][0][0]))).subtract(foo(java.math.BigInteger.valueOf(a).add(b).intValue(), java.math.BigInteger.valueOf(a).add(b), c));
     }
 }
