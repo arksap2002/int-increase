@@ -22,13 +22,11 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.ast.type.ArrayType;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import com.github.javaparser.ast.type.PrimitiveType;
-import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.ast.type.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration;
@@ -216,11 +214,14 @@ class Replacing {
     private void changingOfBinaryExpr(final BinaryExpr n) {
         updateIntsToBigInt(n.getLeft());
         updateIntsToBigInt(n.getRight());
-        if (!n.getRight().calculateResolvedType().
-                equals(n.getLeft().calculateResolvedType())) {
+        if ((n.getRight().calculateResolvedType().isReferenceType()
+                && n.getRight().calculateResolvedType().asReferenceType().
+                getQualifiedName().equals("java.lang.String"))
+                || (n.getLeft().calculateResolvedType().isReferenceType()
+                && n.getLeft().calculateResolvedType().asReferenceType().
+                getQualifiedName().equals("java.lang.String"))) {
             return;
         }
-//        TODO make previous lines shorter
         if (n.getOperator().equals(
                 BinaryExpr.Operator.EQUALS)) {
             changes.add(() -> n.replace(new MethodCallExpr(
