@@ -761,6 +761,9 @@ class Replacing {
             if (!n.getParentNode().isPresent()) {
                 throw new IllegalArgumentException();
             }
+            if (!n.getExpression().isPresent()) {
+                return;
+            }
             Node newN = n.getParentNode().get();
             checkingRangeForException(newN.getRange());
             while (!allMethodDeclarations.contains(newN.getRange().get())) {
@@ -769,9 +772,6 @@ class Replacing {
                 }
                 newN = newN.getParentNode().get();
                 checkingRangeForException(newN.getRange());
-            }
-            if (!n.getExpression().isPresent()) {
-                return;
             }
             if (methodDeclarationsOfIntType.contains(
                     newN.getRange().get())) {
