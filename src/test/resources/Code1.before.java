@@ -1,9 +1,9 @@
-
 import java.util.*;
 
 public class Code1 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+//        https://codeforces.com/contest/631/problem/B
         int /* BigInteger */ n, m, k, a, b, c;
         n = scanner.nextInt();
         m = scanner.nextInt();
