@@ -767,11 +767,11 @@ class Replacing {
                 if (!newN.getParentNode().isPresent()) {
                     throw new IllegalArgumentException();
                 }
-                checkingRangeForException(newN.getRange());
                 newN = newN.getParentNode().get();
+                checkingRangeForException(newN.getRange());
             }
             if (!n.getExpression().isPresent()) {
-                throw new IllegalArgumentException();
+                return;
             }
             if (methodDeclarationsOfIntType.contains(
                     newN.getRange().get())) {

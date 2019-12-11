@@ -16,4 +16,8 @@ public class Method {
             return java.math.BigInteger.valueOf(a);
         }
     }
+
+    private static void fooVoid() {
+        return;
+    }
 }

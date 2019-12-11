@@ -16,4 +16,8 @@ public class Method {
             return a;
         }
     }
+
+    private static void fooVoid() {
+        return;
+    }
 }
