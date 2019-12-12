@@ -21,9 +21,13 @@ public class Method {
 
     private static int foo2(int a, int /* BigInteger */ b, int[][][] c) {
         if (a < 0) {
-            return a + b * c[0][0][0] - foo(a + b, a + b, c) + foo2(a + b, a + b, c);
+            return a + b * c[0][0][0] - foo2(a + b, a + b, c) + foo(a + b, a + b, c);
         } else {
             return a;
         }
+    }
+
+    private static void fooVoid() {
+        return;
     }
 }

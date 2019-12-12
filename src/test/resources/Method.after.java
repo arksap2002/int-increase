@@ -26,9 +26,13 @@ public class Method {
 
     private static int foo2(int a, java.math.BigInteger b, int[][][] c) {
         if (a < 0) {
-            return java.math.BigInteger.valueOf(a).add(b.multiply(java.math.BigInteger.valueOf(c[0][0][0]))).subtract(foo(java.math.BigInteger.valueOf(a).add(b).intValue(), java.math.BigInteger.valueOf(a).add(b), c)).add(java.math.BigInteger.valueOf(foo2(java.math.BigInteger.valueOf(a).add(b).intValue(), java.math.BigInteger.valueOf(a).add(b), c))).intValue();
+            return java.math.BigInteger.valueOf(a).add(b.multiply(java.math.BigInteger.valueOf(c[0][0][0]))).subtract(java.math.BigInteger.valueOf(foo2(java.math.BigInteger.valueOf(a).add(b).intValue(), java.math.BigInteger.valueOf(a).add(b), c))).add(foo(java.math.BigInteger.valueOf(a).add(b).intValue(), java.math.BigInteger.valueOf(a).add(b), c)).intValue();
         } else {
             return a;
         }
+    }
+
+    private static void fooVoid() {
+        return;
     }
 }

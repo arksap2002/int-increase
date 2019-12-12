@@ -26,6 +26,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -228,11 +229,14 @@ class Replacing {
     private void changingOfBinaryExpr(final BinaryExpr n) {
         updateIntsToBigInt(n.getLeft());
         updateIntsToBigInt(n.getRight());
-        if (!n.getRight().calculateResolvedType().
-                equals(n.getLeft().calculateResolvedType())) {
+        if ((n.getRight().calculateResolvedType().isReferenceType()
+                && n.getRight().calculateResolvedType().asReferenceType().
+                getQualifiedName().equals("java.lang.String"))
+                || (n.getLeft().calculateResolvedType().isReferenceType()
+                && n.getLeft().calculateResolvedType().asReferenceType().
+                getQualifiedName().equals("java.lang.String"))) {
             return;
         }
-//        TODO make previous lines shorter
         if (n.getOperator().equals(
                 BinaryExpr.Operator.EQUALS)) {
             changes.add(() -> n.replace(new MethodCallExpr(
@@ -345,6 +349,10 @@ class Replacing {
                         getParameter(i).getRange());
                 if (variablesToReplace.contains(methodDeclaration.
                         getParameter(i).getRange().get())) {
+                    if (methodDeclaration.getParameter(i).getType().
+                            isArrayType()) {
+                        throw new IllegalArgumentException();
+                    }
                     updateIntsToBigInt(
                             n.asMethodCallExpr().getArgument(i));
                 } else if (isUpdateIntsToBitInt(
@@ -851,17 +859,17 @@ class Replacing {
             if (!n.getParentNode().isPresent()) {
                 throw new IllegalArgumentException();
             }
+            if (!n.getExpression().isPresent()) {
+                return;
+            }
             Node newN = n.getParentNode().get();
             checkingRangeForException(newN.getRange());
             while (!allMethodDeclarations.contains(newN.getRange().get())) {
                 if (!newN.getParentNode().isPresent()) {
                     throw new IllegalArgumentException();
                 }
-                checkingRangeForException(newN.getRange());
                 newN = newN.getParentNode().get();
-            }
-            if (!n.getExpression().isPresent()) {
-                throw new IllegalArgumentException();
+                checkingRangeForException(newN.getRange());
             }
             if (methodDeclarationsOfIntType.contains(
                     newN.getRange().get())) {
