@@ -175,7 +175,7 @@ class Replacing {
             }
             return;
         }
-        if (n.isStringLiteralExpr()) {
+        if (n.isStringLiteralExpr() || n.isCharLiteralExpr()) {
             return;
         }
         if (!isOfTypeInt(n)) {
@@ -262,10 +262,12 @@ class Replacing {
                     new NodeList<>(n.asBinaryExpr().getRight()))));
             changes.add(() -> n.setRight(new IntegerLiteralExpr(0)));
         } else {
-            changes.add(() -> n.replace(new MethodCallExpr(
-                    n.asBinaryExpr().getLeft(),
-                    OPERATOR_OF_BINARY.get(n.getOperator()),
-                    new NodeList<>(n.asBinaryExpr().getRight()))));
+            if (OPERATOR_OF_BINARY.containsKey(n.getOperator())) {
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asBinaryExpr().getLeft(),
+                        OPERATOR_OF_BINARY.get(n.getOperator()),
+                        new NodeList<>(n.asBinaryExpr().getRight()))));
+            }
         }
     }
 
