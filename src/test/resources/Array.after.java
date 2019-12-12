@@ -7,14 +7,14 @@ public class Array {
         java.math.BigInteger bigIntNumber = java.math.BigInteger.valueOf(8);
         java.math.BigInteger[] a = new java.math.BigInteger[intNumber + 1];
         for (int aFilling1 = 0; aFilling1 < intNumber + 1; aFilling1++) {
-            a[aFilling1] = java.math.BigInteger.ONE;
+            a[aFilling1] = java.math.BigInteger.ZERO;
         }
         int[] b = new int[bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
         int[][] c = new int[intNumber + 1][bigIntNumber.add(java.math.BigInteger.ONE).intValue()];
         java.math.BigInteger[][] d = new java.math.BigInteger[intNumber + 1][intNumber];
         for (int dFilling1 = 0; dFilling1 < intNumber + 1; dFilling1++) {
             for (int dFilling2 = 0; dFilling2 < intNumber; dFilling2++) {
-                d[dFilling1][dFilling2] = java.math.BigInteger.ONE;
+                d[dFilling1][dFilling2] = java.math.BigInteger.ZERO;
             }
         }
         java.math.BigInteger[][][][][][][] e = new java.math.BigInteger[10][10][10][10][10][10][10];
@@ -25,7 +25,7 @@ public class Array {
                         for (int eFilling5 = 0; eFilling5 < 10; eFilling5++) {
                             for (int eFilling6 = 0; eFilling6 < 10; eFilling6++) {
                                 for (int eFilling7 = 0; eFilling7 < 10; eFilling7++) {
-                                    e[eFilling1][eFilling2][eFilling3][eFilling4][eFilling5][eFilling6][eFilling7] = java.math.BigInteger.ONE;
+                                    e[eFilling1][eFilling2][eFilling3][eFilling4][eFilling5][eFilling6][eFilling7] = java.math.BigInteger.ZERO;
                                 }
                             }
                         }

@@ -7,7 +7,7 @@ public class Method {
         java.math.BigInteger[][] f = new java.math.BigInteger[10][b];
         for (int fFilling1 = 0; fFilling1 < 10; fFilling1++) {
             for (int fFilling2 = 0; fFilling2 < b; fFilling2++) {
-                f[fFilling1][fFilling2] = java.math.BigInteger.ONE;
+                f[fFilling1][fFilling2] = java.math.BigInteger.ZERO;
             }
         }
         java.math.BigInteger d = foo(a.intValue(), java.math.BigInteger.valueOf(b), c);
