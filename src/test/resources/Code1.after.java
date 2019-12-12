@@ -4,13 +4,23 @@ public class Code1 {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        // https://codeforces.com/contest/631/problem/B
         java.math.BigInteger n, m, k, a, b, c;
         n = scanner.nextBigInteger();
         m = scanner.nextBigInteger();
         k = scanner.nextBigInteger();
         java.math.BigInteger[] x = new java.math.BigInteger[500000];
+        for (int xFilling1 = 0; xFilling1 < 500000; xFilling1++) {
+            x[xFilling1] = java.math.BigInteger.ONE;
+        }
         java.math.BigInteger[] y = new java.math.BigInteger[500000];
+        for (int yFilling1 = 0; yFilling1 < 500000; yFilling1++) {
+            y[yFilling1] = java.math.BigInteger.ONE;
+        }
         java.math.BigInteger[] ans = new java.math.BigInteger[500000];
+        for (int ansFilling1 = 0; ansFilling1 < 500000; ansFilling1++) {
+            ans[ansFilling1] = java.math.BigInteger.ONE;
+        }
         for (int i = 1; java.math.BigInteger.valueOf(i).compareTo(k) <= 0; i++) {
             a = scanner.nextBigInteger();
             b = scanner.nextBigInteger();
