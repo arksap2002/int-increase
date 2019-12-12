@@ -202,10 +202,9 @@ class Replacing {
                 n.asUnaryExpr().getExpression().asNameExpr())) {
             changes.add(() -> n.replace(new AssignExpr(
                     n.asUnaryExpr().getExpression().asNameExpr(),
-                    new MethodCallExpr(createIntegerLiteralExpr(1),
-                            new SimpleName("add"), new NodeList<>(
-                            n.asUnaryExpr().getExpression().
-                                    asNameExpr())),
+                    new MethodCallExpr(n.asUnaryExpr().getExpression().
+                            asNameExpr(), new SimpleName("add"),
+                            new NodeList<>(createIntegerLiteralExpr(1))),
                     AssignExpr.Operator.ASSIGN)));
         } else if (n.asUnaryExpr().getOperator().equals(
                 UnaryExpr.Operator.POSTFIX_DECREMENT)
@@ -214,10 +213,9 @@ class Replacing {
                 n.asUnaryExpr().getExpression().asNameExpr())) {
             changes.add(() -> n.replace(new AssignExpr(
                     n.asUnaryExpr().getExpression().asNameExpr(),
-                    new MethodCallExpr(createIntegerLiteralExpr(1),
-                            new SimpleName("subtract"), new NodeList<>(
-                            n.asUnaryExpr().getExpression().
-                                    asNameExpr())),
+                    new MethodCallExpr(n.asUnaryExpr().getExpression().
+                            asNameExpr(), new SimpleName("subtract"),
+                            new NodeList<>(createIntegerLiteralExpr(1))),
                     AssignExpr.Operator.ASSIGN)));
         } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                 Operator.LOGICAL_COMPLEMENT)) {
@@ -808,9 +806,9 @@ class Replacing {
                     if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                         changes.add(() -> n.replace(new AssignExpr(
                                 n.getTarget(), new MethodCallExpr(
-                                n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                n.getTarget(), OPERATOR_OF_ASSIGN.get(
                                 n.getOperator()),
-                                new NodeList<>(n.getTarget())),
+                                new NodeList<>(n.getValue())),
                                 AssignExpr.Operator.ASSIGN)));
                     }
                 } else if (isUpdateIntsToBitInt(n.getValue())) {
@@ -828,9 +826,9 @@ class Replacing {
                 if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(
                             n.getTarget(), new MethodCallExpr(
-                            n.getValue(), OPERATOR_OF_ASSIGN.get(
+                            n.getTarget(), OPERATOR_OF_ASSIGN.get(
                             n.getOperator()),
-                            new NodeList<>(n.getTarget())),
+                            new NodeList<>(n.getValue())),
                             AssignExpr.Operator.ASSIGN)));
                 }
             } else if (isUpdateIntsToBitInt(n.getValue())) {
