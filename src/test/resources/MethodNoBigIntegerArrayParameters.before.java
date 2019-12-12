@@ -1,4 +1,4 @@
-public class MethodException {
+public class MethodNoBigIntegerArrayParameters {
 
     public static void main(String[] args) {
         int /* BigInteger */ a = 10;

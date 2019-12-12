@@ -28,6 +28,9 @@ public class BigIntegerReplaceTest {
         CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
                 IOUtils.resourceToString("/" +
                         filePrefix + ".before.java", Charset.defaultCharset()));
+        String gotOutput = bigIntegerReplace.transform(
+                IOUtils.resourceToString("/" +
+                        filePrefix + ".before.java", Charset.defaultCharset()));
     }
 
     @Test
@@ -74,7 +77,7 @@ public class BigIntegerReplaceTest {
     public void testCf9() throws IOException, ClassNotFoundException {
         runTestFromFile("Code9");
     }
-
+  
     @Test
     public void testCf10() throws IOException, ClassNotFoundException {
         runTestFromFile("Code10");
