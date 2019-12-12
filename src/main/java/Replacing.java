@@ -644,7 +644,7 @@ class Replacing {
                 if (i == number - 1) {
                     AssignExpr assignExpr = new AssignExpr();
                     assignExpr.setValue(
-                            new FieldAccessExpr(fieldAccessExpr, "ONE"));
+                            new FieldAccessExpr(fieldAccessExpr, "ZERO"));
                     assignExpr.setOperator(AssignExpr.Operator.ASSIGN);
                     assignExpr.setTarget(arrayAccessCreating(n, i));
                     forStmt.setBody(new BlockStmt(new NodeList<>(
