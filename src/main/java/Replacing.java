@@ -175,7 +175,10 @@ class Replacing {
             }
             return;
         }
-        if (n.isStringLiteralExpr() || n.isCharLiteralExpr()) {
+        if (n.isStringLiteralExpr()) {
+            return;
+        }
+        if (n.isCharLiteralExpr()) {
             return;
         }
         if (!isOfTypeInt(n)) {
@@ -267,7 +270,8 @@ class Replacing {
                         n.asBinaryExpr().getLeft(),
                         OPERATOR_OF_BINARY.get(n.getOperator()),
                         new NodeList<>(n.asBinaryExpr().getRight()))));
-            }
+            }  // do nothing
+
         }
     }
 
