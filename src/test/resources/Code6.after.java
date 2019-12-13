@@ -17,12 +17,12 @@ public class Code6 {
         java.math.BigInteger prev = java.math.BigInteger.ZERO;
         for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(n) < 0; i++) {
             if (i == 0) {
-                ans = ans.add(java.math.BigInteger.valueOf(ch[i]).subtract('a').add(java.math.BigInteger.ONE));
+//                ans = ans.add(java.math.BigInteger.valueOf(ch[i]).subtract('a').add(java.math.BigInteger.ONE));
                 prev = java.math.BigInteger.valueOf(i);
                 number = number.add(java.math.BigInteger.ONE);
             } else {
                 if (java.math.BigInteger.valueOf(ch[i]).subtract(java.math.BigInteger.valueOf(ch[prev.intValue()])).compareTo(java.math.BigInteger.ONE) > 0) {
-                    ans = ans.add(java.math.BigInteger.valueOf(ch[i]).subtract('a').add(java.math.BigInteger.ONE));
+//                    ans = ans.add(java.math.BigInteger.valueOf(ch[i]).subtract('a').add(java.math.BigInteger.ONE));
                     prev = java.math.BigInteger.valueOf(i);
                     number = number.add(java.math.BigInteger.ONE);
                 }

@@ -17,9 +17,9 @@ public class Code10 {
         k = n.subtract(java.math.BigInteger.ONE);
         while (j.compareTo(k) <= 0) {
             if (a.compareTo(b) <= 0) {
-                a = a.add(t[j = j.add(java.math.BigInteger.ONE).intValue()]);
+//                a = a.add(t[j = j.add(java.math.BigInteger.ONE).intValue()]);
             } else {
-                b = b.add(t[k = k.subtract(java.math.BigInteger.ONE).intValue()]);
+//                b = b.add(t[k = k.subtract(java.math.BigInteger.ONE).intValue()]);
             }
         }
         System.out.println(j + " " + (n.subtract(j)));
