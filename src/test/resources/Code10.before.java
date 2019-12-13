@@ -2,8 +2,8 @@ import java.util.*;
 
 public class Code10 {
     public static void main(String args[]) {
-//        https://codeforces.com/problemset/status/6/problem/C
-        int n, a = 0, b = 0, j, k, t[] = new int[1000005];
+//        https://codeforces.com/problemset/problem/6/C
+        int /* BigInteger */ n, a = 0, b = 0, j, k, t[] = new int[1000005];
         Scanner sc = new Scanner(System.in);
         n = sc.nextInt();
         for (int i = 0; i < n; i++) {

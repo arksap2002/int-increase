@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Code7 {
-    //https://codeforces.com/problemset/status/2/problem/B
+    //https://codeforces.com/problemset/problem/2/B
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int n = sc.nextInt();
@@ -79,7 +79,7 @@ public class Code7 {
     }
 
 
-    public static /* BigInteger */ int fact(int /* BigInteger */ n, int /* BigInteger */ k) {
+    public static int /* BigInteger */ fact(int /* BigInteger */ n, int /* BigInteger */ k) {
         int /* BigInteger */ count = 0;
         if (n == 0)
             return 1;

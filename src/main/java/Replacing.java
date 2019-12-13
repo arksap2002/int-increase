@@ -116,12 +116,12 @@ class Replacing {
         } else if (number == 1) {
             return new FieldAccessExpr(
                     fieldAccessExpr, "ONE");
-        } else if (number == 2) {
-            return new FieldAccessExpr(
-                    fieldAccessExpr, "TWO");
-        } else if (number == /*CHECKSTYLE:OFF*/10/*CHECKSTYLE:ON*/) {
-            return new FieldAccessExpr(
-                    fieldAccessExpr, "TEN");
+//        } else if (number == 2) {
+//            return new FieldAccessExpr(
+//                    fieldAccessExpr, "TWO");
+//        } else if (number == /*CHECKSTYLE:OFF*/10/*CHECKSTYLE:ON*/) {
+//            return new FieldAccessExpr(
+//                    fieldAccessExpr, "TEN");
         } else {
             return bigIntFromInt(new NodeList<>(
                     new IntegerLiteralExpr(number)));
