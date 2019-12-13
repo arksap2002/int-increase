@@ -21,5 +21,4 @@ public class Code10 {
         System.out.println(j + " " + (n - j));
         sc.close();
     }
-
 }
