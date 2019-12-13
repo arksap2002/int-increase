@@ -1,28 +1,33 @@
-import java.util.*;
+import java.util.Scanner;
 
 public class Code10 {
 
     public static void main(String[] args) {
-        // https://codeforces.com/problemset/problem/6/C
-        java.math.BigInteger n, a = java.math.BigInteger.ZERO, b = java.math.BigInteger.ZERO, j, k, t[] = new java.math.BigInteger[1000005];
-        for (int tFilling1 = 0; tFilling1 < 1000005; tFilling1++) {
-            t[tFilling1] = java.math.BigInteger.ZERO;
-        }
         Scanner sc = new Scanner(System.in);
-        n = sc.nextBigInteger();
-        for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(n) < 0; i++) {
-            t[i] = sc.nextBigInteger();
+        // https://codeforces.com/problemset/problem/521/A
+        java.math.BigInteger n = sc.nextBigInteger();
+        String s = sc.next();
+        java.math.BigInteger[] count = new java.math.BigInteger[128];
+        for (int countFilling1 = 0; countFilling1 < 128; countFilling1++) {
+            count[countFilling1] = java.math.BigInteger.ZERO;
         }
-        j = java.math.BigInteger.ZERO;
-        k = n.subtract(java.math.BigInteger.ONE);
-        while (j.compareTo(k) <= 0) {
-            if (a.compareTo(b) <= 0) {
-//                a = a.add(t[j = j.add(java.math.BigInteger.ONE).intValue()]);
-            } else {
-//                b = b.add(t[k = k.subtract(java.math.BigInteger.ONE).intValue()]);
+        for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(n) < 0; i++) {
+            count[s.charAt(i)] = count[s.charAt(i)].add(java.math.BigInteger.ONE);
+        }
+        java.math.BigInteger max = java.math.BigInteger.ZERO;
+        java.math.BigInteger maxnum = java.math.BigInteger.ZERO;
+        for (int i = 0; i < 128; i++) {
+            if (count[i].compareTo(max) > 0) {
+                max = count[i];
+                maxnum = java.math.BigInteger.ONE;
+            } else if (count[i].equals(max)) {
+                maxnum = maxnum.add(java.math.BigInteger.ONE);
             }
         }
-        System.out.println(j + " " + (n.subtract(j)));
-        sc.close();
+        java.math.BigInteger ans = java.math.BigInteger.ONE;
+        for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(n) < 0; i++) {
+            ans = ans.multiply(maxnum).remainder(java.math.BigInteger.valueOf(1000000007));
+        }
+        System.out.println(ans);
     }
 }
