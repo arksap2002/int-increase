@@ -179,6 +179,8 @@ class Replacing {
             return;
         }
         if (n.isCharLiteralExpr()) {
+            changes.add(() -> n.replace(bigIntFromInt(
+                    new NodeList<>(n.clone()))));
             return;
         }
         if (!isOfTypeInt(n)) {
