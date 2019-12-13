@@ -201,12 +201,11 @@ class Replacing {
             changes.add(() -> n.replace(
                     n.asUnaryExpr().getExpression()));
         } else if ((n.asUnaryExpr().getExpression().isNameExpr()
-                && isOfTypeInt(
-                n.asUnaryExpr().getExpression().asNameExpr())) ||
-                (n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                        && isVariableToReplace(getNameOfArray(
-                        n.asUnaryExpr().getExpression().asArrayAccessExpr().
-                                getName())))) {
+                && isVariableToReplace(n.asUnaryExpr().getExpression().
+                asNameExpr())) || (n.asUnaryExpr().getExpression().
+                isArrayAccessExpr() && isVariableToReplace(getNameOfArray(
+                n.asUnaryExpr().getExpression().asArrayAccessExpr().
+                        getName())))) {
             if (n.asUnaryExpr().getOperator().equals(
                     UnaryExpr.Operator.POSTFIX_INCREMENT)) {
                 changes.add(() -> n.replace(new AssignExpr(
@@ -216,7 +215,7 @@ class Replacing {
                                 new NodeList<>(createIntegerLiteralExpr(1))),
                         AssignExpr.Operator.ASSIGN)));
             } else if (n.asUnaryExpr().getOperator().equals(
-                UnaryExpr.Operator.POSTFIX_DECREMENT)) {
+                    UnaryExpr.Operator.POSTFIX_DECREMENT)) {
                 changes.add(() -> n.replace(new AssignExpr(
                         n.asUnaryExpr().getExpression(),
                         new MethodCallExpr(n.asUnaryExpr().getExpression(),
@@ -513,12 +512,11 @@ class Replacing {
         }
         if (n.isUnaryExpr()) {
             if ((n.asUnaryExpr().getExpression().isNameExpr()
-                && isOfTypeInt(
-                n.asUnaryExpr().getExpression().asNameExpr())) ||
-                (n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                        && isVariableToReplace(getNameOfArray(
-                        n.asUnaryExpr().getExpression().asArrayAccessExpr().
-                                getName())))) {
+                    && isVariableToReplace(n.asUnaryExpr().getExpression().
+                    asNameExpr())) || (n.asUnaryExpr().getExpression().
+                    isArrayAccessExpr() && isVariableToReplace(getNameOfArray(
+                    n.asUnaryExpr().getExpression().asArrayAccessExpr().
+                            getName())))) {
                 if (n.asUnaryExpr().getOperator().equals(
                         UnaryExpr.Operator.POSTFIX_INCREMENT)) {
                     return true;
