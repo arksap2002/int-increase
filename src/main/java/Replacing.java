@@ -294,8 +294,10 @@ class Replacing {
                         n.asBinaryExpr().getLeft(),
                         OPERATOR_OF_BINARY.get(n.getOperator()),
                         new NodeList<>(n.asBinaryExpr().getRight()))));
-            }  // do nothing
-
+            } else if (!(n.getOperator().equals(BinaryExpr.Operator.BINARY_AND)
+                    || n.getOperator().equals(BinaryExpr.Operator.BINARY_OR))) {
+                throw new IllegalArgumentException();
+            }
         }
     }
 
