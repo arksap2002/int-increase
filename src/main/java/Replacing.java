@@ -205,12 +205,9 @@ class Replacing {
                 && n.asUnaryExpr().getExpression().isNameExpr()
                 && isOfTypeInt(
                 n.asUnaryExpr().getExpression().asNameExpr())) {
-            changes.add(() -> n.replace(new AssignExpr(
-                    n.asUnaryExpr().getExpression().asNameExpr(),
-                    new MethodCallExpr(n.asUnaryExpr().getExpression().
-                            asNameExpr(), new SimpleName("add"),
-                            new NodeList<>(createIntegerLiteralExpr(1))),
-                    AssignExpr.Operator.ASSIGN)));
+            changes.add(() -> n.replace(new MethodCallExpr(n.asUnaryExpr().
+                    getExpression().asNameExpr(), new SimpleName("add"),
+                            new NodeList<>(createIntegerLiteralExpr(1)))));
         } else if (n.asUnaryExpr().getOperator().equals(
                 UnaryExpr.Operator.POSTFIX_DECREMENT)
                 && n.asUnaryExpr().getExpression().isNameExpr()
