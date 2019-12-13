@@ -202,8 +202,8 @@ class Replacing {
                     n.asUnaryExpr().getExpression()));
         } else if ((n.asUnaryExpr().getExpression().isNameExpr()
                 && isOfTypeInt(
-                n.asUnaryExpr().getExpression().asNameExpr())) ||
-                (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                n.asUnaryExpr().getExpression().asNameExpr()))
+                || (n.asUnaryExpr().getExpression().isArrayAccessExpr()
                         && isVariableToReplace(getNameOfArray(
                         n.asUnaryExpr().getExpression().asArrayAccessExpr().
                                 getName())))) {
@@ -514,8 +514,8 @@ class Replacing {
         if (n.isUnaryExpr()) {
             if ((n.asUnaryExpr().getExpression().isNameExpr()
                 && isOfTypeInt(
-                n.asUnaryExpr().getExpression().asNameExpr())) ||
-                (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                n.asUnaryExpr().getExpression().asNameExpr()))
+                    || (n.asUnaryExpr().getExpression().isArrayAccessExpr()
                         && isVariableToReplace(getNameOfArray(
                         n.asUnaryExpr().getExpression().asArrayAccessExpr().
                                 getName())))) {
