@@ -215,15 +215,15 @@ class Replacing {
                                 new SimpleName("add"),
                                 new NodeList<>(createIntegerLiteralExpr(1))),
                         AssignExpr.Operator.ASSIGN)));
-            }
-        } else if (n.asUnaryExpr().getOperator().equals(
+            } else if (n.asUnaryExpr().getOperator().equals(
                 UnaryExpr.Operator.POSTFIX_DECREMENT)) {
-            changes.add(() -> n.replace(new AssignExpr(
-                    n.asUnaryExpr().getExpression(),
-                    new MethodCallExpr(n.asUnaryExpr().getExpression(),
-                            new SimpleName("subtract"),
-                            new NodeList<>(createIntegerLiteralExpr(1))),
-                    AssignExpr.Operator.ASSIGN)));
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression(),
+                        new MethodCallExpr(n.asUnaryExpr().getExpression(),
+                                new SimpleName("subtract"),
+                                new NodeList<>(createIntegerLiteralExpr(1))),
+                        AssignExpr.Operator.ASSIGN)));
+            }
         } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                 Operator.LOGICAL_COMPLEMENT)) {
             throw new UnsupportedOperationException();
