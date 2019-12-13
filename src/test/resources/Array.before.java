@@ -16,6 +16,8 @@ public class Array {
         for (int /* BigInteger */ i = 0; i < Math.min(a.length, b.length); i++) {
             a[i] = i + 1;
             b[i] = i + 1;
+            a[i]++;
+            b[i]++;
         }
         for (int i = 0; i < Math.min(a.length, b.length); i++) {
             a[i] = i + 1;

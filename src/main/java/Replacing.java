@@ -201,27 +201,49 @@ class Replacing {
             changes.add(() -> n.replace(
                     n.asUnaryExpr().getExpression()));
         } else if (n.asUnaryExpr().getOperator().equals(
-                UnaryExpr.Operator.POSTFIX_INCREMENT)
-                && n.asUnaryExpr().getExpression().isNameExpr()
+                UnaryExpr.Operator.POSTFIX_INCREMENT)) {
+            if ((n.asUnaryExpr().getExpression().isNameExpr()
                 && isOfTypeInt(
-                n.asUnaryExpr().getExpression().asNameExpr())) {
-            changes.add(() -> n.replace(new AssignExpr(
-                    n.asUnaryExpr().getExpression().asNameExpr(),
-                    new MethodCallExpr(n.asUnaryExpr().getExpression().
-                            asNameExpr(), new SimpleName("add"),
-                            new NodeList<>(createIntegerLiteralExpr(1))),
-                    AssignExpr.Operator.ASSIGN)));
+                n.asUnaryExpr().getExpression().asNameExpr()))) {
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression().asNameExpr(),
+                        new MethodCallExpr(n.asUnaryExpr().getExpression().
+                                asNameExpr(), new SimpleName("add"),
+                                new NodeList<>(createIntegerLiteralExpr(1))),
+                        AssignExpr.Operator.ASSIGN)));
+            } else if (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                    && isVariableToReplace(getNameOfArray(
+                    n.asUnaryExpr().getExpression().asArrayAccessExpr().
+                            getName()))) {
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression().asArrayAccessExpr(),
+                        new MethodCallExpr(n.asUnaryExpr().getExpression().
+                                asArrayAccessExpr(), new SimpleName("add"),
+                                new NodeList<>(createIntegerLiteralExpr(1))),
+                        AssignExpr.Operator.ASSIGN)));
+            }
         } else if (n.asUnaryExpr().getOperator().equals(
-                UnaryExpr.Operator.POSTFIX_DECREMENT)
-                && n.asUnaryExpr().getExpression().isNameExpr()
-                && isOfTypeInt(
-                n.asUnaryExpr().getExpression().asNameExpr())) {
-            changes.add(() -> n.replace(new AssignExpr(
-                    n.asUnaryExpr().getExpression().asNameExpr(),
-                    new MethodCallExpr(n.asUnaryExpr().getExpression().
-                            asNameExpr(), new SimpleName("subtract"),
-                            new NodeList<>(createIntegerLiteralExpr(1))),
-                    AssignExpr.Operator.ASSIGN)));
+                UnaryExpr.Operator.POSTFIX_DECREMENT)) {
+            if ((n.asUnaryExpr().getExpression().isNameExpr()
+                    && isOfTypeInt(
+                    n.asUnaryExpr().getExpression().asNameExpr()))) {
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression().asNameExpr(),
+                        new MethodCallExpr(n.asUnaryExpr().getExpression().
+                                asNameExpr(), new SimpleName("subtract"),
+                                new NodeList<>(createIntegerLiteralExpr(1))),
+                        AssignExpr.Operator.ASSIGN)));
+            } else if (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                    && isVariableToReplace(getNameOfArray(
+                    n.asUnaryExpr().getExpression().asArrayAccessExpr().
+                            getName()))) {
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression().asArrayAccessExpr(),
+                        new MethodCallExpr(n.asUnaryExpr().getExpression().
+                                asArrayAccessExpr(), new SimpleName("subtract"),
+                                new NodeList<>(createIntegerLiteralExpr(1))),
+                        AssignExpr.Operator.ASSIGN)));
+            }
         } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                 Operator.LOGICAL_COMPLEMENT)) {
             throw new UnsupportedOperationException();
@@ -511,22 +533,58 @@ class Replacing {
         }
         if (n.isUnaryExpr()) {
             if (n.asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.POSTFIX_INCREMENT)
-                    && n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr())) {
-                return isVariableToReplace(n.asUnaryExpr().
-                        getExpression().asNameExpr());
+                    UnaryExpr.Operator.POSTFIX_INCREMENT)) {
+                if ((n.asUnaryExpr().getExpression().isNameExpr()
+                        && isOfTypeInt(
+                        n.asUnaryExpr().getExpression().asNameExpr()))) {
+                    changes.add(() -> n.replace(new AssignExpr(
+                            n.asUnaryExpr().getExpression().asNameExpr(),
+                            new MethodCallExpr(n.asUnaryExpr().getExpression().
+                                    asNameExpr(), new SimpleName("add"),
+                                    new NodeList<>(createIntegerLiteralExpr(1))),
+                            AssignExpr.Operator.ASSIGN)));
+                } else if (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                        && isVariableToReplace(getNameOfArray(
+                        n.asUnaryExpr().getExpression().asArrayAccessExpr().
+                                getName()))) {
+                    changes.add(() -> n.replace(new AssignExpr(
+                            n.asUnaryExpr().getExpression().asArrayAccessExpr(),
+                            new MethodCallExpr(n.asUnaryExpr().getExpression().
+                                    asArrayAccessExpr(), new SimpleName("add"),
+                                    new NodeList<>(createIntegerLiteralExpr(1))),
+                            AssignExpr.Operator.ASSIGN)));
+                }
+            } else if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_DECREMENT)) {
+                if ((n.asUnaryExpr().getExpression().isNameExpr()
+                        && isOfTypeInt(
+                        n.asUnaryExpr().getExpression().asNameExpr()))) {
+                    return isVariableToReplace(n.asUnaryExpr().
+                            getExpression().asNameExpr());
+                } else if (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                        && isVariableToReplace(getNameOfArray(
+                        n.asUnaryExpr().getExpression().asArrayAccessExpr().
+                                getName()))) {
+                    return true;
+                }
+                if (n.asUnaryExpr().getOperator().equals(
+                        UnaryExpr.Operator.POSTFIX_INCREMENT)
+                        && n.asUnaryExpr().getExpression().isNameExpr()
+                        && isOfTypeInt(
+                        n.asUnaryExpr().getExpression().asNameExpr())) {
+                    return isVariableToReplace(n.asUnaryExpr().
+                            getExpression().asNameExpr());
+                }
+                if (n.asUnaryExpr().getOperator().equals(
+                        UnaryExpr.Operator.POSTFIX_DECREMENT)
+                        && n.asUnaryExpr().getExpression().isNameExpr()
+                        && isOfTypeInt(
+                        n.asUnaryExpr().getExpression().asNameExpr())) {
+                    return isVariableToReplace(n.asUnaryExpr().
+                            getExpression().asNameExpr());
+                }
+                return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
             }
-            if (n.asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.POSTFIX_DECREMENT)
-                    && n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr())) {
-                return isVariableToReplace(n.asUnaryExpr().
-                        getExpression().asNameExpr());
-            }
-            return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
         }
         if (n.isNameExpr()) {
             return isVariableToReplace(n.asNameExpr());
