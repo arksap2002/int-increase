@@ -39,6 +39,8 @@ public class Array {
         for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(java.math.BigInteger.valueOf(a.length).min(java.math.BigInteger.valueOf(b.length))) < 0; i = i.add(java.math.BigInteger.ONE)) {
             a[i.intValue()] = i.add(java.math.BigInteger.ONE);
             b[i.intValue()] = i.add(java.math.BigInteger.ONE).intValue();
+            a[i.intValue()] = a[i.intValue()].add(java.math.BigInteger.ONE);
+            b[i]++;
         }
         for (int i = 0; i < Math.min(a.length, b.length); i++) {
             a[i] = java.math.BigInteger.valueOf(i).add(java.math.BigInteger.ONE);
