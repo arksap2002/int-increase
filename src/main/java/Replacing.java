@@ -539,10 +539,12 @@ class Replacing {
                         n.asUnaryExpr().getExpression().asNameExpr()))) {
                     return isVariableToReplace(n.asUnaryExpr().
                             getExpression().asNameExpr());
-                } else return n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                        && isVariableToReplace(getNameOfArray(
-                        n.asUnaryExpr().getExpression().asArrayAccessExpr().
-                                getName()));
+                } else {
+                    return n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                            && isVariableToReplace(getNameOfArray(
+                            n.asUnaryExpr().getExpression().
+                                    asArrayAccessExpr().getName()));
+                }
             } else if (n.asUnaryExpr().getOperator().equals(
                     UnaryExpr.Operator.POSTFIX_DECREMENT)) {
                 if ((n.asUnaryExpr().getExpression().isNameExpr()
@@ -550,10 +552,12 @@ class Replacing {
                         n.asUnaryExpr().getExpression().asNameExpr()))) {
                     return isVariableToReplace(n.asUnaryExpr().
                             getExpression().asNameExpr());
-                } else return n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                        && isVariableToReplace(getNameOfArray(
-                        n.asUnaryExpr().getExpression().asArrayAccessExpr().
-                                getName()));
+                } else {
+                    return n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                            && isVariableToReplace(getNameOfArray(
+                            n.asUnaryExpr().getExpression().
+                                    asArrayAccessExpr().getName()));
+                }
             }
             return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
         }
