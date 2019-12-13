@@ -682,7 +682,7 @@ class Replacing {
                         addStatement(forStmt));
                 return;
             }
-            int index = 0;
+            int index = -1;
             for (int i = 0; i < ((BlockStmt) finalNewN).
                     getStatements().size(); i++) {
                 if (((BlockStmt) finalNewN).getStatements().get(i).
