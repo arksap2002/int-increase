@@ -701,7 +701,6 @@ class Replacing {
                 if (isUpdateIntsToBitInt(n.getInitializer().get().
                         asArrayCreationExpr().getLevels().get(i).
                         getDimension().get())) {
-//                  TODO something
                     throw new IllegalArgumentException();
                 }
                 forStmt.setUpdate(new NodeList<>(new UnaryExpr(
