@@ -124,7 +124,7 @@ public class Code4 {
             }
         }
         if (k.compareTo(java.math.BigInteger.valueOf(numOne).add(java.math.BigInteger.valueOf(numZer))) > 0) {
-            number = number.add(java.math.BigInteger.valueOf(numOne).add((k.subtract(java.math.BigInteger.valueOf(numZer)).subtract(java.math.BigInteger.valueOf(numOne))).multiply(java.math.BigInteger.valueOf(2))));
+            number = number.add(java.math.BigInteger.valueOf(numOne).add((k.subtract(java.math.BigInteger.valueOf(numZer)).subtract(java.math.BigInteger.valueOf(numOne))).multiply(java.math.BigInteger.TWO)));
             for (int i = 0; i < numZer; i++) {
                 a[zer[i][0].intValue()][zer[i][1].intValue()] = 'x';
             }

@@ -34,16 +34,16 @@ public class Code7 {
                     pos = java.math.BigInteger.valueOf(j);
                 }
                 if (i == 0 && j == 0) {
-                    dp2[i][j] = fact(ar[i][j], java.math.BigInteger.valueOf(2));
+                    dp2[i][j] = fact(ar[i][j], java.math.BigInteger.TWO);
                     dp5[i][j] = fact(ar[i][j], java.math.BigInteger.valueOf(5));
                 } else if (i == 0) {
-                    dp2[i][j] = fact(ar[i][j], java.math.BigInteger.valueOf(2)).add(dp2[i][j - 1]);
+                    dp2[i][j] = fact(ar[i][j], java.math.BigInteger.TWO).add(dp2[i][j - 1]);
                     dp5[i][j] = fact(ar[i][j], java.math.BigInteger.valueOf(5)).add(dp5[i][j - 1]);
                 } else if (j == 0) {
-                    dp2[i][j] = fact(ar[i][j], java.math.BigInteger.valueOf(2)).add(dp2[i - 1][j]);
+                    dp2[i][j] = fact(ar[i][j], java.math.BigInteger.TWO).add(dp2[i - 1][j]);
                     dp5[i][j] = fact(ar[i][j], java.math.BigInteger.valueOf(5)).add(dp5[i - 1][j]);
                 } else {
-                    dp2[i][j] = fact(ar[i][j], java.math.BigInteger.valueOf(2)).add(dp2[i - 1][j].min(dp2[i][j - 1]));
+                    dp2[i][j] = fact(ar[i][j], java.math.BigInteger.TWO).add(dp2[i - 1][j].min(dp2[i][j - 1]));
                     dp5[i][j] = fact(ar[i][j], java.math.BigInteger.valueOf(5)).add(dp5[i - 1][j].min(dp5[i][j - 1]));
                 }
             }
