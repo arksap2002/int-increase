@@ -515,23 +515,12 @@ class Replacing {
         }
         if (n.isUnaryExpr()) {
             if (n.asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.POSTFIX_INCREMENT)) {
-                if ((n.asUnaryExpr().getExpression().isNameExpr()
-                        && isOfTypeInt(
-                        n.asUnaryExpr().getExpression().asNameExpr()))) {
-                    return isVariableToReplace(n.asUnaryExpr().
-                            getExpression().asNameExpr());
-                } else {
-                    return n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                            && isVariableToReplace(getNameOfArray(
-                            n.asUnaryExpr().getExpression().
-                                    asArrayAccessExpr().getName()));
-                }
-            } else if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_INCREMENT)
+                    || n.asUnaryExpr().getOperator().equals(
                     UnaryExpr.Operator.POSTFIX_DECREMENT)) {
                 if ((n.asUnaryExpr().getExpression().isNameExpr()
                         && isOfTypeInt(
-                        n.asUnaryExpr().getExpression().asNameExpr()))) {
+                        n.asUnaryExpr().getExpression()))) {
                     return isVariableToReplace(n.asUnaryExpr().
                             getExpression().asNameExpr());
                 } else {
