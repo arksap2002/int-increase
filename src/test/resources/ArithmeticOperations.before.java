@@ -30,6 +30,7 @@ public class ArithmeticOperations {
         java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
         int /* BigInteger */ q = 5 % d;
         int /* BigInteger */ m = 1 + (2 * 3) - 100 * (12 - 11) - (13 + (12 / 3) + 1) / 3;
+        int /* BigInteger */ charInt = 'a' + 'c' * 5;
         System.out.println(b + " " + d);
     }
 }

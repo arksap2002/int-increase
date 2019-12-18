@@ -178,6 +178,11 @@ class Replacing {
         if (n.isStringLiteralExpr()) {
             return;
         }
+        if (n.isCharLiteralExpr()) {
+            changes.add(() -> n.replace(bigIntFromInt(
+                    new NodeList<>(n.clone()))));
+            return;
+        }
         if (!isOfTypeInt(n)) {
             throw new UnsupportedOperationException();
         }
@@ -197,32 +202,31 @@ class Replacing {
                     n.asUnaryExpr().getExpression()));
         } else if (n.asUnaryExpr().getOperator().equals(
                 UnaryExpr.Operator.POSTFIX_INCREMENT)
-                && n.asUnaryExpr().getExpression().isNameExpr()
-                && isOfTypeInt(
-                n.asUnaryExpr().getExpression().asNameExpr())) {
-            changes.add(() -> n.replace(new AssignExpr(
-                    n.asUnaryExpr().getExpression().asNameExpr(),
-                    new MethodCallExpr(createIntegerLiteralExpr(1),
-                            new SimpleName("add"), new NodeList<>(
-                            n.asUnaryExpr().getExpression().
-                                    asNameExpr())),
-                    AssignExpr.Operator.ASSIGN)));
-        } else if (n.asUnaryExpr().getOperator().equals(
-                UnaryExpr.Operator.POSTFIX_DECREMENT)
-                && n.asUnaryExpr().getExpression().isNameExpr()
-                && isOfTypeInt(
-                n.asUnaryExpr().getExpression().asNameExpr())) {
-            changes.add(() -> n.replace(new AssignExpr(
-                    n.asUnaryExpr().getExpression().asNameExpr(),
-                    new MethodCallExpr(createIntegerLiteralExpr(1),
-                            new SimpleName("subtract"), new NodeList<>(
-                            n.asUnaryExpr().getExpression().
-                                    asNameExpr())),
-                    AssignExpr.Operator.ASSIGN)));
+                || n.asUnaryExpr().getOperator().equals(
+                UnaryExpr.Operator.POSTFIX_DECREMENT)) {
+            String operatorMethod = n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_INCREMENT) ? "add" : "subtract";
+            if (isVariableOrArrayExprToReplace(
+                    n.asUnaryExpr().getExpression())) {
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression(),
+                        new MethodCallExpr(n.asUnaryExpr().getExpression(),
+                                new SimpleName(operatorMethod),
+                                new NodeList<>(createIntegerLiteralExpr(1))),
+                        AssignExpr.Operator.ASSIGN)));
+            } else {
+                throw new IllegalArgumentException();
+            }
         } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                 Operator.LOGICAL_COMPLEMENT)) {
             throw new UnsupportedOperationException();
         }
+    }
+
+    private boolean isVariableOrArrayExprToReplace(final Expression n) {
+        return (n.isNameExpr() && isVariableToReplace(n.asNameExpr()))
+                || (n.isArrayAccessExpr()
+                && isArrayExprToReplace(n.asArrayAccessExpr()));
     }
 
     private void changingOfBinaryExpr(final BinaryExpr n) {
@@ -264,10 +268,17 @@ class Replacing {
                     new NodeList<>(n.asBinaryExpr().getRight()))));
             changes.add(() -> n.setRight(new IntegerLiteralExpr(0)));
         } else {
-            changes.add(() -> n.replace(new MethodCallExpr(
-                    n.asBinaryExpr().getLeft(),
-                    OPERATOR_OF_BINARY.get(n.getOperator()),
-                    new NodeList<>(n.asBinaryExpr().getRight()))));
+            if (OPERATOR_OF_BINARY.containsKey(n.getOperator())) {
+                changes.add(() -> n.replace(new MethodCallExpr(
+                        n.asBinaryExpr().getLeft(),
+                        OPERATOR_OF_BINARY.get(n.getOperator()),
+                        new NodeList<>(n.asBinaryExpr().getRight()))));
+            } else if (!(n.getOperator().equals(BinaryExpr.Operator.BINARY_AND)
+                    || n.getOperator().equals(BinaryExpr.Operator.BINARY_OR)
+                    || n.getOperator().equals(BinaryExpr.Operator.AND)
+                    || n.getOperator().equals(BinaryExpr.Operator.OR))) {
+                throw new IllegalArgumentException();
+            }
         }
     }
 
@@ -403,6 +414,10 @@ class Replacing {
         return n.calculateResolvedType().equals(ResolvedPrimitiveType.INT);
     }
 
+    private boolean isArrayExprToReplace(final ArrayAccessExpr n) {
+        return isVariableToReplace(getNameOfArray(n.getName()));
+    }
+
     private boolean isVariableToReplace(final NameExpr n) {
         if (n.resolve() instanceof JavaParserFieldDeclaration) {
             VariableDeclarator variableDeclarator =
@@ -506,19 +521,10 @@ class Replacing {
         if (n.isUnaryExpr()) {
             if (n.asUnaryExpr().getOperator().equals(
                     UnaryExpr.Operator.POSTFIX_INCREMENT)
-                    && n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr())) {
-                return isVariableToReplace(n.asUnaryExpr().
-                        getExpression().asNameExpr());
-            }
-            if (n.asUnaryExpr().getOperator().equals(
-                    UnaryExpr.Operator.POSTFIX_DECREMENT)
-                    && n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr())) {
-                return isVariableToReplace(n.asUnaryExpr().
-                        getExpression().asNameExpr());
+                    || n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_DECREMENT)) {
+                    return isVariableOrArrayExprToReplace(
+                            n.asUnaryExpr().getExpression());
             }
             return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
         }
@@ -644,7 +650,7 @@ class Replacing {
                 if (i == number - 1) {
                     AssignExpr assignExpr = new AssignExpr();
                     assignExpr.setValue(
-                            new FieldAccessExpr(fieldAccessExpr, "ONE"));
+                            new FieldAccessExpr(fieldAccessExpr, "ZERO"));
                     assignExpr.setOperator(AssignExpr.Operator.ASSIGN);
                     assignExpr.setTarget(arrayAccessCreating(n, i));
                     forStmt.setBody(new BlockStmt(new NodeList<>(
@@ -660,7 +666,6 @@ class Replacing {
                 if (isUpdateIntsToBitInt(n.getInitializer().get().
                         asArrayCreationExpr().getLevels().get(i).
                         getDimension().get())) {
-//                  TODO something
                     throw new IllegalArgumentException();
                 }
                 forStmt.setUpdate(new NodeList<>(new UnaryExpr(
@@ -808,9 +813,9 @@ class Replacing {
                     if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                         changes.add(() -> n.replace(new AssignExpr(
                                 n.getTarget(), new MethodCallExpr(
-                                n.getValue(), OPERATOR_OF_ASSIGN.get(
+                                n.getTarget(), OPERATOR_OF_ASSIGN.get(
                                 n.getOperator()),
-                                new NodeList<>(n.getTarget())),
+                                new NodeList<>(n.getValue())),
                                 AssignExpr.Operator.ASSIGN)));
                     }
                 } else if (isUpdateIntsToBitInt(n.getValue())) {
@@ -828,9 +833,9 @@ class Replacing {
                 if (!n.getOperator().equals(AssignExpr.Operator.ASSIGN)) {
                     changes.add(() -> n.replace(new AssignExpr(
                             n.getTarget(), new MethodCallExpr(
-                            n.getValue(), OPERATOR_OF_ASSIGN.get(
+                            n.getTarget(), OPERATOR_OF_ASSIGN.get(
                             n.getOperator()),
-                            new NodeList<>(n.getTarget())),
+                            new NodeList<>(n.getValue())),
                             AssignExpr.Operator.ASSIGN)));
                 }
             } else if (isUpdateIntsToBitInt(n.getValue())) {

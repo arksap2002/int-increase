@@ -8,8 +8,8 @@ public class PartialReplaceArithmetic {
         int b = 2 + 9 + 12 * 8 - 200 / 100;
         a = ((java.math.BigInteger.ONE.add(java.math.BigInteger.TWO)).multiply((java.math.BigInteger.valueOf(100).subtract(java.math.BigInteger.valueOf(12)))).divide((java.math.BigInteger.TWO.negate())).multiply((java.math.BigInteger.ONE.negate()))).remainder(java.math.BigInteger.valueOf(239));
         b = (5 + 6 + 6) * (2 + 3 + 9);
-        a = java.math.BigInteger.ONE.subtract(a);
-        a = java.math.BigInteger.TEN.add(a);
+        a = a.subtract(java.math.BigInteger.ONE);
+        a = a.add(java.math.BigInteger.TEN);
         b++;
         b *= 200;
         b = -(21 * 53);

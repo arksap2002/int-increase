@@ -30,6 +30,7 @@ public class ArithmeticOperations {
         java.math.BigInteger bigInteger = java.math.BigInteger.ONE;
         java.math.BigInteger q = java.math.BigInteger.valueOf(5).remainder(d);
         java.math.BigInteger m = java.math.BigInteger.ONE.add((java.math.BigInteger.TWO.multiply(java.math.BigInteger.valueOf(3)))).subtract(java.math.BigInteger.valueOf(100).multiply((java.math.BigInteger.valueOf(12).subtract(java.math.BigInteger.valueOf(11))))).subtract((java.math.BigInteger.valueOf(13).add((java.math.BigInteger.valueOf(12).divide(java.math.BigInteger.valueOf(3)))).add(java.math.BigInteger.ONE)).divide(java.math.BigInteger.valueOf(3)));
+        java.math.BigInteger charInt = java.math.BigInteger.valueOf('a').add(java.math.BigInteger.valueOf('c').multiply(java.math.BigInteger.valueOf(5)));
         System.out.println(java.math.BigInteger.valueOf(b) + " " + d);
     }
 }
