@@ -201,25 +201,16 @@ class Replacing {
             changes.add(() -> n.replace(
                     n.asUnaryExpr().getExpression()));
         } else if (n.asUnaryExpr().getOperator().equals(
-                UnaryExpr.Operator.POSTFIX_INCREMENT)) {
-            if ((n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr()))
-                    || (n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                    && isVariableToReplace(getNameOfArray(
-                    n.asUnaryExpr().getExpression().asArrayAccessExpr().
-                            getName())))) {
-                changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression(),
-                        new MethodCallExpr(n.asUnaryExpr().getExpression(),
-                                new SimpleName("add"),
-                                new NodeList<>(createIntegerLiteralExpr(1))),
-                        AssignExpr.Operator.ASSIGN)));
-            } else {
-                throw new IllegalArgumentException();
-            }
-        } else if (n.asUnaryExpr().getOperator().equals(
+                UnaryExpr.Operator.POSTFIX_INCREMENT)
+                || n.asUnaryExpr().getOperator().equals(
                 UnaryExpr.Operator.POSTFIX_DECREMENT)) {
+            String operatorMethod = "";
+            if (n.asUnaryExpr().getOperator().equals(
+                    UnaryExpr.Operator.POSTFIX_INCREMENT)) {
+                operatorMethod = "add";
+            } else {
+                operatorMethod = "subtract";
+            }
             if ((n.asUnaryExpr().getExpression().isNameExpr()
                     && isOfTypeInt(
                     n.asUnaryExpr().getExpression().asNameExpr()))
@@ -227,10 +218,11 @@ class Replacing {
                     && isVariableToReplace(getNameOfArray(
                     n.asUnaryExpr().getExpression().asArrayAccessExpr().
                             getName())))) {
+                String finalOperatorMethod = operatorMethod;
                 changes.add(() -> n.replace(new AssignExpr(
                         n.asUnaryExpr().getExpression(),
                         new MethodCallExpr(n.asUnaryExpr().getExpression(),
-                                new SimpleName("subtract"),
+                                new SimpleName(finalOperatorMethod),
                                 new NodeList<>(createIntegerLiteralExpr(1))),
                         AssignExpr.Operator.ASSIGN)));
             } else {
