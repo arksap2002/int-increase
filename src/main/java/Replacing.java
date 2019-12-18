@@ -206,7 +206,8 @@ class Replacing {
                 UnaryExpr.Operator.POSTFIX_DECREMENT)) {
             String operatorMethod = n.asUnaryExpr().getOperator().equals(
                     UnaryExpr.Operator.POSTFIX_INCREMENT) ? "add" : "subtract";
-            if (isPostfixChange(n.asUnaryExpr().getExpression())) {
+            if (isVariableOrArrayExprToReplace(
+                    n.asUnaryExpr().getExpression())) {
                 changes.add(() -> n.replace(new AssignExpr(
                         n.asUnaryExpr().getExpression(),
                         new MethodCallExpr(n.asUnaryExpr().getExpression(),
@@ -222,10 +223,10 @@ class Replacing {
         }
     }
 
-    private boolean isPostfixChange(Expression n) {
+    private boolean isVariableOrArrayExprToReplace(final Expression n) {
         return (n.isNameExpr() && isVariableToReplace(n.asNameExpr()))
                 || (n.isArrayAccessExpr()
-                && isArrayToReplace(n.asArrayAccessExpr()));
+                && isArrayExprToReplace(n.asArrayAccessExpr()));
     }
 
     private void changingOfBinaryExpr(final BinaryExpr n) {
@@ -413,7 +414,7 @@ class Replacing {
         return n.calculateResolvedType().equals(ResolvedPrimitiveType.INT);
     }
 
-    private boolean isArrayToReplace(final ArrayAccessExpr n) {
+    private boolean isArrayExprToReplace(final ArrayAccessExpr n) {
         return isVariableToReplace(getNameOfArray(n.getName()));
     }
 
@@ -522,7 +523,8 @@ class Replacing {
                     UnaryExpr.Operator.POSTFIX_INCREMENT)
                     || n.asUnaryExpr().getOperator().equals(
                     UnaryExpr.Operator.POSTFIX_DECREMENT)) {
-                    return isPostfixChange(n.asUnaryExpr().getExpression());
+                    return isVariableOrArrayExprToReplace(
+                            n.asUnaryExpr().getExpression());
             }
             return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
         }
