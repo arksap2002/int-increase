@@ -206,12 +206,7 @@ class Replacing {
                 UnaryExpr.Operator.POSTFIX_DECREMENT)) {
             String operatorMethod = n.asUnaryExpr().getOperator().equals(
                     UnaryExpr.Operator.POSTFIX_INCREMENT) ? "add" : "subtract";
-            if ((n.asUnaryExpr().getExpression().isNameExpr()
-                    && isVariableToReplace(n.asUnaryExpr().getExpression().
-                    asNameExpr()))
-                    || (n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                    && isArrayToReplace(n.asUnaryExpr().getExpression().
-                    asArrayAccessExpr()))) {
+            if (isPostfixChange(n.asUnaryExpr().getExpression())) {
                 changes.add(() -> n.replace(new AssignExpr(
                         n.asUnaryExpr().getExpression(),
                         new MethodCallExpr(n.asUnaryExpr().getExpression(),
@@ -225,6 +220,12 @@ class Replacing {
                 Operator.LOGICAL_COMPLEMENT)) {
             throw new UnsupportedOperationException();
         }
+    }
+
+    private boolean isPostfixChange(Expression n) {
+        return (n.isNameExpr() && isVariableToReplace(n.asNameExpr()))
+                || (n.isArrayAccessExpr()
+                && isArrayToReplace(n.asArrayAccessExpr()));
     }
 
     private void changingOfBinaryExpr(final BinaryExpr n) {
@@ -521,16 +522,7 @@ class Replacing {
                     UnaryExpr.Operator.POSTFIX_INCREMENT)
                     || n.asUnaryExpr().getOperator().equals(
                     UnaryExpr.Operator.POSTFIX_DECREMENT)) {
-                if ((n.asUnaryExpr().getExpression().isNameExpr()
-                        && isVariableToReplace(
-                        n.asUnaryExpr().getExpression().asNameExpr()))) {
-                    return isVariableToReplace(n.asUnaryExpr().
-                            getExpression().asNameExpr());
-                } else {
-                    return n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                            && isArrayToReplace(n.asUnaryExpr().
-                            getExpression().asArrayAccessExpr());
-                }
+                    return isPostfixChange(n.asUnaryExpr().getExpression());
             }
             return isUpdateIntsToBitInt(n.asUnaryExpr().getExpression());
         }
