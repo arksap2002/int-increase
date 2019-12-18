@@ -215,6 +215,8 @@ class Replacing {
                                 new SimpleName("add"),
                                 new NodeList<>(createIntegerLiteralExpr(1))),
                         AssignExpr.Operator.ASSIGN)));
+            } else {
+                throw new IllegalArgumentException();
             }
         } else if (n.asUnaryExpr().getOperator().equals(
                 UnaryExpr.Operator.POSTFIX_DECREMENT)) {
@@ -231,6 +233,8 @@ class Replacing {
                                 new SimpleName("subtract"),
                                 new NodeList<>(createIntegerLiteralExpr(1))),
                         AssignExpr.Operator.ASSIGN)));
+            } else {
+                throw new IllegalArgumentException();
             }
         } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                 Operator.LOGICAL_COMPLEMENT)) {
