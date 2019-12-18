@@ -4,7 +4,7 @@ public class Method {
         int /* BigInteger */ a = 10;
         int b = 10;
         int[][][] c = new int[a][b][a];
-        int[][] /* BigInteger */ f = new int[10][a];
+        int[][] /* BigInteger */ f = new int[10][b];
         int /* BigInteger */ d = foo(a, b, c);
         int e = foo(foo(foo(c[0][0][0] * f[0][0], b, c) + 10 - a, b + a, c), a + b, c);
         int /* BigInteger */ g = foo2(a, b, c);
