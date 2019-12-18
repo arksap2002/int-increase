@@ -223,27 +223,25 @@ class Replacing {
                         AssignExpr.Operator.ASSIGN)));
             }
         } else if (n.asUnaryExpr().getOperator().equals(
-                UnaryExpr.Operator.POSTFIX_DECREMENT)) {
-            if ((n.asUnaryExpr().getExpression().isNameExpr()
-                    && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr()))) {
-                changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression().asNameExpr(),
-                        new MethodCallExpr(n.asUnaryExpr().getExpression().
-                                asNameExpr(), new SimpleName("subtract"),
-                                new NodeList<>(createIntegerLiteralExpr(1))),
-                        AssignExpr.Operator.ASSIGN)));
-            } else if (n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                    && isVariableToReplace(getNameOfArray(
-                    n.asUnaryExpr().getExpression().asArrayAccessExpr().
-                            getName()))) {
-                changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression().asArrayAccessExpr(),
-                        new MethodCallExpr(n.asUnaryExpr().getExpression().
-                                asArrayAccessExpr(), new SimpleName("subtract"),
-                                new NodeList<>(createIntegerLiteralExpr(1))),
-                        AssignExpr.Operator.ASSIGN)));
-            }
+                UnaryExpr.Operator.POSTFIX_DECREMENT)
+                && n.asUnaryExpr().getExpression().isNameExpr()
+                && isOfTypeInt(n.asUnaryExpr().getExpression().asNameExpr())) {
+            changes.add(() -> n.replace(new AssignExpr(
+                    n.asUnaryExpr().getExpression().asNameExpr(),
+                    new MethodCallExpr(n.asUnaryExpr().getExpression().
+                            asNameExpr(), new SimpleName("subtract"),
+                            new NodeList<>(createIntegerLiteralExpr(1))),
+                    AssignExpr.Operator.ASSIGN)));
+        } else if (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                && isVariableToReplace(getNameOfArray(
+                n.asUnaryExpr().getExpression().asArrayAccessExpr().
+                        getName()))) {
+            changes.add(() -> n.replace(new AssignExpr(
+                    n.asUnaryExpr().getExpression().asArrayAccessExpr(),
+                    new MethodCallExpr(n.asUnaryExpr().getExpression().
+                            asArrayAccessExpr(), new SimpleName("subtract"),
+                            new NodeList<>(createIntegerLiteralExpr(1))),
+                    AssignExpr.Operator.ASSIGN)));
         } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                 Operator.LOGICAL_COMPLEMENT)) {
             throw new UnsupportedOperationException();
@@ -295,7 +293,9 @@ class Replacing {
                         OPERATOR_OF_BINARY.get(n.getOperator()),
                         new NodeList<>(n.asBinaryExpr().getRight()))));
             } else if (!(n.getOperator().equals(BinaryExpr.Operator.BINARY_AND)
-                    || n.getOperator().equals(BinaryExpr.Operator.BINARY_OR))) {
+                    || n.getOperator().equals(BinaryExpr.Operator.BINARY_OR)
+                    || n.getOperator().equals(BinaryExpr.Operator.AND)
+                    || n.getOperator().equals(BinaryExpr.Operator.OR))) {
                 throw new IllegalArgumentException();
             }
         }
@@ -701,7 +701,6 @@ class Replacing {
                 if (isUpdateIntsToBitInt(n.getInitializer().get().
                         asArrayCreationExpr().getLevels().get(i).
                         getDimension().get())) {
-//                  TODO something
                     throw new IllegalArgumentException();
                 }
                 forStmt.setUpdate(new NodeList<>(new UnaryExpr(
