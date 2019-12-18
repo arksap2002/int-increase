@@ -204,44 +204,34 @@ class Replacing {
                 UnaryExpr.Operator.POSTFIX_INCREMENT)) {
             if ((n.asUnaryExpr().getExpression().isNameExpr()
                     && isOfTypeInt(
-                    n.asUnaryExpr().getExpression().asNameExpr()))) {
-                changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression().asNameExpr(),
-                        new MethodCallExpr(n.asUnaryExpr().getExpression().
-                                asNameExpr(), new SimpleName("add"),
-                                new NodeList<>(createIntegerLiteralExpr(1))),
-                        AssignExpr.Operator.ASSIGN)));
-            } else if (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                    n.asUnaryExpr().getExpression().asNameExpr()))
+                    || (n.asUnaryExpr().getExpression().isArrayAccessExpr()
                     && isVariableToReplace(getNameOfArray(
                     n.asUnaryExpr().getExpression().asArrayAccessExpr().
-                            getName()))) {
+                            getName())))) {
                 changes.add(() -> n.replace(new AssignExpr(
-                        n.asUnaryExpr().getExpression().asArrayAccessExpr(),
-                        new MethodCallExpr(n.asUnaryExpr().getExpression().
-                                asArrayAccessExpr(), new SimpleName("add"),
+                        n.asUnaryExpr().getExpression(),
+                        new MethodCallExpr(n.asUnaryExpr().getExpression(),
+                                new SimpleName("add"),
                                 new NodeList<>(createIntegerLiteralExpr(1))),
                         AssignExpr.Operator.ASSIGN)));
             }
         } else if (n.asUnaryExpr().getOperator().equals(
-                UnaryExpr.Operator.POSTFIX_DECREMENT)
-                && n.asUnaryExpr().getExpression().isNameExpr()
-                && isOfTypeInt(n.asUnaryExpr().getExpression().asNameExpr())) {
-            changes.add(() -> n.replace(new AssignExpr(
-                    n.asUnaryExpr().getExpression().asNameExpr(),
-                    new MethodCallExpr(n.asUnaryExpr().getExpression().
-                            asNameExpr(), new SimpleName("subtract"),
-                            new NodeList<>(createIntegerLiteralExpr(1))),
-                    AssignExpr.Operator.ASSIGN)));
-        } else if (n.asUnaryExpr().getExpression().isArrayAccessExpr()
-                && isVariableToReplace(getNameOfArray(
-                n.asUnaryExpr().getExpression().asArrayAccessExpr().
-                        getName()))) {
-            changes.add(() -> n.replace(new AssignExpr(
-                    n.asUnaryExpr().getExpression().asArrayAccessExpr(),
-                    new MethodCallExpr(n.asUnaryExpr().getExpression().
-                            asArrayAccessExpr(), new SimpleName("subtract"),
-                            new NodeList<>(createIntegerLiteralExpr(1))),
-                    AssignExpr.Operator.ASSIGN)));
+                UnaryExpr.Operator.POSTFIX_DECREMENT)) {
+            if ((n.asUnaryExpr().getExpression().isNameExpr()
+                    && isOfTypeInt(
+                    n.asUnaryExpr().getExpression().asNameExpr()))
+                    || (n.asUnaryExpr().getExpression().isArrayAccessExpr()
+                    && isVariableToReplace(getNameOfArray(
+                    n.asUnaryExpr().getExpression().asArrayAccessExpr().
+                            getName())))) {
+                changes.add(() -> n.replace(new AssignExpr(
+                        n.asUnaryExpr().getExpression(),
+                        new MethodCallExpr(n.asUnaryExpr().getExpression(),
+                                new SimpleName("subtract"),
+                                new NodeList<>(createIntegerLiteralExpr(1))),
+                        AssignExpr.Operator.ASSIGN)));
+            }
         } else if (!n.asUnaryExpr().getOperator().equals(UnaryExpr.
                 Operator.LOGICAL_COMPLEMENT)) {
             throw new UnsupportedOperationException();
