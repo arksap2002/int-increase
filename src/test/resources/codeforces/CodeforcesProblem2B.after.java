@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Code7 {
+public class CodeforcesProblem2B {
 
     // https://codeforces.com/problemset/problem/2/B
     public static void main(String[] args) {

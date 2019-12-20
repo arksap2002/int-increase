@@ -13,25 +13,25 @@ public class BigIntegerReplaceTest {
     private void runTestFromFile(String filePrefix) throws IOException, ClassNotFoundException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
         CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
-                IOUtils.resourceToString("/" +
+                IOUtils.resourceToString("/myTests/" +
                         filePrefix + ".before.java", Charset.defaultCharset()));
         CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
-                IOUtils.resourceToString("/" +
+                IOUtils.resourceToString("/myTests/" +
                         filePrefix + ".after.java", Charset.defaultCharset()));
         String gotOutput = bigIntegerReplace.transform(
-                IOUtils.resourceToString("/" +
+                IOUtils.resourceToString("/myTests/" +
                         filePrefix + ".before.java", Charset.defaultCharset()));
-        assertEquals(IOUtils.resourceToString("/" +
+        assertEquals(IOUtils.resourceToString("/myTests/" +
                 filePrefix + ".after.java", Charset.defaultCharset()), gotOutput);
     }
 
     private void runOnlyBeforeTestFromFile(String filePrefix) throws IOException, ClassNotFoundException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
         CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
-                IOUtils.resourceToString("/" +
+                IOUtils.resourceToString("/myTests/" +
                         filePrefix + ".before.java", Charset.defaultCharset()));
         String gotOutput = bigIntegerReplace.transform(
-                IOUtils.resourceToString("/" +
+                IOUtils.resourceToString("/myTests/" +
                         filePrefix + ".before.java", Charset.defaultCharset()));
     }
 

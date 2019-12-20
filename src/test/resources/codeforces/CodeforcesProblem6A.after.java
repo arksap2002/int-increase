@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Code9 {
+public class CodeforcesProblem6A {
 
     public static void main(String[] args) {
         // https://codeforces.com/problemset/problem/6/A

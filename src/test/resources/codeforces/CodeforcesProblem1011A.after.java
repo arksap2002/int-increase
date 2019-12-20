@@ -1,7 +1,7 @@
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Code6 {
+public class CodeforcesProblem1011A {
 
     public static void main(String[] args) {
         // https://codeforces.com/contest/1011/problem/A
