@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 
 import static org.junit.Assert.*;
 
-public class Codeforces {
+public class CodeforcesTest {
     private void runTestFromFile(String filePrefix) throws IOException, ClassNotFoundException {
         BigIntegerReplace bigIntegerReplace = new BigIntegerReplace();
         CompilerUtils.CACHED_COMPILER.loadFromJava(filePrefix,
