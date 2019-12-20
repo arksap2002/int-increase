@@ -24,52 +24,52 @@ public class Codeforces {
     }
 
     @Test
-    public void testCf1() throws IOException, ClassNotFoundException {
+    public void test631B() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem631B");
     }
 
     @Test
-    public void testCf2() throws IOException, ClassNotFoundException {
+    public void test857A() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem857A");
     }
 
     @Test
-    public void testCf3() throws IOException, ClassNotFoundException {
+    public void test886B() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem886B");
     }
 
     @Test
-    public void testCf4() throws IOException, ClassNotFoundException {
+    public void test929B() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem929B");
     }
 
     @Test
-    public void testCf5() throws IOException, ClassNotFoundException {
+    public void test1A() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem1A");
     }
 
     @Test
-    public void testCf6() throws IOException, ClassNotFoundException {
+    public void test1011A() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem1011A");
     }
 
     @Test
-    public void testCf7() throws IOException, ClassNotFoundException {
+    public void test2B() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem2B");
     }
 
     @Test
-    public void testCf8() throws IOException, ClassNotFoundException {
+    public void test9D() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem9D");
     }
 
     @Test
-    public void testCf9() throws IOException, ClassNotFoundException {
+    public void test6A() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem6A");
     }
   
     @Test
-    public void testCf10() throws IOException, ClassNotFoundException {
+    public void test521A() throws IOException, ClassNotFoundException {
         runTestFromFile("CodeforcesProblem521A");
     }
 }
