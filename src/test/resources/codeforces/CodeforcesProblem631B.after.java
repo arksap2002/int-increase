@@ -4,7 +4,7 @@ public class Code1 {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        // https://codeforces.com/contest/631/problem/B
+        // https://codeforces.com/contest/631/submission/66743397
         java.math.BigInteger n, m, k, a, b, c;
         n = scanner.nextBigInteger();
         m = scanner.nextBigInteger();

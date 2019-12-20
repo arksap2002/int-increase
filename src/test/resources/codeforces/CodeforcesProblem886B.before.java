@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Code3 {
     public static void main(String[] args) {
-        //https://codeforces.com/contest/886/problem/B
+        //https://codeforces.com/contest/886/submission/66886632
         Scanner scanner = new Scanner(System.in);
         int n = scanner.nextInt();
         int /* BigInteger */ sum = 0;

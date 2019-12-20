@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Code4 {
     public static void main(String[] args) {
-        //https://codeforces.com/contest/929/problem/B
+        //https://codeforces.com/contest/929/submission/66805371
         Scanner scanner = new Scanner(System.in);
         int n = scanner.nextInt();
         int /* BigInteger */ k = scanner.nextInt();

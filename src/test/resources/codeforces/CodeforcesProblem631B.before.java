@@ -3,7 +3,7 @@ import java.util.*;
 public class CodeforcesProblem631B {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-//        https://codeforces.com/contest/631/problem/B
+//        https://codeforces.com/contest/631/submission/66743397
         int /* BigInteger */ n, m, k, a, b, c;
         n = scanner.nextInt();
         m = scanner.nextInt();

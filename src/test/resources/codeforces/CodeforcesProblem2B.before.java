@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Code7 {
-    //https://codeforces.com/problemset/problem/2/B
+    //https://codeforces.com/contest/2/submission/66887144
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int n = sc.nextInt();

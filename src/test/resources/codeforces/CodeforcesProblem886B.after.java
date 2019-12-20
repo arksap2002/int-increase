@@ -3,7 +3,7 @@ import java.util.Scanner;
 public class CodeforcesProblem886B {
 
     public static void main(String[] args) {
-        // https://codeforces.com/contest/886/problem/B
+        // https://codeforces.com/contest/886/submission/66886632
         Scanner scanner = new Scanner(System.in);
         int n = scanner.nextInt();
         java.math.BigInteger sum = java.math.BigInteger.ZERO;

@@ -3,7 +3,7 @@ import java.util.*;
 public class CodeforcesProblem9D {
 
     public static void main(String[] args) {
-        // https://codeforces.com/contest/9/problem/D
+        // https://codeforces.com/contest/9/submission/66887267
         Scanner sc = new Scanner(System.in);
         int n = sc.nextInt();
         int k = sc.nextInt();

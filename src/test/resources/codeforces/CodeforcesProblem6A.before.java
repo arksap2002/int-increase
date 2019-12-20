@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Code9 {
     public static void main(String[] args) {
-//        https://codeforces.com/problemset/problem/6/A
+//        https://codeforces.com/contest/6/submission/66887362
         Scanner in = new Scanner(System.in);
         int[] /* BigInteger */ a = new int[4];
         for (int i = 0; i < 4; ++i) a[i] = in.nextInt();

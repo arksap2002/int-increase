@@ -3,7 +3,7 @@ import java.util.Scanner;
 public class CodeforcesProblem6A {
 
     public static void main(String[] args) {
-        // https://codeforces.com/problemset/problem/6/A
+        // https://codeforces.com/contest/6/submission/66887362
         Scanner in = new Scanner(System.in);
         java.math.BigInteger[] a = new java.math.BigInteger[4];
         for (int aFilling1 = 0; aFilling1 < 4; aFilling1++) {

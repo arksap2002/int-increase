@@ -4,7 +4,7 @@ public class CodeforcesProblem521A {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        // https://codeforces.com/problemset/problem/521/A
+        // https://codeforces.com/contest/521/submission/66887430
         java.math.BigInteger n = sc.nextBigInteger();
         String s = sc.next();
         java.math.BigInteger[] count = new java.math.BigInteger[128];
