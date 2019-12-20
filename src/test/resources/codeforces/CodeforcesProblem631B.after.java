@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Code1 {
+public class CodeforcesProblem631B {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
