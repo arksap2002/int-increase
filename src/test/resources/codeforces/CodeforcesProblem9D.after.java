@@ -1,28 +1,36 @@
-import java.util.*;
+import java.util.Scanner;
 
 public class CodeforcesProblem9D {
 
     public static void main(String[] args) {
-        // https://codeforces.com/contest/9/submission/66887267
         Scanner sc = new Scanner(System.in);
         int n = sc.nextInt();
-        int k = sc.nextInt();
-        java.math.BigInteger[][] aa = new java.math.BigInteger[n + 1][k + 1];
-        for (int aaFilling1 = 0; aaFilling1 < n + 1; aaFilling1++) {
-            for (int aaFilling2 = 0; aaFilling2 < k + 1; aaFilling2++) {
-                aa[aaFilling1][aaFilling2] = java.math.BigInteger.ZERO;
+        int h = sc.nextInt();
+        java.math.BigInteger[][] dp = new java.math.BigInteger[n + 1][n + 1];
+        for (int dpFilling1 = 0; dpFilling1 < n + 1; dpFilling1++) {
+            for (int dpFilling2 = 0; dpFilling2 < n + 1; dpFilling2++) {
+                dp[dpFilling1][dpFilling2] = java.math.BigInteger.ZERO;
             }
         }
-        aa[0][0] = java.math.BigInteger.ONE;
-        for (int i = 1; i <= n; i++) for (int j = 0; j <= k; j++) {
-            for (int l = 1; l <= i; l++) if (j == 0) {
-                aa[i][0] = aa[i][0].add(aa[l - 1][0].multiply(aa[i - l][0]));
-            } else {
-                aa[i][j] = aa[i][j].add(aa[l - 1][0].multiply(aa[i - l][j - 1]));
-                aa[i][j] = aa[i][j].add(aa[l - 1][j - 1].multiply(aa[i - l][0]));
-                aa[i][j] = aa[i][j].subtract(aa[l - 1][j - 1].multiply(aa[i - l][j - 1]));
+        java.math.BigInteger[][] sum = new java.math.BigInteger[n + 1][n + 1];
+        for (int sumFilling1 = 0; sumFilling1 < n + 1; sumFilling1++) {
+            for (int sumFilling2 = 0; sumFilling2 < n + 1; sumFilling2++) {
+                sum[sumFilling1][sumFilling2] = java.math.BigInteger.ZERO;
             }
         }
-        System.out.println(aa[n][k]);
+        dp[0][0] = java.math.BigInteger.ONE;
+        for (int j = 0; j <= n; j++) {
+            sum[0][j] = java.math.BigInteger.ONE;
+        }
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                for (int k = 0; k < i; k++) {
+                    dp[i][j] = dp[i][j].add(dp[k][j - 1].multiply(sum[i - 1 - k][j - 1]).add(sum[k][j - 1].multiply(dp[i - 1 - k][j - 1])).subtract(dp[k][j - 1].multiply(dp[i - 1 - k][j - 1])));
+                }
+                sum[i][j] = sum[i][j - 1].add(dp[i][j]);
+            }
+        }
+        System.out.println(sum[n][n].subtract(sum[n][h - 1]));
+        sc.close();
     }
 }

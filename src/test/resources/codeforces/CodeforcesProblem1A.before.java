@@ -1,10 +1,14 @@
 import java.util.*;
 
 public class CodeforcesProblem1A {
-    public static void main(String[] args) {
-        //https://codeforces.com/contest/1/submission/66886960
-        Scanner s = new Scanner(System.in);
-        int /* BigInteger */ n = s.nextInt(), m = s.nextInt(), a = s.nextInt();
-        System.out.print((n + a - 1) / a * ((m + a - 1) / a));
+    public static void main(String[] args){
+
+        Scanner sc = new Scanner(System.in);
+        int /* BigInteger */ n = sc.nextInt();
+        int /* BigInteger */ m = sc.nextInt();
+        int /* BigInteger */ a = sc.nextInt();
+        System.out.println(
+                (((n-1)/a)+1) * (((m-1)/a)+1)
+        );
     }
 }

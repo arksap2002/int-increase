@@ -1,33 +1,37 @@
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
-public class CodeforcesProblem521A {
+public class CodeforcesProblem521A extends PrintWriter {
 
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        // https://codeforces.com/contest/521/submission/66887430
+    CodeforcesProblem521A() {
+        super(System.out, true);
+    }
+
+    Scanner sc = new Scanner(System.in);
+
+    public static void main(String[] $) {
+        CodeforcesProblem521A o = new CodeforcesProblem521A();
+        o.main();
+        o.flush();
+    }
+
+    static final int MD = 1000000007, A = 26;
+
+    void main() {
         java.math.BigInteger n = sc.nextBigInteger();
-        String s = sc.next();
-        java.math.BigInteger[] count = new java.math.BigInteger[128];
-        for (int countFilling1 = 0; countFilling1 < 128; countFilling1++) {
-            count[countFilling1] = java.math.BigInteger.ZERO;
+        byte[] cc = sc.next().getBytes();
+        java.math.BigInteger[] kk = new java.math.BigInteger[A];
+        for (int kkFilling1 = 0; kkFilling1 < A; kkFilling1++) {
+            kk[kkFilling1] = java.math.BigInteger.ZERO;
         }
-        for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(n) < 0; i++) {
-            count[s.charAt(i)] = count[s.charAt(i)].add(java.math.BigInteger.ONE);
-        }
-        java.math.BigInteger max = java.math.BigInteger.ZERO;
-        java.math.BigInteger maxnum = java.math.BigInteger.ZERO;
-        for (int i = 0; i < 128; i++) {
-            if (count[i].compareTo(max) > 0) {
-                max = count[i];
-                maxnum = java.math.BigInteger.ONE;
-            } else if (count[i].equals(max)) {
-                maxnum = maxnum.add(java.math.BigInteger.ONE);
-            }
-        }
-        java.math.BigInteger ans = java.math.BigInteger.ONE;
-        for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(n) < 0; i++) {
-            ans = ans.multiply(maxnum).remainder(java.math.BigInteger.valueOf(1000000007));
-        }
-        System.out.println(ans);
+        for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(n) < 0; i++) kk[cc[i] - 'A'] = kk[cc[i] - 'A'].add(java.math.BigInteger.ONE);
+        java.math.BigInteger k = java.math.BigInteger.ZERO;
+        for (int a = 0; a < A; a++) k = k.max(kk[a]);
+        java.math.BigInteger cnt = java.math.BigInteger.ZERO;
+        for (int a = 0; a < A; a++) if (k.equals(kk[a]))
+            cnt = cnt.add(java.math.BigInteger.ONE);
+        long ans = 1;
+        for (int i = 0; java.math.BigInteger.valueOf(i).compareTo(n) < 0; i++) ans = java.math.BigInteger.valueOf(ans).multiply(cnt).remainder(java.math.BigInteger.valueOf(MD)).intValue();
+        println(ans);
     }
 }

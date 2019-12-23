@@ -1,28 +1,46 @@
-import java.util.*;
 
-public class CodeforcesProblem631B {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-//        https://codeforces.com/contest/631/submission/66743397
-        int /* BigInteger */ n, m, k, a, b, c;
-        n = scanner.nextInt();
-        m = scanner.nextInt();
-        k = scanner.nextInt();
-        int[] /* BigInteger */ x = new int[500000];
-        int[] /* BigInteger */ y = new int[500000];
-        int[] /* BigInteger */ ans = new int[500000];
-        for (int i = 1; i <= k; i++) {
-            a = scanner.nextInt();
-            b = scanner.nextInt();
-            ans[i] = scanner.nextInt();
-            if (a == 1)
-                x[b - 1] = i;
+import java.util.*;
+public class CodeforcesProblem631B
+{
+    public static void main(String args[])
+    {
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+        int m = in.nextInt();
+        int k= in.nextInt();
+        int /* BigInteger */ rows [] =new int[n];
+        int /* BigInteger */ timestamp_rows [] = new int[n];
+        int /* BigInteger */ timestamp_cols [] = new int[m];
+        int /* BigInteger */ cols [] = new int[m];
+        for(int i = 0;i<k;i++)
+        {
+            int /* BigInteger */ type = in.nextInt();
+            int /* BigInteger */ rc = in.nextInt();
+            int /* BigInteger */ color = in.nextInt();
+            if(type == 1)
+            {
+                rows[rc-1]= color;
+                timestamp_rows[rc-1] = i+1;
+            }
             else
-                y[b - 1] = i;
+            {
+                cols[rc-1] = color;
+                timestamp_cols[rc-1] = i+1;
+            }
         }
-        for (int /* BigInteger */ i = 0; i < n; i++) {
-            for (int /* BigInteger */ j = 0; j < m; j++) {
-                System.out.print(ans[Math.max(x[i], y[j])] + " ");
+        for(int i = 0;i<n;i++)
+        {
+            for(int j=0;j<m;j++)
+            {
+                if(timestamp_rows[i] > timestamp_cols[j])
+                {
+                    System.out.print(rows[i]+" ");
+                }
+                else
+                {
+                    System.out.print(cols[j] + " ");
+                }
+
             }
             System.out.println();
         }

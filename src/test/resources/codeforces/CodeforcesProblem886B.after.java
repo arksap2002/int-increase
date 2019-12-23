@@ -2,45 +2,30 @@ import java.util.Scanner;
 
 public class CodeforcesProblem886B {
 
+    static Scanner read = new Scanner(System.in);
+
     public static void main(String[] args) {
-        // https://codeforces.com/contest/886/submission/66886632
-        Scanner scanner = new Scanner(System.in);
-        int n = scanner.nextInt();
-        java.math.BigInteger sum = java.math.BigInteger.ZERO;
-        java.math.BigInteger[] a = new java.math.BigInteger[n];
-        for (int aFilling1 = 0; aFilling1 < n; aFilling1++) {
-            a[aFilling1] = java.math.BigInteger.ZERO;
+        java.math.BigInteger n = read.nextBigInteger();
+        java.math.BigInteger a;
+        java.math.BigInteger[] t = new java.math.BigInteger[200001];
+        for (int tFilling1 = 0; tFilling1 < 200001; tFilling1++) {
+            t[tFilling1] = java.math.BigInteger.ZERO;
         }
-        java.math.BigInteger[] b = new java.math.BigInteger[200002];
-        for (int bFilling1 = 0; bFilling1 < 200002; bFilling1++) {
-            b[bFilling1] = java.math.BigInteger.ZERO;
+        java.math.BigInteger max = java.math.BigInteger.ZERO;
+        for (java.math.BigInteger i = java.math.BigInteger.ONE; i.compareTo(n) <= 0; i = i.add(java.math.BigInteger.ONE)) {
+            a = read.nextBigInteger();
+            t[a.intValue()] = i;
+            if (a.compareTo(max) > 0)
+                max = a;
         }
-        for (int i = 0; i < 200002; i++) {
-            b[i] = java.math.BigInteger.ZERO;
-        }
-        for (int i = 0; i < n; i++) {
-            a[i] = scanner.nextBigInteger();
-            b[a[i].intValue()] = java.math.BigInteger.ONE;
-        }
-        for (int i = 0; i < 200002; i++) {
-            if (b[i].equals(java.math.BigInteger.ONE)) {
-                sum = sum.add(java.math.BigInteger.ONE);
+        java.math.BigInteger min = java.math.BigInteger.valueOf(200002);
+        java.math.BigInteger imin = java.math.BigInteger.ZERO;
+        for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(max) <= 0; i = i.add(java.math.BigInteger.ONE)) {
+            if (!t[i.intValue()].equals(java.math.BigInteger.ZERO) && t[i.intValue()].compareTo(min) < 0) {
+                min = t[i.intValue()];
+                imin = i;
             }
         }
-        for (int i = n - 1; i >= 0; i--) {
-            if (sum.equals(java.math.BigInteger.ONE)) {
-                break;
-            }
-            if (b[a[i].intValue()].equals(java.math.BigInteger.ONE)) {
-                b[a[i].intValue()] = java.math.BigInteger.ZERO;
-                sum = sum.subtract(java.math.BigInteger.ONE);
-            }
-        }
-        for (int i = 0; i < 200001; i++) {
-            if (b[i].equals(java.math.BigInteger.ONE)) {
-                System.out.println(i);
-                break;
-            }
-        }
+        System.out.println(imin);
     }
 }

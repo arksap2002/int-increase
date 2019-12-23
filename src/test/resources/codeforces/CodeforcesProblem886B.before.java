@@ -1,39 +1,31 @@
 import java.util.Scanner;
 
 public class CodeforcesProblem886B {
+
+    static Scanner read = new Scanner(System.in);
+
     public static void main(String[] args) {
-        //https://codeforces.com/contest/886/submission/66886632
-        Scanner scanner = new Scanner(System.in);
-        int n = scanner.nextInt();
-        int /* BigInteger */ sum = 0;
-        int[] /* BigInteger */ a = new int[n];
-        int[] /* BigInteger */ b = new int[200002];
-        for (int i = 0; i < 200002; i++) {
-            b[i] = 0;
+        java.math.BigInteger n = read.nextBigInteger();
+        java.math.BigInteger a;
+        java.math.BigInteger[] t = new java.math.BigInteger[200001];
+        for (int tFilling1 = 0; tFilling1 < 200001; tFilling1++) {
+            t[tFilling1] = java.math.BigInteger.ZERO;
         }
-        for (int i = 0; i < n; i++) {
-            a[i] = scanner.nextInt();
-            b[a[i]] = 1;
+        java.math.BigInteger max = java.math.BigInteger.ZERO;
+        for (java.math.BigInteger i = java.math.BigInteger.ONE; i.compareTo(n) <= 0; i = i.add(java.math.BigInteger.ONE)) {
+            a = read.nextBigInteger();
+            t[a.intValue()] = i;
+            if (a.compareTo(max) > 0)
+                max = a;
         }
-        for (int i = 0; i < 200002; i++) {
-            if (b[i] == 1) {
-                sum++;
+        java.math.BigInteger min = java.math.BigInteger.valueOf(200002);
+        java.math.BigInteger imin = java.math.BigInteger.ZERO;
+        for (java.math.BigInteger i = java.math.BigInteger.ZERO; i.compareTo(max) <= 0; i = i.add(java.math.BigInteger.ONE)) {
+            if (!t[i.intValue()].equals(java.math.BigInteger.ZERO) && t[i.intValue()].compareTo(min) < 0) {
+                min = t[i.intValue()];
+                imin = i;
             }
         }
-        for (int i = n - 1; i >= 0; i--) {
-            if (sum == 1) {
-                break;
-            }
-            if (b[a[i]] == 1) {
-                b[a[i]] = 0;
-                sum--;
-            }
-        }
-        for (int i = 0; i < 200001; i++) {
-            if (b[i] == 1) {
-                System.out.println(i);
-                break;
-            }
-        }
+        System.out.println(imin);
     }
 }
